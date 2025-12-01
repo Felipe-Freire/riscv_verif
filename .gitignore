@@ -1,0 +1,6 @@
+# Ignore dvt files
+/.dvt/*
+
+# Ignore project files
+.project
+dvt_build.log

@@ -1,0 +1,17 @@
+`ifndef __UVMA_CLK_RST_DEFS_SV__
+`define __UVMA_CLK_RST_DEFS_SV__
+
+typedef enum {
+  UVMA_CLK_RST_SEQ_ITEM_ACTION_START_CLK,
+  UVMA_CLK_RST_SEQ_ITEM_ACTION_STOP_CLK,
+  UVMA_CLK_RST_SEQ_ITEM_ACTION_ASSERT_RESET,
+  UVMA_CLK_RST_SEQ_ITEM_ACTION_RESTART_CLK
+} uvma_clk_rst_seq_item_action_enum;
+
+typedef enum {
+  UVMA_CLK_RST_SEQ_ITEM_INITIAL_VALUE_0,
+  UVMA_CLK_RST_SEQ_ITEM_INITIAL_VALUE_1,
+  UVMA_CLK_RST_SEQ_ITEM_INITIAL_VALUE_X
+} uvma_clk_rst_seq_item_initial_value_enum;
+
+`endif // __UVMA_CLK_RST_DEFS_SV__
