@@ -4,8 +4,7 @@
 class uvma_clk_rst_mon extends uvm_component;
   uvma_clk_rst_cfg    cfg;
   uvma_clk_rst_cntxt  cntxt;
-  
-  uvm_analysis_imp#(uvma_clk_rst_seq_item, uvma_clk_rst_mon) imp;
+
   uvm_analysis_port#(uvma_clk_rst_seq_item) ap;
   
   `uvm_component_utils(uvma_clk_rst_mon)
@@ -13,8 +12,6 @@ class uvma_clk_rst_mon extends uvm_component;
   function new(string name="uvma_clk_rst_mon", uvm_component parent=null);
     super.new(name, parent);
     ap = new("ap", this);
-    imp = new("imp", this);
-    ap.connect(imp);
   endfunction
   
   function void build_phase(uvm_phase phase);
