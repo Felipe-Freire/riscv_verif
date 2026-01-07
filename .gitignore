@@ -1,6 +1,9 @@
 # Ignore dvt files
 /.dvt/*
 
+# Ignore vscode settings
+.vscode/
+
 # Ignore project files
 .project
 dvt_build.log
