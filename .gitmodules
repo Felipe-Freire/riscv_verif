@@ -1,0 +1,3 @@
+[submodule "rtl/ibex"]
+	path = rtl/ibex
+	url = https://github.com/lowRISC/ibex
