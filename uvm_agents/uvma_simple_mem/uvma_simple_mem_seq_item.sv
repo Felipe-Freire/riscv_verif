@@ -3,13 +3,13 @@
 
 class uvma_simple_mem_seq_item extends uvm_sequence_item;
    
-  // Dados da transação
+  // Transaction data
   rand logic [31:0] addr;
   rand logic [31:0] data;                    // WDATA ou RDATA
   rand logic [3:0 ] be;                      // Byte Enable
   rand uvma_simple_mem_access_e access_type; // READ/WRITE
   
-  // Controle de Tempo
+  // Timing Control
   rand int latency;
 
   `uvm_object_utils_begin(uvma_simple_mem_seq_item)

@@ -9,7 +9,7 @@ class uvml_mem extends uvm_object;
 
   protected logic [7:0] content [bit[XLEN-1:0]];
 
-  // Configuração de resposta padrão (para áreas não escritas)
+  // Default response value (for unwritten memory areas)
   rand bit [7:0] default_val;
 
   function new(string name="uvml_mem");

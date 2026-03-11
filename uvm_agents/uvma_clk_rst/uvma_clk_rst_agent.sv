@@ -7,8 +7,9 @@ class uvma_clk_rst_agent extends uvm_agent;
   uvma_clk_rst_cntxt  cntxt;
   uvma_clk_rst_drv    driver;
   uvma_clk_rst_mon    monitor;
+  uvma_clk_rst_sqr    sequencer; 
 
-  uvm_sequencer#(uvma_clk_rst_seq_item) sequencer;
+  //uvm_sequencer#(uvma_clk_rst_seq_item) sequencer;
   
   `uvm_component_utils(uvma_clk_rst_agent)
   
@@ -38,7 +39,7 @@ class uvma_clk_rst_agent extends uvm_agent;
     
     if (cfg.is_active == UVM_ACTIVE) begin
       driver = uvma_clk_rst_drv::type_id::create("driver", this);
-      sequencer = uvm_sequencer#(uvma_clk_rst_seq_item)::type_id::create("sequencer", this);
+      sequencer = uvma_clk_rst_sqr::type_id::create("sequencer", this);
     end
   endfunction
   

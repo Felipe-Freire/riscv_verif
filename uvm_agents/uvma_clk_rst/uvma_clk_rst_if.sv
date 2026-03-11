@@ -2,7 +2,9 @@
 `define __UVMA_CLK_RST_IF_SV__
 
 interface uvma_clk_rst_if ();
-   
+  timeunit 1ns;
+  timeprecision 1ps;
+
   import uvm_pkg::*;
   
   // Physical signals for the DUT

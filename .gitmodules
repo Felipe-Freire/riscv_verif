@@ -1,3 +1,7 @@
 [submodule "rtl/ibex"]
 	path = rtl/ibex
 	url = https://github.com/lowRISC/ibex
+
+[submodule "vendor/riscv-dv"]
+	path = vendor/riscv-dv
+	url = https://github.com/chipsalliance/riscv-dv

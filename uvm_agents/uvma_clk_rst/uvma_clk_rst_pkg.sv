@@ -7,13 +7,18 @@ package uvma_clk_rst_pkg;
   `include "uvm_macros.svh"
   
   `include "uvma_clk_rst_defs.sv"
+
   `include "uvma_clk_rst_cfg.sv"
   `include "uvma_clk_rst_cntxt.sv"
   `include "uvma_clk_rst_seq_item.sv"
+  
   `include "uvma_clk_rst_drv.sv"
   `include "uvma_clk_rst_mon.sv"
   `include "uvma_clk_rst_sqr.sv"
   `include "uvma_clk_rst_agent.sv"
+
+  `include "uvma_clk_rst_base_seq.sv"
+  `include "uvma_clk_rst_sanity_seq.sv"
    
 endpackage : uvma_clk_rst_pkg
 

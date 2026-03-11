@@ -7,3 +7,9 @@
 # Ignore project files
 .project
 dvt_build.log
+
+# Ignore generated files
+sim/out/*
+sim/work/*
+sim/modelsim.ini
+*.log
