@@ -1,3 +1,6 @@
+# Ignore venv
+/venv_dv/*
+
 # Ignore dvt files
 /.dvt/*
 
@@ -7,6 +10,8 @@
 # Ignore project files
 .project
 dvt_build.log
+/work/*
+modelsim.ini
 
 # Ignore generated files
 sim/out/*

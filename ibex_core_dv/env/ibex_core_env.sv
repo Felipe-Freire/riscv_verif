@@ -4,8 +4,17 @@
 class ibex_core_env extends uvm_env;
   `uvm_component_utils(ibex_core_env)
 
-  // Handles dos Agentes
-  uvma_clk_rst_agent  clk_rst_agent;
+  // Memory Model (Shared Resource)
+  uvml_mem shared_mem;
+
+  // Agents Handles
+  uvma_clk_rst_agent    clk_rst_agent;
+  uvma_simple_mem_agent instr_mem_agent;
+  uvma_simple_mem_agent data_mem_agent;
+
+  // Context Handles
+  uvma_simple_mem_cntxt instr_mem_cntxt;
+  uvma_simple_mem_cntxt data_mem_cntxt;
   
   function new(string name="ibex_core_env", uvm_component parent=null);
     super.new(name, parent);
@@ -14,8 +23,22 @@ class ibex_core_env extends uvm_env;
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     
-    // Instancia o agente
-    clk_rst_agent = uvma_clk_rst_agent::type_id::create("clk_rst_agent", this);
+    shared_mem = uvml_mem::type_id::create("shared_mem");
+
+    // Instruction Agent Configuration
+    instr_mem_cntxt = uvma_simple_mem_cntxt::type_id::create("instr_mem_cntxt");
+    instr_mem_cntxt.mem_model = shared_mem; // Conecta a porta de instrução ao armazém
+    uvm_config_db#(uvma_simple_mem_cntxt)::set(this, "instr_mem_agent*", "cntxt", instr_mem_cntxt);
+
+    // Data Agent Configuration
+    data_mem_cntxt = uvma_simple_mem_cntxt::type_id::create("data_mem_cntxt");
+    data_mem_cntxt.mem_model = shared_mem;  // Conecta a porta de dados ao MESMO armazém
+    uvm_config_db#(uvma_simple_mem_cntxt)::set(this, "data_mem_agent*", "cntxt", data_mem_cntxt);
+
+    // Agent Instantiation
+    clk_rst_agent   = uvma_clk_rst_agent::type_id::create("clk_rst_agent", this);
+    instr_mem_agent = uvma_simple_mem_agent::type_id::create("instr_mem_agent", this);
+    data_mem_agent  = uvma_simple_mem_agent::type_id::create("data_mem_agent", this);
     
     `uvm_info("IBEX_CORE_ENV", "Environment Ibex built successfully.", UVM_LOW)
   endfunction

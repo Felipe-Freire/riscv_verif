@@ -14,8 +14,10 @@ TESTS_DIR := $(ROOT_DIR)/ibex_core_dv/tests
 OUT_DIR   := ./out
 
 # --- EXPORTS for .f files to see ---
-export UVMA_CLK_RST_PATH := $(ROOT_DIR)/uvm_agents/uvma_clk_rst
-export IBEX_RTL_PATH     := $(ROOT_DIR)/rtl/ibex/rtl
+export UVMA_CLK_RST_PATH 		:= $(ROOT_DIR)/uvm_agents/uvma_clk_rst
+export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
+export UVML_MEM_PATH     		:= $(ROOT_DIR)/uvm_libs/uvml_mem
+export IBEX_RTL_PATH     		:= $(ROOT_DIR)/rtl/ibex/rtl
 # export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
 
 # --- Tools ---
@@ -42,10 +44,13 @@ comp: setup
 	@echo "--- Compiling Design and Verification ---"
 	$(VLOG) \
 	+define+RVFI \
+	+define+INC_ASSERT \
 	+incdir+$(VENDOR_DIR)/ip/prim/rtl \
 	+incdir+$(VENDOR_DIR)/dv/sv/dv_utils \
 	-f ./ibex_core_rtl.f \
 	-f $(UVMA_CLK_RST_PATH)/uvma_clk_rst.f \
+	-f $(UVML_MEM_PATH)/uvml_mem.f \
+	-f $(UVMA_SIMPLE_MEM_PATH)/uvma_simple_mem.f \
 	+incdir+$(ENV_DIR) \
 	$(ENV_DIR)/ibex_core_env_pkg.sv \
 	+incdir+$(TESTS_DIR) \
@@ -75,7 +80,11 @@ wave: opt
 	-sv_seed $(SEED) \
 	+UVM_TESTNAME=$(TEST) \
 	+UVM_VERBOSITY=$(VERBOSITY) \
-	-do "add wave -r /*; run -all"
+	-do " \
+		add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; \
+		add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; \
+		add wave -group {RVFI_Tracer} /ibex_core_tb_top/dut/rvfi_*; \
+		run -all"
 
 # 6. Cleanup
 clean:

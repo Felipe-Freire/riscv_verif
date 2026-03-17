@@ -37,6 +37,8 @@ class uvma_simple_mem_mon extends uvm_monitor;
         item.data        = cntxt.vif.mon_cb.wdata; // Only valid if Write
         item.be          = cntxt.vif.mon_cb.be;
         
+        `uvm_info("MON_RADAR", $sformatf("Order captured at the address: 0x%0h", item.addr), UVM_HIGH)
+
         // Publish the request
         req_ap.write(item);
       end

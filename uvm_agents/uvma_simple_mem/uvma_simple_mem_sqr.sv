@@ -6,8 +6,10 @@ class uvma_simple_mem_sqr extends uvm_sequencer#(uvma_simple_mem_seq_item);
   uvma_simple_mem_cfg    cfg;
   uvma_simple_mem_cntxt  cntxt;
   
+  uvm_analysis_export #(uvma_simple_mem_seq_item) item_export;
+
   // FIFO to receive requests from the Monitor (Reactive)
-  uvm_tlm_analysis_fifo#(uvma_simple_mem_seq_item) req_fifo;
+  uvm_tlm_analysis_fifo#(uvma_simple_mem_seq_item) mem_req_fifo;
 
   `uvm_component_utils_begin(uvma_simple_mem_sqr)
     `uvm_field_object(cfg,   UVM_DEFAULT)
@@ -16,7 +18,8 @@ class uvma_simple_mem_sqr extends uvm_sequencer#(uvma_simple_mem_seq_item);
 
   function new(string name="uvma_simple_mem_sqr", uvm_component parent=null);
     super.new(name, parent);
-    req_fifo = new("req_fifo", this);
+    mem_req_fifo = new("mem_req_fifo", this);
+    item_export  = new("item_export", this);
   endfunction
 
   function void build_phase(uvm_phase phase);
@@ -31,6 +34,11 @@ class uvma_simple_mem_sqr extends uvm_sequencer#(uvma_simple_mem_seq_item);
     if(!uvm_config_db#(uvma_simple_mem_cntxt)::get(this, "", "cntxt", cntxt)) begin
       `uvm_fatal("CNTXT", "Sequencer context handle is null")
     end
+  endfunction
+
+  function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
+    item_export.connect(mem_req_fifo.analysis_export);
   endfunction
 
 endclass : uvma_simple_mem_sqr
