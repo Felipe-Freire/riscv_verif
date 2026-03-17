@@ -49,7 +49,7 @@ class uvml_mem extends uvm_object;
   endfunction
 
   // File Load (Backdoor Load) - Vital for riscv-dv
-  function void load_hex(const ref string filename);
+  function void load_hex(string filename);
     string error_msg;
     int file = $fopen(filename, "r");
     int error = $ferror(file, error_msg);

@@ -18,10 +18,11 @@ class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
 
   task run_phase(uvm_phase phase);
     // Init signals
-    cntxt.vif.slave_cb.gnt    <= 0;
-    cntxt.vif.slave_cb.rvalid <= 0;
-    cntxt.vif.slave_cb.rdata  <= 0;
-    cntxt.vif.slave_cb.err    <= 0;
+    cntxt.vif.slave_cb.gnt        <= 0;
+    cntxt.vif.slave_cb.rvalid     <= 0;
+    cntxt.vif.slave_cb.rdata      <= 0;
+    cntxt.vif.slave_cb.err        <= 0;
+    cntxt.vif.slave_cb.rdata_intg <= 0;
 
     // Wait for reset to deassert
     wait(cntxt.vif.rst_n === 1);
@@ -58,7 +59,8 @@ class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
       // 3. Drives the bus
       cntxt.vif.slave_cb.rvalid <= 1;
       cntxt.vif.slave_cb.rdata  <= req.data; // Data read from memory (if Read)
-      
+      cntxt.vif.slave_cb.rdata_intg <= 0;
+
       // 4. 1-cycle Handshake
       @(cntxt.vif.slave_cb);
       cntxt.vif.slave_cb.rvalid <= 0;

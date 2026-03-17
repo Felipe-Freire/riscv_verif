@@ -10,6 +10,9 @@ class ibex_core_sanity_test extends ibex_core_base_test;
 
   task run_phase(uvm_phase phase);
     uvma_clk_rst_sanity_seq sanity_seq;
+    
+    super.run_phase(phase);
+
     sanity_seq = uvma_clk_rst_sanity_seq::type_id::create("sanity_seq");
 
     phase.raise_objection(this);

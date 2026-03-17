@@ -43,7 +43,8 @@ class uvma_simple_mem_agent extends uvm_agent;
       driver.seq_item_port.connect(sequencer.seq_item_export);
         
       // Reactive Connection: Monitor -> Sequencer FIFO
-      monitor.req_ap.connect(sequencer.req_fifo.analysis_export);
+      //monitor.req_ap.connect(sequencer.req_fifo.analysis_export);
+      monitor.req_ap.connect(sequencer.item_export);
     end
   endfunction
 
