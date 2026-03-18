@@ -11,11 +11,12 @@ class ibex_core_env extends uvm_env;
   uvma_clk_rst_agent    clk_rst_agent;
   uvma_simple_mem_agent instr_mem_agent;
   uvma_simple_mem_agent data_mem_agent;
+  uvma_rvfi_agent       rvfi_agent;
 
   // Context Handles
   uvma_simple_mem_cntxt instr_mem_cntxt;
   uvma_simple_mem_cntxt data_mem_cntxt;
-  
+
   function new(string name="ibex_core_env", uvm_component parent=null);
     super.new(name, parent);
   endfunction
@@ -39,6 +40,7 @@ class ibex_core_env extends uvm_env;
     clk_rst_agent   = uvma_clk_rst_agent::type_id::create("clk_rst_agent", this);
     instr_mem_agent = uvma_simple_mem_agent::type_id::create("instr_mem_agent", this);
     data_mem_agent  = uvma_simple_mem_agent::type_id::create("data_mem_agent", this);
+    rvfi_agent      = uvma_rvfi_agent::type_id::create("rvfi_agent", this);
     
     `uvm_info("IBEX_CORE_ENV", "Environment Ibex built successfully.", UVM_LOW)
   endfunction

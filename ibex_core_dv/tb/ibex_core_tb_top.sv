@@ -11,6 +11,7 @@ module ibex_core_tb_top;
   uvma_clk_rst_if clk_rst_if();
   uvma_simple_mem_if instr_mem_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
   uvma_simple_mem_if data_mem_if (.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
+  // uvma_rvfi_instr_if rvfi_if_inst(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
 
   // Static signals
   logic [31:0]          boot_addr;
@@ -84,10 +85,17 @@ module ibex_core_tb_top;
     .data_err_i         (data_mem_if.err)
   );
 
+  bind ibex_top_tracing uvma_rvfi_instr_if rvfi_if_inst (
+    .clk   (clk_i),   // Forçando o nome local do Ibex
+    .rst_n (rst_ni),  // Forçando o nome local do Ibex
+    .* // O Name Matching mágico resolve os rvfi_*
+  );
+
   initial begin
     uvm_config_db#(virtual uvma_clk_rst_if)::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if);
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if);
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.instr_mem_agent", "vif", instr_mem_if);
+    uvm_config_db#(virtual uvma_rvfi_instr_if)::set(null, "uvm_test_top.env.rvfi_agent", "vif", dut.rvfi_if_inst);
 
     run_test("ibex_core_sanity_test");
   end
