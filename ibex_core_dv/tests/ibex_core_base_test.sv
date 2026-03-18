@@ -9,6 +9,7 @@ class ibex_core_base_test extends uvm_test;
   uvma_clk_rst_cfg    clk_rst_cfg;
   uvma_simple_mem_cfg instr_mem_cfg;
   uvma_simple_mem_cfg data_mem_cfg;
+  uvma_rvfi_cfg       rvfi_cfg;
 
   function new(string name="ibex_core_base_test", uvm_component parent=null);
     super.new(name, parent);
@@ -33,6 +34,11 @@ class ibex_core_base_test extends uvm_test;
     data_mem_cfg.is_active = UVM_ACTIVE;
     data_mem_cfg.enabled   = 1;
     uvm_config_db#(uvma_simple_mem_cfg)::set(this, "env.data_mem_agent*", "cfg", data_mem_cfg);
+
+    // Configure the RVFI Agent to be ACTIVE
+    rvfi_cfg = uvma_rvfi_cfg::type_id::create("rvfi_cfg");
+    rvfi_cfg.is_active = UVM_PASSIVE;
+    uvm_config_db#(uvma_rvfi_cfg)::set(this, "env.rvfi_agent*", "cfg", rvfi_cfg);
 
     // Build the Environment
     env = ibex_core_env::type_id::create("env", this);

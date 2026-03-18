@@ -11,6 +11,7 @@ package ibex_core_env_pkg;
   import uvma_clk_rst_pkg::*;
   import uvml_mem_pkg::*;
   import uvma_simple_mem_pkg::*;
+  import uvma_rvfi_pkg::*;
 
   // 3. Inclusion of Env classes
   `include "ibex_core_env.sv"

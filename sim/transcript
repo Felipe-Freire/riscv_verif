@@ -12,13 +12,15 @@
 # //  is prohibited from disclosure under the Trade Secrets Act,
 # //  18 U.S.C. Section 1905.
 # //
-# vsim -64 -L mtiUvm ibex_core_tb_top_opt -sv_seed 1 "+UVM_TESTNAME=ibex_core_sanity_test" "+UVM_VERBOSITY=UVM_MEDIUM" -do " 	add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; 	add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; 	add wave -group {RVFI_Tracer} /ibex_core_tb_top/dut/rvfi_*; 	run -all" 
-# Start time: 10:29:31 on Mar 17,2026
-# Loading /tmp/felipe@inspiron3525_dpi_14702/linux_x86_64_gcc-13/export_tramp.so
+# vsim -64 -L mtiUvm ibex_core_tb_top_opt -sv_seed 1 "+UVM_TESTNAME=ibex_core_sanity_test" "+UVM_VERBOSITY=UVM_MEDIUM" -do " 	add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; 	add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; 	add wave -group {RVFI_Tracer} /ibex_core_tb_top/dut/rvfi_*; 	add wave -group {RVFI_Interface} /ibex_core_tb_top/dut/rvfi_if_inst/*; 	run -all" 
+# Start time: 10:07:21 on Mar 18,2026
+# Loading /tmp/felipe@inspiron3525_dpi_12934/linux_x86_64_gcc-13/export_tramp.so
 # Loading sv_std.std
 # Loading work.ibex_pkg(fast)
-# Loading work.uvma_simple_mem_if(fast)
+# Loading work.uvma_rvfi_instr_if(fast)
 # Loading mtiUvm.uvm_pkg(fast)
+# Loading work.uvma_rvfi_pkg(fast)
+# Loading work.uvma_simple_mem_if(fast)
 # Loading work.uvml_mem_pkg(fast)
 # Loading work.uvma_simple_mem_pkg(fast)
 # Loading work.uvma_clk_rst_if(fast)
@@ -69,12 +71,14 @@
 # Loading work.ibex_register_file_ff(fast)
 # Loading work.ibex_tracer_pkg(fast)
 # Loading work.ibex_tracer(fast)
-# Compiling /tmp/felipe@inspiron3525_dpi_14702/linux_x86_64_gcc-13/exportwrapper.c
-# Loading /tmp/felipe@inspiron3525_dpi_14702/linux_x86_64_gcc-13/vsim_auto_compile.so
+# Loading work.uvma_rvfi_instr_if(fast__2)
+# Compiling /tmp/felipe@inspiron3525_dpi_12934/linux_x86_64_gcc-13/exportwrapper.c
+# Loading /tmp/felipe@inspiron3525_dpi_12934/linux_x86_64_gcc-13/vsim_auto_compile.so
 # Loading /home/felipe/mentor_graphics_eda/questasim/uvm-1.2/linux_x86_64/uvm_dpi.so
 #  	add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*
 #  	add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*
 #  	add wave -group {RVFI_Tracer} /ibex_core_tb_top/dut/rvfi_*
+#  	add wave -group {RVFI_Interface} /ibex_core_tb_top/dut/rvfi_if_inst/*
 #  	run -all
 # UVM_INFO verilog_src/uvm-1.2/src/base/uvm_root.svh(392) @ 0: reporter [UVM/RELNOTES] 
 # ----------------------------------------------------------------
@@ -101,169 +105,104 @@
 # UVM_INFO verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv(277) @ 0: reporter [Questa UVM] QUESTA_UVM-1.2.3
 # UVM_INFO verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv(278) @ 0: reporter [Questa UVM]  questa_uvm::init(+struct)
 # UVM_INFO @ 0: reporter [RNTST] Running test ibex_core_sanity_test...
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../ibex_core_dv/env/ibex_core_env.sv(43) @ 0: uvm_test_top.env [IBEX_CORE_ENV] Environment Ibex built successfully.
+# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../ibex_core_dv/env/ibex_core_env.sv(45) @ 0: uvm_test_top.env [IBEX_CORE_ENV] Environment Ibex built successfully.
 # UVM_INFO verilog_src/uvm-1.2/src/base/uvm_root.svh(579) @ 0: reporter [UVMTOP] UVM testbench topology:
 # -----------------------------------------------------------------------
 # Name                       Type                        Size  Value     
 # -----------------------------------------------------------------------
-# uvm_test_top               ibex_core_sanity_test       -     @369      
-#   env                      ibex_core_env               -     @392      
-#     clk_rst_agent          uvma_clk_rst_agent          -     @408      
-#       driver               uvma_clk_rst_drv            -     @459      
-#         rsp_port           uvm_analysis_port           -     @476      
-#         seq_item_port      uvm_seq_item_pull_port      -     @467      
-#       monitor              uvma_clk_rst_mon            -     @442      
-#         ap                 uvm_analysis_port           -     @450      
-#       sequencer            uvma_clk_rst_sqr            -     @485      
-#         rsp_export         uvm_analysis_export         -     @493      
-#         seq_item_export    uvm_seq_item_pull_imp       -     @599      
-#         cfg                uvma_clk_rst_cfg            -     @381      
+# uvm_test_top               ibex_core_sanity_test       -     @375      
+#   env                      ibex_core_env               -     @402      
+#     clk_rst_agent          uvma_clk_rst_agent          -     @418      
+#       driver               uvma_clk_rst_drv            -     @477      
+#         rsp_port           uvm_analysis_port           -     @494      
+#         seq_item_port      uvm_seq_item_pull_port      -     @485      
+#       monitor              uvma_clk_rst_mon            -     @460      
+#         ap                 uvm_analysis_port           -     @468      
+#       sequencer            uvma_clk_rst_sqr            -     @503      
+#         rsp_export         uvm_analysis_export         -     @511      
+#         seq_item_export    uvm_seq_item_pull_imp       -     @617      
+#         cfg                uvma_clk_rst_cfg            -     @387      
 #           enabled          integral                    1     'h0       
 #           is_active        uvm_active_passive_enum     1     UVM_ACTIVE
 #           default_period   integral                    32    'h0       
-#         cntxt              uvma_clk_rst_cntxt          -     @437      
+#         cntxt              uvma_clk_rst_cntxt          -     @455      
 #         arbitration_queue  array                       0     -         
 #         lock_queue         array                       0     -         
 #         num_last_reqs      integral                    32    'd1       
 #         num_last_rsps      integral                    32    'd1       
-#     data_mem_agent         uvma_simple_mem_agent       -     @424      
-#       driver               uvma_simple_mem_drv         -     @644      
-#         rsp_port           uvm_analysis_port           -     @661      
-#         seq_item_port      uvm_seq_item_pull_port      -     @652      
-#       monitor              uvma_simple_mem_mon         -     @627      
-#         req_ap             uvm_analysis_port           -     @635      
-#       sequencer            uvma_simple_mem_sqr         -     @670      
-#         item_export        uvm_analysis_export         -     @846      
-#         mem_req_fifo       uvm_tlm_analysis_fifo #(T)  -     @793      
-#           analysis_export  uvm_analysis_imp            -     @837      
-#           get_ap           uvm_analysis_port           -     @828      
-#           get_peek_export  uvm_get_peek_imp            -     @810      
-#           put_ap           uvm_analysis_port           -     @819      
-#           put_export       uvm_put_imp                 -     @801      
-#         rsp_export         uvm_analysis_export         -     @678      
-#         seq_item_export    uvm_seq_item_pull_imp       -     @784      
-#         cfg                uvma_simple_mem_cfg         -     @390      
+#     data_mem_agent         uvma_simple_mem_agent       -     @434      
+#       driver               uvma_simple_mem_drv         -     @662      
+#         rsp_port           uvm_analysis_port           -     @679      
+#         seq_item_port      uvm_seq_item_pull_port      -     @670      
+#       monitor              uvma_simple_mem_mon         -     @645      
+#         req_ap             uvm_analysis_port           -     @653      
+#       sequencer            uvma_simple_mem_sqr         -     @688      
+#         item_export        uvm_analysis_export         -     @864      
+#         mem_req_fifo       uvm_tlm_analysis_fifo #(T)  -     @811      
+#           analysis_export  uvm_analysis_imp            -     @855      
+#           get_ap           uvm_analysis_port           -     @846      
+#           get_peek_export  uvm_get_peek_imp            -     @828      
+#           put_ap           uvm_analysis_port           -     @837      
+#           put_export       uvm_put_imp                 -     @819      
+#         rsp_export         uvm_analysis_export         -     @696      
+#         seq_item_export    uvm_seq_item_pull_imp       -     @802      
+#         cfg                uvma_simple_mem_cfg         -     @396      
 #           enabled          integral                    1     'h1       
 #           is_active        uvm_active_passive_enum     1     UVM_ACTIVE
 #           min_latency      integral                    32    'd0       
 #           max_latency      integral                    32    'd0       
-#         cntxt              uvma_simple_mem_cntxt       -     @406      
-#           mem_model        uvml_mem                    -     @400      
+#         cntxt              uvma_simple_mem_cntxt       -     @416      
+#           mem_model        uvml_mem                    -     @410      
 #         arbitration_queue  array                       0     -         
 #         lock_queue         array                       0     -         
 #         num_last_reqs      integral                    32    'd1       
 #         num_last_rsps      integral                    32    'd1       
-#     instr_mem_agent        uvma_simple_mem_agent       -     @416      
-#       driver               uvma_simple_mem_drv         -     @890      
-#         rsp_port           uvm_analysis_port           -     @907      
-#         seq_item_port      uvm_seq_item_pull_port      -     @898      
-#       monitor              uvma_simple_mem_mon         -     @873      
-#         req_ap             uvm_analysis_port           -     @881      
-#       sequencer            uvma_simple_mem_sqr         -     @916      
-#         item_export        uvm_analysis_export         -     @1092     
-#         mem_req_fifo       uvm_tlm_analysis_fifo #(T)  -     @1039     
-#           analysis_export  uvm_analysis_imp            -     @1083     
-#           get_ap           uvm_analysis_port           -     @1074     
-#           get_peek_export  uvm_get_peek_imp            -     @1056     
-#           put_ap           uvm_analysis_port           -     @1065     
-#           put_export       uvm_put_imp                 -     @1047     
-#         rsp_export         uvm_analysis_export         -     @924      
-#         seq_item_export    uvm_seq_item_pull_imp       -     @1030     
-#         cfg                uvma_simple_mem_cfg         -     @386      
+#     instr_mem_agent        uvma_simple_mem_agent       -     @426      
+#       driver               uvma_simple_mem_drv         -     @908      
+#         rsp_port           uvm_analysis_port           -     @925      
+#         seq_item_port      uvm_seq_item_pull_port      -     @916      
+#       monitor              uvma_simple_mem_mon         -     @891      
+#         req_ap             uvm_analysis_port           -     @899      
+#       sequencer            uvma_simple_mem_sqr         -     @934      
+#         item_export        uvm_analysis_export         -     @1110     
+#         mem_req_fifo       uvm_tlm_analysis_fifo #(T)  -     @1057     
+#           analysis_export  uvm_analysis_imp            -     @1101     
+#           get_ap           uvm_analysis_port           -     @1092     
+#           get_peek_export  uvm_get_peek_imp            -     @1074     
+#           put_ap           uvm_analysis_port           -     @1083     
+#           put_export       uvm_put_imp                 -     @1065     
+#         rsp_export         uvm_analysis_export         -     @942      
+#         seq_item_export    uvm_seq_item_pull_imp       -     @1048     
+#         cfg                uvma_simple_mem_cfg         -     @392      
 #           enabled          integral                    1     'h1       
 #           is_active        uvm_active_passive_enum     1     UVM_ACTIVE
 #           min_latency      integral                    32    'd0       
 #           max_latency      integral                    32    'd0       
-#         cntxt              uvma_simple_mem_cntxt       -     @401      
-#           mem_model        uvml_mem                    -     @400      
+#         cntxt              uvma_simple_mem_cntxt       -     @411      
+#           mem_model        uvml_mem                    -     @410      
 #         arbitration_queue  array                       0     -         
 #         lock_queue         array                       0     -         
 #         num_last_reqs      integral                    32    'd1       
 #         num_last_rsps      integral                    32    'd1       
+#     rvfi_agent             uvma_rvfi_agent             -     @442      
+#       ap                   uvm_analysis_port           -     @1158     
+#       monitor              uvma_rvfi_mon               -     @1141     
+#         ap                 uvm_analysis_port           -     @1149     
 # -----------------------------------------------------------------------
 # 
 # UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_libs/uvml_mem/uvml_mem.sv(62) @ 0: reporter [MEM] Loaded memory content from file: ../riscv_arithmetic_basic_test_0.hex
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../ibex_core_dv/tests/ibex_core_base_test.sv(67) @ 0: uvm_test_top [BASE_TEST] Background Memory Sequences Started.
+# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../ibex_core_dv/tests/ibex_core_base_test.sv(73) @ 0: uvm_test_top [BASE_TEST] Background Memory Sequences Started.
 # UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../ibex_core_dv/tests/ibex_core_sanity_test.sv(20) @ 0: uvm_test_top [SANITY_TEST] Starting Sanity Sequence...
 # UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_clk_rst/seq/uvma_clk_rst_sanity_seq.sv(15) @ 0: uvm_test_top.env.clk_rst_agent.sequencer@@sanity_seq [CLK_RST_SEQ] Iniciando a sequencia de inicializacao (Sanity)...
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 85000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x80
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 85000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x80
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 95000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x84
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 95000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x84
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 105000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x88
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 105000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x88
+# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_rvfi/uvma_rvfi_mon.sv(37) @ 50000: uvm_test_top.env.rvfi_agent.monitor [RVFI_MON] Reset concluido. Monitor Ativo e escutando o barramento!
 # ibex_core_tb_top.dut.u_ibex_tracer: Writing execution trace to trace_core_00000000.log
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 115000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x8c
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 115000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x8c
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 125000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x90
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 125000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x90
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 135000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x88
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 135000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x88
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 145000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x8c
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 145000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x8c
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 155000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x90
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 155000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x90
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 165000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x94
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 165000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x94
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 175000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x98
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 175000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x98
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 185000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x94
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 185000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x94
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 195000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x98
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 195000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x98
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 205000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0x9c
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 205000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0x9c
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 215000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xa0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 215000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xa0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 225000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xa4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 225000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xa4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 235000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xa8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 235000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xa8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 275000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xac
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 275000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xac
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 285000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xb0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 285000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xb0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 295000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xb4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 295000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xb4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 305000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xb8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 305000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xb8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 315000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xbc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 315000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xbc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 325000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xc0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 325000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xc0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 365000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xc4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 365000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xc4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 375000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xc8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 375000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xc8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 385000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xcc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 385000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xcc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 395000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xd0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 395000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xd0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 425000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xd4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 425000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xd4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 435000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xd8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 435000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xd8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 465000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xdc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 465000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xdc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 475000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xe0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 475000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xe0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 505000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xe4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 505000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xe4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 515000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xdc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 515000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xdc
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 525000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xe0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 525000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xe0
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 535000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xe4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 535000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xe4
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_mon.sv(40) @ 545000: uvm_test_top.env.instr_mem_agent.monitor [MON_RADAR] Capturado Pedido no Endereco: 0xe8
-# UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../uvm_agents/uvma_simple_mem/uvma_simple_mem_resp_seq.sv(21) @ 545000: uvm_test_top.env.instr_mem_agent.sequencer@@instr_resp_seq [SEQ_RADAR] Processando Resposta para Endereco: 0xe8
 # UVM_INFO /home/felipe/Documents/Projects/riscv_verif/sim/../ibex_core_dv/tests/ibex_core_sanity_test.sv(28) @ 550000: uvm_test_top [SANITY_TEST] Sanity Test completed successfully.
 # UVM_INFO verilog_src/uvm-1.2/src/base/uvm_objection.svh(1270) @ 550000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
 # UVM_INFO verilog_src/uvm-1.2/src/base/uvm_report_server.svh(847) @ 550000: reporter [UVM/REPORT/SERVER] 
 # --- UVM Report Summary ---
 # 
 # ** Report counts by severity
-# UVM_INFO :   82
+# UVM_INFO :   13
 # UVM_WARNING :    0
 # UVM_ERROR :    0
 # UVM_FATAL :    0
@@ -272,11 +211,10 @@
 # [CLK_RST_SEQ]     1
 # [IBEX_CORE_ENV]     1
 # [MEM]     1
-# [MON_RADAR]    35
 # [Questa UVM]     2
 # [RNTST]     1
+# [RVFI_MON]     1
 # [SANITY_TEST]     2
-# [SEQ_RADAR]    35
 # [TEST_DONE]     1
 # [UVM/RELNOTES]     1
 # [UVMTOP]     1
@@ -285,3 +223,5 @@
 #    Time: 550 ns  Iteration: 68  Instance: /ibex_core_tb_top
 # 1
 # Break in Task uvm_pkg/uvm_root::run_test at /home/felipe/mentor_graphics_eda/questasim/linux_x86_64/../verilog_src/uvm-1.2/src/base/uvm_root.svh line 517
+# End time: 10:19:40 on Mar 18,2026, Elapsed time: 0:12:19
+# Errors: 0, Warnings: 0
