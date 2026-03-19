@@ -3,6 +3,8 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
+`include "cosim_dpi.svh"
+
 import ibex_core_test_pkg::*;
 
 module ibex_core_tb_top;
@@ -91,7 +93,15 @@ module ibex_core_tb_top;
     .* // O Name Matching mágico resolve os rvfi_*
   );
 
+  chandle c_handle;
+  
   initial begin
+    c_handle = riscv_cosim_init("RV32IMC", 32'h80);
+    
+    if (c_handle == null) begin
+      `uvm_fatal("COSIM", "Falha catastrófica ao inicializar o Spike C++!")
+    end
+
     uvm_config_db#(virtual uvma_clk_rst_if)::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if);
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if);
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.instr_mem_agent", "vif", instr_mem_if);
