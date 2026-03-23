@@ -23,7 +23,7 @@ class ibex_core_sanity_test extends ibex_core_base_test;
     sanity_seq.start(env.clk_rst_agent.sequencer);
     
     // Lets the simulation run for another 500ns to see the clock waves
-    #500ns;
+    #5000ns;
     
     `uvm_info("SANITY_TEST", "Sanity Test completed successfully.", UVM_LOW)
     

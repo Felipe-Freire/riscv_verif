@@ -51,8 +51,24 @@ class ibex_core_base_test extends uvm_test;
   endfunction
 
   function void start_of_simulation_phase(uvm_phase phase);
+    chandle spike_handle;
+    reg [7:0] mem_copy [bit[32-1:0]];
+
     super.start_of_simulation_phase(phase);
+    
     env.shared_mem.load_hex("../riscv_arithmetic_basic_test_0.hex");
+
+    if (!uvm_config_db#(chandle)::get(this, "", "spike_handle", spike_handle)) begin
+      `uvm_fatal("BASE_TEST", "Could not retrieve spike_handle from tb_top!")
+    end
+
+    env.shared_mem.get_backdoor_memory(mem_copy);
+
+    foreach (mem_copy[addr]) begin
+      riscv_cosim_write_mem_byte(spike_handle, addr, mem_copy[addr]);
+    end
+
+    `uvm_info("BASE_TEST", "Instruction memory loaded and synchronized with co-simulation model.", UVM_LOW)
   endfunction
 
   // Firing of Reactive Sequences (Background Daemons)

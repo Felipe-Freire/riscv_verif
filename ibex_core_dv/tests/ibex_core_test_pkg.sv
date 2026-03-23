@@ -14,6 +14,8 @@ package ibex_core_test_pkg;
   import uvma_rvfi_pkg::*;
   import ibex_core_env_pkg::*;
 
+  `include "cosim_dpi.svh"
+
   // Test classes for the ibex core test environment
   `include "ibex_core_base_test.sv"
   `include "ibex_core_sanity_test.sv"

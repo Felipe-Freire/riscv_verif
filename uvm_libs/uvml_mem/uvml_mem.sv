@@ -63,6 +63,11 @@ class uvml_mem extends uvm_object;
     end
   endfunction
 
+  // Backdoor Access for Testbench Components
+  function void get_backdoor_memory(ref reg [7:0] mem_copy [bit[XLEN-1:0]]);
+    mem_copy = this.content;
+  endfunction
+
   // Clear Memory Content
   function void clear();
     content.delete();

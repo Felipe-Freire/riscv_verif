@@ -5,13 +5,14 @@ VERBOSITY ?= UVM_MEDIUM
 GUI       ?= 0
 
 # --- Absolute Paths ---
-ROOT_DIR  := $(shell pwd)/..
-RTL_DIR   := $(ROOT_DIR)/rtl/ibex/rtl
+ROOT_DIR   := $(shell pwd)/..
+RTL_DIR    := $(ROOT_DIR)/rtl/ibex/rtl
 VENDOR_DIR := $(ROOT_DIR)/rtl/ibex/vendor/lowrisc_ip
-TB_DIR    := $(ROOT_DIR)/ibex_core_dv/tb
-ENV_DIR   := $(ROOT_DIR)/ibex_core_dv/env
-TESTS_DIR := $(ROOT_DIR)/ibex_core_dv/tests
-OUT_DIR   := ./out
+TB_DIR     := $(ROOT_DIR)/ibex_core_dv/tb
+ENV_DIR    := $(ROOT_DIR)/ibex_core_dv/env
+TESTS_DIR  := $(ROOT_DIR)/ibex_core_dv/tests
+COSIM_DIR  := $(ROOT_DIR)/cosim_dpi
+OUT_DIR    := ./out
 
 # --- EXPORTS for .f files to see ---
 export UVMA_CLK_RST_PATH 		:= $(ROOT_DIR)/uvm_agents/uvma_clk_rst
@@ -29,6 +30,14 @@ VLOG      := vlog -64 -sv +acc -L mtiUvm
 VOPT      := vopt -64 +acc
 VSIM      := vsim -64 -L mtiUvm
 
+# --- DPI-C Config ---
+MTI_HOME   			 ?= /home/felipe/mentor_graphics_eda/questasim
+COSIM_SPIKE_PATH ?= /opt/riscv
+CXX        			 := g++
+CXXFLAGS 				 := -shared -fPIC -std=c++17 -I$(MTI_HOME)/include -I$(COSIM_SPIKE_PATH)/include
+LDFLAGS  				 := -L$(COSIM_SPIKE_PATH)/lib -Wl,-rpath=$(COSIM_SPIKE_PATH)/lib -lriscv -lfesvr
+
+
 # --- Targets ---
 .PHONY: all setup comp opt run wave clean
 
@@ -40,14 +49,19 @@ setup:
 	@mkdir -p $(OUT_DIR)/waves
 	@if [ ! -d "work" ]; then vlib work; vmap work work; fi
 
+dpi: setup
+	@echo "--- Compiling C++ Wrapper for DPI-C ---"
+	$(CXX) $(CXXFLAGS) $(COSIM_DIR)/cosim_dpi.cpp $(LDFLAGS) -o cosim_dpi.so
+
 # 2. Compilation (RTL -> Agents -> Env -> Tests -> Top)
-comp: setup
+comp: dpi
 	@echo "--- Compiling Design and Verification ---"
 	$(VLOG) \
 	+define+RVFI \
 	+define+INC_ASSERT \
 	+incdir+$(VENDOR_DIR)/ip/prim/rtl \
 	+incdir+$(VENDOR_DIR)/dv/sv/dv_utils \
+	+incdir+$(COSIM_DIR) \
 	-f ./ibex_core_rtl.f \
 	-f $(UVMA_CLK_RST_PATH)/uvma_clk_rst.f \
 	-f $(UVML_MEM_PATH)/uvml_mem.f \
@@ -70,6 +84,7 @@ run: opt
 	@echo "--- Running Test: $(TEST) (Seed: $(SEED)) ---"
 	$(VSIM) -c ibex_core_tb_top_opt \
 	-sv_seed $(SEED) \
+	-sv_lib cosim_dpi \
 	+UVM_TESTNAME=$(TEST) \
 	+UVM_VERBOSITY=$(VERBOSITY) \
 	-l $(OUT_DIR)/logs/sim_$(TEST)_$(SEED).log \
@@ -80,6 +95,7 @@ wave: opt
 	@echo "--- Opening QuestaSim GUI for $(TEST) ---"
 	$(VSIM) ibex_core_tb_top_opt \
 	-sv_seed $(SEED) \
+	-sv_lib cosim_dpi \
 	+UVM_TESTNAME=$(TEST) \
 	+UVM_VERBOSITY=$(VERBOSITY) \
 	-do " \
