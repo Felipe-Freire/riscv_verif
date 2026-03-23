@@ -9,7 +9,7 @@ import ibex_core_test_pkg::*;
 
 module ibex_core_tb_top;
 
-  // Fisic Interface
+  // Physical interfaces
   uvma_clk_rst_if clk_rst_if();
   uvma_simple_mem_if instr_mem_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
   uvma_simple_mem_if data_mem_if (.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
@@ -87,25 +87,29 @@ module ibex_core_tb_top;
     .data_err_i         (data_mem_if.err)
   );
 
+  // Bind RVFI monitor interface directly into the DUT wrapper scope.
   bind ibex_top_tracing uvma_rvfi_instr_if rvfi_if_inst (
-    .clk   (clk_i),   // Forçando o nome local do Ibex
-    .rst_n (rst_ni),  // Forçando o nome local do Ibex
-    .* // O Name Matching mágico resolve os rvfi_*
+    .clk   (clk_i),   // Explicitly map local Ibex clock name
+    .rst_n (rst_ni),  // Explicitly map local Ibex reset name
+    .* // Name matching auto-connects remaining rvfi_* signals
   );
 
-  chandle c_handle;
+  chandle spike_handle;
   
   initial begin
-    c_handle = riscv_cosim_init("RV32IMC", 32'h80);
+    // Create Spike lockstep co-simulation model starting at reset vector.
+    spike_handle = riscv_cosim_init("RV32IMC", 32'h80);
     
-    if (c_handle == null) begin
-      `uvm_fatal("COSIM", "Falha catastrófica ao inicializar o Spike C++!")
+    if (spike_handle == null) begin
+      `uvm_fatal("COSIM", "Failed to initialize the Spike C++ co-simulation model")
     end
 
     uvm_config_db#(virtual uvma_clk_rst_if)::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if);
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if);
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.instr_mem_agent", "vif", instr_mem_if);
     uvm_config_db#(virtual uvma_rvfi_instr_if)::set(null, "uvm_test_top.env.rvfi_agent", "vif", dut.rvfi_if_inst);
+
+    uvm_config_db#(chandle)::set(null, "*", "spike_handle", spike_handle);
 
     run_test("ibex_core_sanity_test");
   end
