@@ -10,6 +10,7 @@ class ibex_core_base_test extends uvm_test;
   uvma_simple_mem_cfg instr_mem_cfg;
   uvma_simple_mem_cfg data_mem_cfg;
   uvma_rvfi_cfg       rvfi_cfg;
+  uvma_isacov_cfg     isacov_cfg;
 
   function new(string name="ibex_core_base_test", uvm_component parent=null);
     super.new(name, parent);
@@ -39,6 +40,14 @@ class ibex_core_base_test extends uvm_test;
     rvfi_cfg = uvma_rvfi_cfg::type_id::create("rvfi_cfg");
     rvfi_cfg.is_active = UVM_PASSIVE;
     uvm_config_db#(uvma_rvfi_cfg)::set(this, "env.rvfi_agent*", "cfg", rvfi_cfg);
+
+    // Configure the ISACOV Agent to be ACTIVE
+    isacov_cfg = uvma_isacov_cfg::type_id::create("isacov_cfg");
+    // You can use randomize in the future for regressions:
+    // assert(isacov_cfg.randomize() with { ext_m_supported == 1; });
+    isacov_cfg.is_active = UVM_PASSIVE;
+    isacov_cfg.ext_m_supported = 1;
+    uvm_config_db#(uvma_isacov_cfg)::set(this, "env.isacov_agent*", "cfg", isacov_cfg);
 
     // Build the Environment
     env = ibex_core_env::type_id::create("env", this);

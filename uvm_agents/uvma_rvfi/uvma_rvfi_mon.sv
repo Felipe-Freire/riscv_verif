@@ -65,7 +65,7 @@ class uvma_rvfi_mon extends uvm_monitor;
         trn.mem_wdata = cntxt.vif.mon_cb.rvfi_mem_wdata;
 
         // Imprime a nossa string formatada bonita
-        `uvm_info("RVFI_MON", trn.convert2string(), UVM_LOW)
+        `uvm_info("RVFI_MON", trn.convert2string(), UVM_HIGH)
 
         // Dispara para o Scoreboard!
         ap.write(trn);

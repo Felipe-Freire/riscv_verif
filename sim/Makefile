@@ -18,6 +18,7 @@ OUT_DIR    := ./out
 export UVMA_CLK_RST_PATH 		:= $(ROOT_DIR)/uvm_agents/uvma_clk_rst
 export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
 export UVMA_RVFI_PATH     	:= $(ROOT_DIR)/uvm_agents/uvma_rvfi
+export UVMA_ISACOV_PATH     := $(ROOT_DIR)/uvm_agents/uvma_isacov
 export UVML_MEM_PATH     		:= $(ROOT_DIR)/uvm_libs/uvml_mem
 export IBEX_RTL_PATH     		:= $(ROOT_DIR)/rtl/ibex/rtl
 # export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
@@ -67,6 +68,7 @@ comp: dpi
 	-f $(UVML_MEM_PATH)/uvml_mem.f \
 	-f $(UVMA_SIMPLE_MEM_PATH)/uvma_simple_mem.f \
 	-f $(UVMA_RVFI_PATH)/uvma_rvfi.f \
+	-f $(UVMA_ISACOV_PATH)/uvma_isacov.f \
 	+incdir+$(ENV_DIR) \
 	$(ENV_DIR)/ibex_core_env_pkg.sv \
 	+incdir+$(TESTS_DIR) \

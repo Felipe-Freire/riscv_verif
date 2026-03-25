@@ -12,6 +12,7 @@ package ibex_core_env_pkg;
   import uvml_mem_pkg::*;
   import uvma_simple_mem_pkg::*;
   import uvma_rvfi_pkg::*;
+  import uvma_isacov_pkg::*;
 
   // Dependency of the Env on the DPI functions
   `include "cosim_dpi.svh"

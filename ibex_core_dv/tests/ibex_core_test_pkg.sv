@@ -12,6 +12,7 @@ package ibex_core_test_pkg;
   import uvml_mem_pkg::*;
   import uvma_simple_mem_pkg::*;
   import uvma_rvfi_pkg::*;
+  import uvma_isacov_pkg::*;
   import ibex_core_env_pkg::*;
 
   `include "cosim_dpi.svh"
