@@ -8,7 +8,7 @@ class uvma_rvfi_agent extends uvm_agent;
   uvma_rvfi_cntxt cntxt;
   uvma_rvfi_mon   monitor;
 
-  // A porta de saída do Agente (conecta ao Env -> Scoreboard)
+  // Agent output port (connects to Env -> Scoreboard)
   uvm_analysis_port#(uvma_rvfi_seq_item) ap;
 
   function new(string name="uvma_rvfi_agent", uvm_component parent=null);
@@ -20,7 +20,7 @@ class uvma_rvfi_agent extends uvm_agent;
 
     // Take Config
     if(!uvm_config_db#(uvma_rvfi_cfg)::get(this, "", "cfg", cfg))
-      `uvm_fatal("CFG", "RVFI Agent precisa de uma CFG")
+      `uvm_fatal("CFG", "RVFI Agent requires a CFG")
 
     // Manage Context (Create if it doesn't exist)
     if(!uvm_config_db#(uvma_rvfi_cntxt)::get(this, "", "cntxt", cntxt)) begin
@@ -30,9 +30,9 @@ class uvma_rvfi_agent extends uvm_agent;
 
     // Get Virtual Interface
     if(!uvm_config_db#(virtual uvma_rvfi_instr_if)::get(this, "", "vif", cntxt.vif))
-      `uvm_fatal("VIF", "RVFI Agent precisa de uma interface")
+      `uvm_fatal("VIF", "RVFI Agent requires an interface")
     
-    // Constrói o Monitor e a porta de saída
+    // Build monitor and output port
     monitor = uvma_rvfi_mon::type_id::create("monitor", this);
     ap      = new("ap", this);
   endfunction

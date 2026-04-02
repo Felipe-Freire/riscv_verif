@@ -4,14 +4,14 @@
 class uvma_isacov_cfg extends uvm_object;
 
   // ------------------------------------------------------------------------
-  // Chaves Mestras
+  // Master switches
   // ------------------------------------------------------------------------
   rand bit                     enabled;
   rand bit                     cov_model_enabled;
-  rand uvm_active_passive_enum is_active; // Padrão de qualquer Agente UVM
+  rand uvm_active_passive_enum is_active; // Standard setting for any UVM agent
   
   // ------------------------------------------------------------------------
-  // Suporte a Extensões (Achatadas do antigo core_cfg)
+  // Extension support (flattened from former core_cfg)
   // ------------------------------------------------------------------------
   rand bit ext_i_supported;       // Base Integer (RV32I)
   rand bit ext_m_supported;       // Mult/Div
@@ -20,13 +20,13 @@ class uvma_isacov_cfg extends uvm_object;
   rand bit ext_zifencei_supported;// FENCE.I
   
   // ------------------------------------------------------------------------
-  // Features Avançadas de Cobertura
+  // Advanced coverage features
   // ------------------------------------------------------------------------
-  rand bit reg_hazards_enabled; // Cobrir Read-After-Write (RAW), etc.
-  rand bit reg_crosses_enabled; // Cruzar rs1 com rs2
+  rand bit reg_hazards_enabled; // Cover Read-After-Write (RAW), etc.
+  rand bit reg_crosses_enabled; // Cross rs1 with rs2
 
   // ------------------------------------------------------------------------
-  // UVM Factory Macros (Essenciais para o randomize() funcionar bem e para prints)
+  // UVM factory macros (essential for randomize() and object prints)
   // ------------------------------------------------------------------------
   `uvm_object_utils_begin(uvma_isacov_cfg)
     `uvm_field_int(enabled,                UVM_DEFAULT)
@@ -44,15 +44,15 @@ class uvma_isacov_cfg extends uvm_object;
   `uvm_object_utils_end
 
   // ------------------------------------------------------------------------
-  // Construtor com Valores Padrão Seguros (Default Constraints)
+  // Constructor with safe default values (default constraints)
   // ------------------------------------------------------------------------
   function new(string name="uvma_isacov_cfg");
     super.new(name);
     
-    // Valores padrão conservadores (para rodar sem precisar chamar randomize)
+    // Conservative defaults (run without requiring randomize)
     enabled                = 1;
     cov_model_enabled      = 1;
-    is_active              = UVM_PASSIVE; // Agente de coverage é sempre passivo
+    is_active              = UVM_PASSIVE; // Coverage agent is always passive
     
     ext_i_supported        = 1;
     ext_m_supported        = 0;

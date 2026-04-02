@@ -1,7 +1,7 @@
 `ifndef __UVMA_RVFI_INSTR_IF_SV__
 `define __UVMA_RVFI_INSTR_IF_SV__
 
-// TODOS OS SINAIS AGORA SÃO PORTAS (Dentro dos parênteses)
+// ALL SIGNALS ARE NOW PORTS (inside the parentheses)
 interface uvma_rvfi_instr_if (
   input logic        clk,
   input logic        rst_n,
@@ -30,7 +30,7 @@ interface uvma_rvfi_instr_if (
   timeunit 1ns;
   timeprecision 1ps;
 
-  // O bloco de tempo passivo (Apenas Leitura) continua igual
+  // Passive timing block (read-only) remains unchanged
   clocking mon_cb @(posedge clk);
     default input #1step;
     

@@ -3,7 +3,7 @@
 
 class uvma_isacov_mon_trn extends uvm_sequence_item;
   
-  // A instrução totalmente decodificada
+  // Fully decoded instruction
   uvma_isacov_instr instr;
 
   `uvm_object_utils_begin(uvma_isacov_mon_trn)

@@ -5,10 +5,10 @@ class uvma_isacov_cntxt extends uvm_object;
 
   `uvm_object_utils(uvma_isacov_cntxt)
 
-  // Eventos para sincronização (se o monitor precisar avisar o teste de algo raro)
+  // Synchronization events (if monitor needs to notify test about rare cases)
   uvm_event sample_event;
 
-  // Estatísticas de execução
+  // Execution statistics
   int unsigned num_instr_sampled = 0;
   int unsigned num_illegal_sampled = 0;
 

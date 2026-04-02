@@ -32,42 +32,42 @@ class uvma_isacov_mon extends uvm_monitor;
     end
   endfunction
 
-  // A função engatilhada pelo RVFI
+  // Callback function triggered by RVFI
   virtual function void write_rvfi_instr(uvma_rvfi_seq_item rvfi_instr);
     uvma_isacov_mon_trn mon_trn;
 
     if (!cfg.enabled) return;
     
-    // Ignora instruções "bolha" (onde nada executou)
+    // Ignore bubble instructions (where nothing executed)
     if (rvfi_instr.trap || (rvfi_instr.pc_rdata == 0 && rvfi_instr.insn == 0)) return;
 
-    // Instancia o envelope e a instrução
+    // Instantiate envelope and instruction
     mon_trn = uvma_isacov_mon_trn::type_id::create("mon_trn");
     mon_trn.instr = uvma_isacov_instr#(DEFAULT_ILEN, DEFAULT_XLEN)::type_id::create("mon_instr");
     
-    // Anexa a transação original
+    // Attach original transaction
     mon_trn.instr.rvfi = rvfi_instr;
 
     mon_trn.instr.decode();
 
     // ----------------------------------------------------------------------
-    // Validação de Extensões Suportadas
+    // Supported extension validation
     // ----------------------------------------------------------------------
-    // Verifica se a instrução decodificada pertence a uma extensão que está
-    // DESLIGADA na configuração do agente.
+    // Check if decoded instruction belongs to an extension that is
+    // DISABLED in agent configuration.
     if ((mon_trn.instr.ext == M_EXT && !cfg.ext_m_supported) ||
         (mon_trn.instr.ext == C_EXT && !cfg.ext_c_supported) ||
         (mon_trn.instr.ext == ZICSR_EXT && !cfg.ext_zicsr_supported)) begin
       mon_trn.instr.illegal = 1;
     end
 
-    // Se o decoder do SystemVerilog não achou a instrução no switch-case
+    // If SystemVerilog decoder did not find instruction in switch-case
     if (mon_trn.instr.name == UNKNOWN_INSTR) begin
       mon_trn.instr.illegal = 1;
     end
 
     // ----------------------------------------------------------------------
-    // Atualização de Estatísticas (Context)
+    // Statistics update (context)
     // ----------------------------------------------------------------------
     cntxt.num_instr_sampled++;
     if (mon_trn.instr.illegal) begin
@@ -77,7 +77,7 @@ class uvma_isacov_mon extends uvm_monitor;
                 rvfi_instr.insn, mon_trn.instr.name.name(), mon_trn.instr.itype.name()), UVM_HIGH)
     end
 
-    // Envia o envelope mastigado para a Analysis Port (Rumo ao Cov Model)
+    // Send processed envelope to analysis port (toward coverage model)
     ap.write(mon_trn);
   endfunction
 

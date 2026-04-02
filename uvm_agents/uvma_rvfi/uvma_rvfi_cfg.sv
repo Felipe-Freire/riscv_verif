@@ -4,11 +4,11 @@
 class uvma_rvfi_cfg extends uvm_object;
   `uvm_object_utils(uvma_rvfi_cfg)
 
-  // Disjuntor principal
-  bit enabled = 1'b1; // Ligado por padrão
+  // Main enable switch
+  bit enabled = 1'b1; // Enabled by default
 
-  // O RVFI é fisicamente incapaz de ser ACTIVE (não tem Driver)
-  // Mas mantemos a variável por padronização UVM
+  // RVFI is physically unable to be ACTIVE (it has no driver)
+  // We keep this variable for UVM standardization
   uvm_active_passive_enum is_active = UVM_PASSIVE; 
 
   function new(string name="uvma_rvfi_cfg");

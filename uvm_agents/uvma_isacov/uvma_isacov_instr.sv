@@ -68,7 +68,7 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
   endfunction
 
   // ------------------------------------------------------------------------
-  // O Motor Principal de Decodificação
+  // Main decode engine
   // ------------------------------------------------------------------------
   function void decode();
     if (this.rvfi == null) return;
@@ -78,29 +78,29 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
     this.rs2_value = this.rvfi.rs2_rdata;
     this.rd_value  = this.rvfi.rd_wdata;
     
-    // Extrai campos estruturais de 32 bits
+    // Extract structural 32-bit fields
     extract_fields(this.rvfi.insn);
 
-    // Identifica o OPCODE exato (Preenche this.name)
+    // Identify exact opcode (fills this.name)
     decode_instruction_name(this.rvfi.insn);
 
-    // O PODER DO DEFS.SV: Preenche itype e ext automaticamente usando o name!
+    // DEFS.SV power: auto-fill itype and ext from name!
     this.itype = get_instr_type(this.name);
     this.ext   = get_instr_ext(this.name);
 
-    // Usa o itype para definir quais registradores são válidos nessa instrução
+    // Use itype to define which registers are valid for this instruction
     set_valid_flags();
   endfunction
 
   // ------------------------------------------------------------------------
-  // Extração Matemática de Imediatos (Padrão RISC-V)
+  // Immediate extraction math (RISC-V standard)
   // ------------------------------------------------------------------------
   function void extract_fields(bit [31:0] insn);
     this.rs1 = insn[19:15];
     this.rs2 = insn[24:20];
     this.rd  = insn[11:7];
     
-    // Extensão de sinal (Sign-Extension) inteligente
+    // Smart sign extension
     this.immi = { {20{insn[31]}}, insn[31:20] };
     this.imms = { {20{insn[31]}}, insn[31:25], insn[11:7] };
     this.immb = { {19{insn[31]}}, insn[31], insn[7], insn[30:25], insn[11:8], 1'b0 };
@@ -110,7 +110,7 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
   endfunction
 
   // ------------------------------------------------------------------------
-  // A Árvore de Decisão do ISA (RV32I + RV32M)
+  // ISA decision tree (RV32I + RV32M)
   // ------------------------------------------------------------------------
   function void decode_instruction_name(bit [31:0] insn);
     bit [6:0] opcode = insn[6:0];
@@ -120,9 +120,9 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
     this.illegal = 0;
     this.name = UNKNOWN_INSTR;
 
-    // Se a instrução tiver os 2 bits menos significativos != 2'b11, é comprimida (RV32C)
+    // If instruction has 2 LSBs != 2'b11, it is compressed (RV32C)
     if (insn[1:0] != 2'b11) begin
-      // TODO: Implementar decodificador RV32C no futuro
+      // TODO: Implement RV32C decoder in the future
       this.name = UNKNOWN_INSTR; 
       return;
     end
@@ -235,17 +235,17 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
   endfunction
 
   // ------------------------------------------------------------------------
-  // Inteligência de Flags (Determina se o campo deve ser olhado no Coverage)
+  // Validity-flag logic (decides whether field should be considered in coverage)
   // ------------------------------------------------------------------------
   function void set_valid_flags();
     this.rs1_valid = 0;
     this.rs2_valid = 0;
     this.rd_valid  = 0;
 
-    // Se deu Trap ou for ilegal, não consideramos os registradores válidos
+    // If trap occurred or instruction is illegal, register-valid flags are ignored
     if (this.trap || this.illegal || this.name == UNKNOWN_INSTR) return;
 
-    // A mágica de ter itype preenchido pelo defs.sv!
+    // Benefit of having itype filled by defs.sv
     case (this.itype)
       R_TYPE: begin this.rs1_valid = 1; this.rs2_valid = 1; this.rd_valid = 1; end
       I_TYPE: begin this.rs1_valid = 1; this.rd_valid  = 1; end
@@ -258,11 +258,11 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
   endfunction
 
   // ------------------------------------------------------------------------
-  // Funções Auxiliares (Para os Covergroups)
+  // Helper functions (for covergroups)
   // ------------------------------------------------------------------------
   function bit is_branch_taken();
     if (this.itype == B_TYPE) begin
-      // O RVFI diz que saltou se o PC escrito for diferente de PC lido + 4 (ou +2 para comprimido)
+      // RVFI indicates branch taken if written PC differs from read PC + 4 (or +2 for compressed)
       bit [31:0] instr_len = (this.rvfi.insn[1:0] == 2'b11) ? 4 : 2;
       return (this.rvfi.pc_wdata != (this.rvfi.pc_rdata + instr_len));
     end

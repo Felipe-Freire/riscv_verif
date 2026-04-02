@@ -18,3 +18,5 @@ sim/out/*
 sim/work/*
 sim/modelsim.ini
 *.log
+*.vstf
+*.ucdb

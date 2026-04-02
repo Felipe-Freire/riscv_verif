@@ -7,7 +7,7 @@ class uvma_rvfi_mon extends uvm_monitor;
   uvma_rvfi_cfg   cfg;
   uvma_rvfi_cntxt cntxt;
 
-  // Porta para enviar os dados capturados para o Scoreboard
+  // Port used to send captured data to the scoreboard
   uvm_analysis_port#(uvma_rvfi_seq_item) ap;
 
   function new(string name="uvma_rvfi_mon", uvm_component parent=null);
@@ -19,32 +19,32 @@ class uvma_rvfi_mon extends uvm_monitor;
     super.build_phase(phase);
     
     if (!uvm_config_db#(uvma_rvfi_cfg)::get(this, "", "cfg", cfg))
-      `uvm_fatal("CFG", "RVFI Monitor nao encontrou a CFG")
+      `uvm_fatal("CFG", "RVFI monitor could not find CFG")
       
     if (!uvm_config_db#(uvma_rvfi_cntxt)::get(this, "", "cntxt", cntxt))
-      `uvm_fatal("CNTXT", "RVFI Monitor nao encontrou o CNTXT")
+      `uvm_fatal("CNTXT", "RVFI monitor could not find CNTXT")
   endfunction
 
   task run_phase(uvm_phase phase);
     uvma_rvfi_seq_item trn;
     
-    // Padrão de Reset UVM Robusto:
-    // 1. Espera o pino ir para 0 (Reset Ativo) ou já estar em 0
+    // Robust UVM reset pattern:
+    // 1. Wait for pin to go to 0 (active reset) or already be at 0
     wait (cntxt.vif.rst_n === 1'b0);
-    // 2. Espera o pino ir para 1 (Saindo do Reset)
+    // 2. Wait for pin to go to 1 (leaving reset)
     wait (cntxt.vif.rst_n === 1'b1);
 
-    `uvm_info("RVFI_MON", "Reset concluido. Monitor Ativo e escutando o barramento!", UVM_LOW)
+    `uvm_info("RVFI_MON", "Reset complete. Monitor active and listening on the bus!", UVM_LOW)
 
     forever begin
-      // Sincroniza com a borda de clock do monitor (olhando para o passado)
+      // Synchronize on monitor clock edge (sampling previous-cycle values)
       @(cntxt.vif.mon_cb);
 
-      // A Mágica: O Ibex diz que acabou de comitar uma instrução
+      // The key signal: Ibex indicates an instruction has just committed
       if (cntxt.vif.mon_cb.rvfi_valid === 1'b1) begin
         trn = uvma_rvfi_seq_item::type_id::create("trn");
 
-        // Captura a foto exata do pipeline
+        // Capture an exact snapshot of the pipeline state
         trn.order     = cntxt.vif.mon_cb.rvfi_order;
         trn.insn      = cntxt.vif.mon_cb.rvfi_insn;
         trn.trap      = cntxt.vif.mon_cb.rvfi_trap;
@@ -64,10 +64,10 @@ class uvma_rvfi_mon extends uvm_monitor;
         trn.mem_wmask = cntxt.vif.mon_cb.rvfi_mem_wmask;
         trn.mem_wdata = cntxt.vif.mon_cb.rvfi_mem_wdata;
 
-        // Imprime a nossa string formatada bonita
-        `uvm_info("RVFI_MON", trn.convert2string(), UVM_HIGH)
+        // Print formatted transaction string
+        `uvm_info("RVFI_MON", trn.convert2string(), UVM_LOW)
 
-        // Dispara para o Scoreboard!
+        // Send to scoreboard
         ap.write(trn);
       end
     end

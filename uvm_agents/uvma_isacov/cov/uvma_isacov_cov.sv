@@ -10,7 +10,7 @@ class uvma_isacov_cov extends uvm_component;
 
   uvm_analysis_imp #(uvma_isacov_mon_trn, uvma_isacov_cov) analysis_export;
 
-  cg_instr_names         rv32i_opcodes_cg; // O Dashboard Principal
+  cg_instr_names         rv32i_opcodes_cg; // Main dashboard
 
   // RV32I
   cg_rtype               rv32i_add_cg, rv32i_sub_cg, rv32i_or_cg, rv32i_and_cg, rv32i_xor_cg;
@@ -39,7 +39,7 @@ class uvma_isacov_cov extends uvm_component;
   cg_csrtype             rv32zicsr_csrrw_cg, rv32zicsr_csrrs_cg, rv32zicsr_csrrc_cg;
   cg_csritype            rv32zicsr_csrrwi_cg, rv32zicsr_csrrsi_cg, rv32zicsr_csrrci_cg;
 
-  // Sequencial (Hazards)
+  // Sequential (hazards)
   cg_sequential          rv32_seq_cg;
 
   function new(string name, uvm_component parent);
@@ -50,12 +50,12 @@ class uvma_isacov_cov extends uvm_component;
   virtual function void build_phase(uvm_phase phase);
     super.build_phase(phase);
 
-    // Resgata as configurações para sabermos o que ligar/desligar
+    // Fetch configuration to know what to enable/disable
     if (!uvm_config_db#(uvma_isacov_cfg)::get(this, "", "cfg", cfg)) begin
-      `uvm_fatal("COV_MODEL", "Configuração não encontrada no uvm_config_db!")
+      `uvm_fatal("COV_MODEL", "Configuration not found in uvm_config_db!")
     end
 
-    // Só constrói a montanha de covergroups se o modelo estiver habilitado
+    // Build covergroup set only when model is enabled
     if (cfg.cov_model_enabled && cfg.enabled) begin
       build_covergroups();
     end
@@ -160,18 +160,18 @@ class uvma_isacov_cov extends uvm_component;
     
     instr = t.instr;
 
-    // Ignora instruções ilegais (Nós não cobrimos o que deu erro de decodificação)
+    // Ignore illegal instructions (decode errors are not covered)
     if (instr.illegal || instr.name == UNKNOWN_INSTR) return;
 
-    // 1. Carimba o Dashboard Geral
+    // 1. Stamp the global opcode dashboard
     rv32i_opcodes_cg.sample(instr);
 
-    // 2. Avalia Sequencial (Hazards) se tivermos histórico
+    // 2. Evaluate sequential hazards when history exists
     if (instr_prev != null) begin
       rv32_seq_cg.sample(instr, instr_prev);
     end
 
-    // 3. Roteia para a Fôrma Específica Baseada no Opcode
+    // 3. Route to opcode-specific coverage template
     case (instr.name)
       // RV32I Base
       ADD:   rv32i_add_cg.sample(instr);
@@ -242,10 +242,10 @@ class uvma_isacov_cov extends uvm_component;
       CSRRCI: rv32zicsr_csrrci_cg.sample(instr);
       FENCE_I: rv32zifencei_fence_i_cg.sample(instr);
 
-      default: ; // Instruções silenciosamente ignoradas se não mapeadas
+      default: ; // Instructions silently ignored when unmapped
     endcase
 
-    // 4. Salva o Estado Atual para a Próxima Rodada (Histórico de Pipeline)
+    // 4. Save current state for next round (pipeline history)
     instr_prev = instr;
 
   endfunction

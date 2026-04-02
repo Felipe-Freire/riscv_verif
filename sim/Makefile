@@ -1,8 +1,11 @@
 # --- Configurable Variables (Default Values) ---
-TEST      ?= ibex_core_sanity_test
-SEED      ?= 1
-VERBOSITY ?= UVM_MEDIUM
-GUI       ?= 0
+TEST_NAME   ?= riscv_arithmetic_basic_test
+TEST_RTL    ?= ibex_core_base_test
+SEED        ?= 1
+VERBOSITY   ?= UVM_MEDIUM
+GUI         ?= 0
+HEX_FILE    ?= default.hex
+TOHOST_ADDR ?= 80001000
 
 # --- Absolute Paths ---
 ROOT_DIR   := $(shell pwd)/..
@@ -83,23 +86,27 @@ opt: comp
 
 # 4. Simulation (CLI / Batch Mode)
 run: opt
-	@echo "--- Running Test: $(TEST) (Seed: $(SEED)) ---"
+	@echo "--- Running Test: $(TEST_NAME) (Seed: $(SEED)) ---"
 	$(VSIM) -c ibex_core_tb_top_opt \
 	-sv_seed $(SEED) \
 	-sv_lib cosim_dpi \
-	+UVM_TESTNAME=$(TEST) \
+	+UVM_TESTNAME=$(TEST_RTL) \
 	+UVM_VERBOSITY=$(VERBOSITY) \
-	-l $(OUT_DIR)/logs/sim_$(TEST)_$(SEED).log \
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	-l $(OUT_DIR)/logs/sim_$(TEST_NAME)_$(SEED).log \
 	-do "run -all; exit"
 
-# 5. Graphical Mode (Debug com GUI)
+# 5. Graphical Mode (Debug with GUI)
 wave: opt
-	@echo "--- Opening QuestaSim GUI for $(TEST) ---"
+	@echo "--- Opening QuestaSim GUI for $(TEST_NAME) ---"
 	$(VSIM) ibex_core_tb_top_opt \
 	-sv_seed $(SEED) \
 	-sv_lib cosim_dpi \
-	+UVM_TESTNAME=$(TEST) \
+	+UVM_TESTNAME=$(TEST_RTL) \
 	+UVM_VERBOSITY=$(VERBOSITY) \
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
 	-do " \
 		add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; \
 		add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; \
