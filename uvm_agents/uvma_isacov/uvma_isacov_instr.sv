@@ -96,9 +96,15 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
   // Immediate extraction math (RISC-V standard)
   // ------------------------------------------------------------------------
   function void extract_fields(bit [31:0] insn);
-    this.rs1 = insn[19:15];
-    this.rs2 = insn[24:20];
-    this.rd  = insn[11:7];
+    if (this.rvfi != null) begin
+      this.rs1 = this.rvfi.rs1_addr;
+      this.rs2 = this.rvfi.rs2_addr;
+      this.rd  = this.rvfi.rd_addr;
+    end else begin
+      this.rs1 = insn[19:15];
+      this.rs2 = insn[24:20];
+      this.rd  = insn[11:7];
+    end
     
     // Smart sign extension
     this.immi = { {20{insn[31]}}, insn[31:20] };
@@ -122,8 +128,7 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
 
     // If instruction has 2 LSBs != 2'b11, it is compressed (RV32C)
     if (insn[1:0] != 2'b11) begin
-      // TODO: Implement RV32C decoder in the future
-      this.name = UNKNOWN_INSTR; 
+      decode_compressed_instr(insn[15:0]); 
       return;
     end
 
@@ -230,6 +235,83 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
       // MISC-MEM
       7'b0001111: if (funct3 == 3'b001) this.name = FENCE_I; else this.illegal = 1;
 
+      default: this.illegal = 1;
+    endcase
+  endfunction
+
+  // ------------------------------------------------------------------------
+  // Compressed ISA decision tree (RV32C)
+  // ------------------------------------------------------------------------
+  function void decode_compressed_instr(bit [15:0] insn_c);
+    bit [1:0] op     = insn_c[1:0];
+    bit [2:0] funct3 = insn_c[15:13];
+
+    this.illegal = 0;
+    this.name    = UNKNOWN_INSTR;
+
+    case (op)
+      // ==========================================
+      // QUADRANT 0 (op == 2'b00)
+      // ==========================================
+      2'b00: case (funct3)
+        3'b000: if (insn_c[12:5] != 8'b0) this.name = C_ADDI4SPN; else this.illegal = 1;
+        3'b010: this.name = C_LW;
+        3'b110: this.name = C_SW;
+        default: this.illegal = 1;
+      endcase
+
+      // ==========================================
+      // QUADRANT 1 (op == 2'b01)
+      // ==========================================
+      2'b01: case (funct3)
+        3'b000: if (insn_c[12:2] == 11'b0) this.name = C_NOP; else this.name = C_ADDI;
+        3'b001: this.name = C_JAL;
+        3'b010: this.name = C_LI;
+        3'b011: begin
+          if (insn_c[11:7] == 5'd2) this.name = C_ADDI16SP; // rs1 == 2 (sp)
+          else if (insn_c[11:7] != 5'd0) this.name = C_LUI; // rd != 0, 2
+          else this.illegal = 1;
+        end
+        3'b100: case (insn_c[11:10])
+          2'b00: this.name = C_SRLI;
+          2'b01: this.name = C_SRAI;
+          2'b10: this.name = C_ANDI;
+          2'b11: if (insn_c[12] == 1'b0) begin
+                   case (insn_c[6:5])
+                     2'b00: this.name = C_SUB;
+                     2'b01: this.name = C_XOR;
+                     2'b10: this.name = C_OR;
+                     2'b11: this.name = C_AND;
+                   endcase
+                 end else this.illegal = 1;
+        endcase
+        3'b101: this.name = C_J;
+        3'b110: this.name = C_BEQZ;
+        3'b111: this.name = C_BNEZ;
+      endcase
+
+      // ==========================================
+      // QUADRANT 2 (op == 2'b10)
+      // ==========================================
+      2'b10: case (funct3)
+        3'b000: this.name = C_SLLI;
+        3'b010: this.name = C_LWSP;
+        3'b100: begin
+          if (insn_c[12] == 1'b0) begin
+            if (insn_c[6:2] == 5'b0) this.name = C_JR;
+            else this.name = C_MV;
+          end else begin
+            // Bit 12 == 1
+            if (insn_c[11:7] == 5'b0 && insn_c[6:2] == 5'b0) this.name = C_EBREAK;
+            else if (insn_c[11:7] != 5'b0 && insn_c[6:2] == 5'b0) this.name = C_JALR;
+            else if (insn_c[11:7] != 5'b0 && insn_c[6:2] != 5'b0) this.name = C_ADD;
+            else this.illegal = 1;
+          end
+        end
+        3'b110: this.name = C_SWSP;
+        default: this.illegal = 1;
+      endcase
+      
       default: this.illegal = 1;
     endcase
   endfunction

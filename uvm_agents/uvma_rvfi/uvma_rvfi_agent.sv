@@ -2,7 +2,6 @@
 `define __UVMA_RVFI_AGENT_SV__
 
 class uvma_rvfi_agent extends uvm_agent;
-  `uvm_component_utils(uvma_rvfi_agent)
 
   uvma_rvfi_cfg   cfg;
   uvma_rvfi_cntxt cntxt;
@@ -10,6 +9,11 @@ class uvma_rvfi_agent extends uvm_agent;
 
   // Agent output port (connects to Env -> Scoreboard)
   uvm_analysis_port#(uvma_rvfi_seq_item) ap;
+
+  `uvm_component_utils_begin(uvma_rvfi_agent)
+    `uvm_field_object(cfg,   UVM_DEFAULT)
+    `uvm_field_object(cntxt, UVM_DEFAULT)
+  `uvm_component_utils_end
 
   function new(string name="uvma_rvfi_agent", uvm_component parent=null);
     super.new(name, parent);

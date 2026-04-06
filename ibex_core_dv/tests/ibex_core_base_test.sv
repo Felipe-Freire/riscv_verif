@@ -55,6 +55,7 @@ class ibex_core_base_test extends uvm_test;
     // assert(isacov_cfg.randomize() with { ext_m_supported == 1; });
     isacov_cfg.is_active = UVM_PASSIVE;
     isacov_cfg.ext_m_supported = 1;
+    isacov_cfg.ext_c_supported = 1;
     uvm_config_db#(uvma_isacov_cfg)::set(this, "env.isacov_agent*", "cfg", isacov_cfg);
 
     // Build the Environment
@@ -155,6 +156,7 @@ class ibex_core_base_test extends uvm_test;
         end else begin
           `uvm_error("TEST_VERDICT", $sformatf("\n\n*** TEST FAILED! (via ECALL) GP Code: %0d ***\n", gp_reg))
         end
+        #10ns;
         phase.drop_objection(this, "End detected via ECALL");
         break; // Exit the forever loop
       end

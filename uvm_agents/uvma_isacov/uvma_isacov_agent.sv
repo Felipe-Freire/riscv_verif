@@ -3,14 +3,17 @@
   
 class uvma_isacov_agent extends uvm_agent;
 
-  `uvm_component_utils(uvma_isacov_agent)
-
   uvma_isacov_cfg   cfg;
   uvma_isacov_cntxt cntxt;
   uvma_isacov_mon   monitor;
   uvma_isacov_cov   cov_model;
 
   uvm_analysis_export #(uvma_rvfi_seq_item) rvfi_export;
+
+  `uvm_component_utils_begin(uvma_isacov_agent)
+    `uvm_field_object(cfg,   UVM_DEFAULT)
+    `uvm_field_object(cntxt, UVM_DEFAULT)
+  `uvm_component_utils_end
 
   function new(string name, uvm_component parent);
     super.new(name, parent);

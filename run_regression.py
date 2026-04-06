@@ -195,23 +195,47 @@ def run_test_suite(test_cfg: dict, steps: list, out_dir: str, config_path: str) 
   return passed, failed
 
 
+def step_generate_coverage():
+  """Generates the unified coverage report at the end of the regression."""
+  print("\n[COVERAGE] Generating unified coverage report (Merge + HTML)...")
+  cmd = "make cov_report"
+  code, out = run_cmd(cmd, cwd="sim")
+  
+  if code != 0:
+    print(f"[ERROR] Failed to generate coverage report:\n{out}")
+  else:
+    print("[SUCCESS] HTML report generated at: sim/out/cov/html_report/index.html")
+
+
+def step_view_coverage_gui():
+  """Opens the unified coverage database in the QuestaSim interface."""
+  print("\n[COVERAGE GUI] Opening the unified coverage database...")
+  cmd = "make cov_gui"
+  run_cmd(cmd, cwd="sim")
+
+
 def parse_arguments():
   """Handle command-line interface parsing only."""
   parser = argparse.ArgumentParser(description="Ibex DV Regression Manager")
-  parser.add_argument('--steps', nargs='+', choices=['gen', 'comp_asm', 'comp_duv', 'sim', 'all'], default=['all'])
+  parser.add_argument('--steps', nargs='+', choices=['gen', 'comp_asm', 'comp_duv', 'sim', 'cov', 'all'], default=['all'])
   parser.add_argument('--config', type=str, default='test_config.yaml')
   parser.add_argument('--out_dir', type=str, default='out_tests')
-  
+  parser.add_argument('--cov_gui', action='store_true',
+                        help="Open the global coverage report in Questa GUI. (vsim -viewcov)")
   args = parser.parse_args()
   # Expand 'all' into concrete steps
   if 'all' in args.steps:
-    args.steps = ['gen', 'comp_asm', 'comp_duv', 'sim']
+    args.steps = ['gen', 'comp_asm', 'comp_duv', 'sim', 'cov']
       
   return args
 
 
 def main():
   args = parse_arguments()
+
+  if args.cov_gui:
+    step_view_coverage_gui()
+    sys.exit(0)
 
   if 'comp_duv' in args.steps:
     step_compile_design()
@@ -235,6 +259,9 @@ def main():
     print("\n" + "=" * 70)
     print(f"REGRESSION SUMMARY: {total_passed} PASSED, {total_failed} FAILED")
     print("=" * 70)
+  
+  if 'cov' in args.steps:
+    step_generate_coverage()
 
 if __name__ == "__main__":
   main()

@@ -43,6 +43,21 @@ class uvma_isacov_cfg extends uvm_object;
     `uvm_field_int(reg_crosses_enabled,    UVM_DEFAULT)
   `uvm_object_utils_end
 
+  constraint defaults_cons {
+    soft enabled                == 1;
+    soft cov_model_enabled      == 1;
+    soft is_active              == UVM_PASSIVE; // Coverage agent is always passive
+    
+    soft ext_i_supported        == 1;
+    soft ext_m_supported        == 1;
+    soft ext_c_supported        == 1;
+    soft ext_zicsr_supported    == 1;
+    soft ext_zifencei_supported == 1;
+    
+    soft reg_hazards_enabled    == 1;
+    soft reg_crosses_enabled    == 1;
+  }
+
   // ------------------------------------------------------------------------
   // Constructor with safe default values (default constraints)
   // ------------------------------------------------------------------------
@@ -55,8 +70,8 @@ class uvma_isacov_cfg extends uvm_object;
     is_active              = UVM_PASSIVE; // Coverage agent is always passive
     
     ext_i_supported        = 1;
-    ext_m_supported        = 0;
-    ext_c_supported        = 0;
+    ext_m_supported        = 1;
+    ext_c_supported        = 1;
     ext_zicsr_supported    = 1;
     ext_zifencei_supported = 1;
     
