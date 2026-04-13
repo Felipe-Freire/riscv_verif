@@ -12,26 +12,26 @@ class uvma_clk_rst_sanity_seq extends uvma_clk_rst_base_seq;
   task body();
     uvma_clk_rst_seq_item req;
     
-    `uvm_info("CLK_RST_SEQ", "Iniciando a sequencia de inicializacao (Sanity)...", UVM_LOW)
+    `uvm_info("CLK_RST_SEQ", "Starting initialization sequence (sanity)...", UVM_LOW)
 
-    // --- Passo 1: Configurar e Ligar o Clock ---
+    // --- Step 1: Configure and start the clock ---
     req = uvma_clk_rst_seq_item::type_id::create("req");
     start_item(req);
     req.action        = UVMA_CLK_RST_SEQ_ITEM_ACTION_START_CLK;
     req.new_period_ps = 10000; // 100 MHz
     finish_item(req);
 
-    `uvm_info("CLK_RST_SEQ", "Clock iniciado com periodo de 10ns.", UVM_HIGH)
+    `uvm_info("CLK_RST_SEQ", "Clock started with 10ns period.", UVM_LOW)
 
-    // --- Passo 2: Aplicar o Reset ---
-    // Em hardware real, o reset precisa ser mantido ativo por alguns ciclos de clock
+    // --- Step 2: Apply reset ---
+    // In real hardware, reset must be held active for a few clock cycles
     req = uvma_clk_rst_seq_item::type_id::create("req");
     start_item(req);
     req.action            = UVMA_CLK_RST_SEQ_ITEM_ACTION_ASSERT_RESET;
-    req.reset_duration_ps = 50000; // Mantem o reset em 0 por 50ns (5 ciclos)
+    req.reset_duration_ps = 50000; // Keep reset at 0 for 50ns (5 cycles)
     finish_item(req);
 
-    `uvm_info("CLK_RST_SEQ", "Reset aplicado e liberado com sucesso.", UVM_HIGH)
+    `uvm_info("CLK_RST_SEQ", "Reset applied and released successfully.", UVM_LOW)
     
   endtask
 

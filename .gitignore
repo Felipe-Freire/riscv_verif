@@ -18,3 +18,8 @@ sim/out/*
 sim/work/*
 sim/modelsim.ini
 *.log
+*.vstf
+*.ucdb
+transcript
+out_tests/seed.yaml
+design.bin

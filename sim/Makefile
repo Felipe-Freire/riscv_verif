@@ -1,8 +1,11 @@
 # --- Configurable Variables (Default Values) ---
-TEST      ?= ibex_core_sanity_test
-SEED      ?= 1
-VERBOSITY ?= UVM_MEDIUM
-GUI       ?= 0
+TEST_NAME   ?= riscv_arithmetic_basic_test
+TEST_RTL    ?= ibex_core_base_test
+SEED        ?= 1
+VERBOSITY   ?= UVM_MEDIUM
+GUI         ?= 0
+HEX_FILE    ?= default.hex
+TOHOST_ADDR ?= 80001000
 
 # --- Absolute Paths ---
 ROOT_DIR   := $(shell pwd)/..
@@ -18,6 +21,7 @@ OUT_DIR    := ./out
 export UVMA_CLK_RST_PATH 		:= $(ROOT_DIR)/uvm_agents/uvma_clk_rst
 export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
 export UVMA_RVFI_PATH     	:= $(ROOT_DIR)/uvm_agents/uvma_rvfi
+export UVMA_ISACOV_PATH     := $(ROOT_DIR)/uvm_agents/uvma_isacov
 export UVML_MEM_PATH     		:= $(ROOT_DIR)/uvm_libs/uvml_mem
 export IBEX_RTL_PATH     		:= $(ROOT_DIR)/rtl/ibex/rtl
 # export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
@@ -27,7 +31,7 @@ export IBEX_RTL_PATH     		:= $(ROOT_DIR)/rtl/ibex/rtl
 # VLOG      := vlog -64 -sv +acc -L mtiUvm -suppress 13314,2583
 # VOPT      := vopt -64 +acc -suppress 13314,2583
 VLOG      := vlog -64 -sv +acc -L mtiUvm
-VOPT      := vopt -64 +acc
+VOPT      := vopt -64 +acc +cover=bcesf
 VSIM      := vsim -64 -L mtiUvm
 
 # --- DPI-C Config ---
@@ -47,6 +51,7 @@ all: comp opt run
 setup:
 	@mkdir -p $(OUT_DIR)/logs
 	@mkdir -p $(OUT_DIR)/waves
+	@mkdir -p $(OUT_DIR)/cov
 	@if [ ! -d "work" ]; then vlib work; vmap work work; fi
 
 dpi: setup
@@ -67,6 +72,7 @@ comp: dpi
 	-f $(UVML_MEM_PATH)/uvml_mem.f \
 	-f $(UVMA_SIMPLE_MEM_PATH)/uvma_simple_mem.f \
 	-f $(UVMA_RVFI_PATH)/uvma_rvfi.f \
+	-f $(UVMA_ISACOV_PATH)/uvma_isacov.f \
 	+incdir+$(ENV_DIR) \
 	$(ENV_DIR)/ibex_core_env_pkg.sv \
 	+incdir+$(TESTS_DIR) \
@@ -80,24 +86,29 @@ opt: comp
 	$(VOPT) ibex_core_tb_top -o ibex_core_tb_top_opt -l $(OUT_DIR)/logs/opt.log
 
 # 4. Simulation (CLI / Batch Mode)
-run: opt
-	@echo "--- Running Test: $(TEST) (Seed: $(SEED)) ---"
+run:
+	@echo "--- Running Test: $(TEST_NAME) (Seed: $(SEED)) ---"
 	$(VSIM) -c ibex_core_tb_top_opt \
 	-sv_seed $(SEED) \
 	-sv_lib cosim_dpi \
-	+UVM_TESTNAME=$(TEST) \
+	-coverage \
+	+UVM_TESTNAME=$(TEST_RTL) \
 	+UVM_VERBOSITY=$(VERBOSITY) \
-	-l $(OUT_DIR)/logs/sim_$(TEST)_$(SEED).log \
-	-do "run -all; exit"
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	-l $(OUT_DIR)/logs/sim_$(TEST_NAME)_$(SEED).log \
+	-do "coverage save -onexit $(OUT_DIR)/cov/sim_$(TEST_NAME)_$(SEED).ucdb; run -all; exit"
 
-# 5. Graphical Mode (Debug com GUI)
-wave: opt
-	@echo "--- Opening QuestaSim GUI for $(TEST) ---"
+# 5. Graphical Mode (Debug with GUI)
+wave:
+	@echo "--- Opening QuestaSim GUI for $(TEST_NAME) ---"
 	$(VSIM) ibex_core_tb_top_opt \
 	-sv_seed $(SEED) \
 	-sv_lib cosim_dpi \
-	+UVM_TESTNAME=$(TEST) \
+	+UVM_TESTNAME=$(TEST_RTL) \
 	+UVM_VERBOSITY=$(VERBOSITY) \
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
 	-do " \
 		add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; \
 		add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; \
@@ -105,7 +116,20 @@ wave: opt
 		add wave -group {RVFI_Interface} /ibex_core_tb_top/dut/rvfi_if_inst/*; \
 		run -all"
 
-# 6. Cleanup
+# 6. Coverage Merge and Report
+cov_merge:
+	@echo "--- Merging UCDB files ---"
+	vcover merge -out $(OUT_DIR)/cov/merged_regression.ucdb $(OUT_DIR)/cov/*.ucdb
+
+cov_report: cov_merge
+	@echo "--- Generating HTML Coverage Report ---"
+	vcover report -html -htmldir $(OUT_DIR)/cov/html_report -source -details $(OUT_DIR)/cov/merged_regression.ucdb
+
+cov_gui:
+	@echo "--- Opening Unified Coverage in QuestaSim GUI ---"
+	$(VSIM) -viewcov $(OUT_DIR)/cov/merged_regression.ucdb
+
+# 7. Cleanup
 clean:
 	@echo "--- Cleaning Workspace ---"
 	rm -rf $(OUT_DIR) work transcript *.wlf modelsim.ini

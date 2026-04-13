@@ -12,6 +12,7 @@ class ibex_core_env extends uvm_env;
   uvma_simple_mem_agent instr_mem_agent;
   uvma_simple_mem_agent data_mem_agent;
   uvma_rvfi_agent       rvfi_agent;
+  uvma_isacov_agent     isacov_agent;
 
   // Context Handles
   uvma_simple_mem_cntxt instr_mem_cntxt;
@@ -44,6 +45,7 @@ class ibex_core_env extends uvm_env;
     instr_mem_agent = uvma_simple_mem_agent::type_id::create("instr_mem_agent", this);
     data_mem_agent  = uvma_simple_mem_agent::type_id::create("data_mem_agent", this);
     rvfi_agent      = uvma_rvfi_agent::type_id::create("rvfi_agent", this);
+    isacov_agent    = uvma_isacov_agent::type_id::create("isacov_agent", this);
     
     scoreboard      = ibex_core_scoreboard::type_id::create("scoreboard", this);
 
@@ -53,6 +55,7 @@ class ibex_core_env extends uvm_env;
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
     rvfi_agent.ap.connect(scoreboard.rvfi_export);
+    rvfi_agent.ap.connect(isacov_agent.rvfi_export);
   endfunction
 
 endclass : ibex_core_env

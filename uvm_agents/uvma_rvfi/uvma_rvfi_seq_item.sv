@@ -3,14 +3,14 @@
 
 class uvma_rvfi_seq_item extends uvm_sequence_item;
 
-  // Sinais Core do Pipeline
+  // Core pipeline signals
   rand bit [63:0] order;
   rand bit [31:0] insn;
   rand bit        trap;
   rand bit [31:0] pc_rdata;
   rand bit [31:0] pc_wdata;
 
-  // Registradores
+  // Registers
   rand bit [ 4:0] rs1_addr;
   rand bit [31:0] rs1_rdata;
   rand bit [ 4:0] rs2_addr;
@@ -18,7 +18,7 @@ class uvma_rvfi_seq_item extends uvm_sequence_item;
   rand bit [ 4:0] rd_addr;
   rand bit [31:0] rd_wdata;
 
-  // Memória
+  // Memory
   rand bit [31:0] mem_addr;
   rand bit [ 3:0] mem_rmask;
   rand bit [31:0] mem_rdata;
@@ -48,7 +48,7 @@ class uvma_rvfi_seq_item extends uvm_sequence_item;
     super.new(name);
   endfunction
 
-  // Um print limpo para facilitar o nosso debug no terminal
+  // Clean print format to simplify terminal debugging
   function string convert2string();
     string s;
     s = $sformatf("RVFI [PC: 0x%08x] INSN: 0x%08x", pc_rdata, insn);
