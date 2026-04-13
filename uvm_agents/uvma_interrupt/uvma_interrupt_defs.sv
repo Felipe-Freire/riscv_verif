@@ -1,0 +1,14 @@
+`ifndef __UVMA_INTERRUPT_DEFS_SV__
+`define __UVMA_INTERRUPT_DEFS_SV__
+
+typedef enum {
+  UVMA_INTERRUPT_SEQ_ITEM_ACTION_ASSERT_UNTIL_ACK,
+  UVMA_INTERRUPT_SEQ_ITEM_ACTION_ASSERT,
+  UVMA_INTERRUPT_SEQ_ITEM_ACTION_DEASSERT
+} uvma_interrupt_seq_item_action_e;
+
+typedef enum {
+  UVMA_INTERRUPT_MON_ACTION_IRQ
+} uvma_interrupt_mon_action_e;
+
+`endif // __UVMA_INTERRUPT_DEFS_SV__
