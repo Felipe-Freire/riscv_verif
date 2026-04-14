@@ -7,7 +7,7 @@ class uvma_interrupt_agent extends uvm_agent;
   uvma_interrupt_cntxt cntxt;
   uvma_interrupt_drv   driver;
   uvma_interrupt_sqr   sequencer;
-  // uvma_interrupt_mon   monitor;
+  uvma_interrupt_mon   monitor;
 
   // Registro na Factory
   `uvm_component_utils_begin(uvma_interrupt_agent)
@@ -40,7 +40,7 @@ class uvma_interrupt_agent extends uvm_agent;
 
     // 3. Cria os Sub-componentes
     if (cfg.enabled) begin
-      // monitor = uvma_interrupt_mon::type_id::create("monitor", this);
+      monitor = uvma_interrupt_mon::type_id::create("monitor", this);
       
       if (cfg.is_active == UVM_ACTIVE) begin
         sequencer = uvma_interrupt_sqr::type_id::create("sequencer", this);

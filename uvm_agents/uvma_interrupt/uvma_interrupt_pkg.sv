@@ -23,5 +23,7 @@ package uvma_interrupt_pkg;
 
 endpackage : uvma_interrupt_pkg
 
+`include "uvma_interrupt_if.sv"
+
 `endif // __UVMA_INTERRUPT_PKG_SV__
 

@@ -2,7 +2,6 @@
 `define __UVMA_SIMPLE_MEM_AGENT_SV__
 
 class uvma_simple_mem_agent extends uvm_agent;
-  `uvm_component_utils(uvma_simple_mem_agent)
 
   uvma_simple_mem_cfg    cfg;
   uvma_simple_mem_cntxt  cntxt;
@@ -10,6 +9,11 @@ class uvma_simple_mem_agent extends uvm_agent;
   uvma_simple_mem_drv    driver;
   uvma_simple_mem_mon    monitor;
   uvma_simple_mem_sqr    sequencer;
+
+  `uvm_component_utils_begin(uvma_simple_mem_agent)
+    `uvm_field_object(cfg, UVM_DEFAULT)
+    `uvm_field_object(cntxt, UVM_DEFAULT)
+  `uvm_component_utils_end
   
   function new(string name="uvma_simple_mem_agent", uvm_component parent=null);
     super.new(name, parent);

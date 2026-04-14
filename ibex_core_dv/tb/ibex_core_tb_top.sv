@@ -111,6 +111,6 @@ module ibex_core_tb_top;
 
     uvm_config_db#(chandle)::set(null, "*", "spike_handle", spike_handle);
 
-    run_test("ibex_core_sanity_test");
+    run_test();
   end
 endmodule

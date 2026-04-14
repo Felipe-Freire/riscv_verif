@@ -1,5 +1,5 @@
 // ============================================================================
-// ARQUIVO: uvma_isacov_covergroups.svh
+// FILE: uvma_isacov_covergroups.svh
 // DESCRIPTION: Mathematical definitions for covergroups (templates).
 // ATTENTION: This file does not contain a class (class/endclass). It is meant
 // to be inserted (via `include) directly INSIDE the cov_model class.

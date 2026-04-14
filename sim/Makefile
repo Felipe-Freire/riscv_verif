@@ -32,7 +32,7 @@ export IBEX_RTL_PATH     		:= $(ROOT_DIR)/rtl/ibex/rtl
 # VLOG      := vlog -64 -sv +acc -L mtiUvm -suppress 13314,2583
 # VOPT      := vopt -64 +acc -suppress 13314,2583
 VLOG      := vlog -64 -sv +acc -L mtiUvm
-VOPT      := vopt -64 +acc +cover=bcesf
+VOPT      := vopt -64 +acc +cover=bcesf+ibex_core_tb_top. -coveropt 3
 VSIM      := vsim -64 -L mtiUvm
 
 # --- DPI-C Config ---

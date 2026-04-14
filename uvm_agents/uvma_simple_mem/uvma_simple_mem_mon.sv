@@ -3,13 +3,13 @@
 
 class uvma_simple_mem_mon extends uvm_monitor;
 
-  `uvm_component_utils(uvma_simple_mem_mon)
-
   uvma_simple_mem_cfg    cfg;
   uvma_simple_mem_cntxt  cntxt;
 
   // Port to publish requests
   uvm_analysis_port#(uvma_simple_mem_seq_item) req_ap;
+
+  `uvm_component_utils(uvma_simple_mem_mon)
 
   function new(string name="uvma_simple_mem_mon", uvm_component parent=null);
     super.new(name, parent);

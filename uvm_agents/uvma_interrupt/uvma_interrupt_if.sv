@@ -4,6 +4,12 @@
 interface uvma_interrupt_if (input logic clk, input logic rst_n);
   timeunit 1ns;
   timeprecision 1ps;
+  
+  import uvma_interrupt_pkg::UVMA_IRQ_EXTERNAL_ID;
+  import uvma_interrupt_pkg::UVMA_IRQ_FAST_BASE_ID;
+  import uvma_interrupt_pkg::UVMA_IRQ_NMI_ID;
+  import uvma_interrupt_pkg::UVMA_IRQ_SOFTWARE_ID;
+  import uvma_interrupt_pkg::UVMA_IRQ_TIMER_ID;
 
   // Lado do UVM (Vetor plano para facilitar o Driver)
   logic [31:0] irq_vector;

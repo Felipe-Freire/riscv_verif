@@ -65,7 +65,7 @@ class uvma_rvfi_mon extends uvm_monitor;
         trn.mem_wdata = cntxt.vif.mon_cb.rvfi_mem_wdata;
 
         // Print formatted transaction string
-        `uvm_info("RVFI_MON", trn.convert2string(), UVM_LOW)
+        `uvm_info("RVFI_MON", trn.convert2string(), UVM_DEBUG)
 
         // Send to scoreboard
         ap.write(trn);

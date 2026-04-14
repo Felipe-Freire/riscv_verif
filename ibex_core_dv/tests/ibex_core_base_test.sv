@@ -4,7 +4,7 @@
 class ibex_core_base_test extends uvm_test;
   `uvm_component_utils(ibex_core_base_test)
 
-  ibex_core_env    env;
+  ibex_core_env       env;
 
   uvma_clk_rst_cfg    clk_rst_cfg;
   uvma_simple_mem_cfg instr_mem_cfg;
@@ -102,26 +102,32 @@ class ibex_core_base_test extends uvm_test;
 
   // Firing of Reactive Sequences (Background Daemons)
   task run_phase(uvm_phase phase);
-    uvma_clk_rst_sanity_seq  clk_rst_seq;
+    // uvma_clk_rst_sanity_seq  clk_rst_seq;
+    uvma_clk_rst_start_clk_seq clk_rst_start_clk_seq;
+    uvma_clk_rst_assert_reset_seq clk_rst_assert_reset_seq;
     uvma_simple_mem_resp_seq instr_resp_seq;
     uvma_simple_mem_resp_seq data_resp_seq;
     
     super.run_phase(phase);
     
-    clk_rst_seq    = uvma_clk_rst_sanity_seq::type_id::create("clk_rst_seq");
+    // clk_rst_seq    = uvma_clk_rst_sanity_seq::type_id::create("clk_rst_seq");
+    clk_rst_start_clk_seq = uvma_clk_rst_start_clk_seq::type_id::create("clk_rst_start_clk_seq");
+    clk_rst_assert_reset_seq = uvma_clk_rst_assert_reset_seq::type_id::create("clk_rst_assert_reset_seq");
     instr_resp_seq = uvma_simple_mem_resp_seq::type_id::create("instr_resp_seq");
     data_resp_seq  = uvma_simple_mem_resp_seq::type_id::create("data_resp_seq");
     
     phase.raise_objection(this, "Background Memory Sequences Running");
+    clk_rst_start_clk_seq.start(env.clk_rst_agent.sequencer);
     fork
-      clk_rst_seq.start(env.clk_rst_agent.sequencer);
+      // clk_rst_seq.start(env.clk_rst_agent.sequencer);
+      clk_rst_assert_reset_seq.start(env.clk_rst_agent.sequencer);
       instr_resp_seq.start(env.instr_mem_agent.sequencer);
       data_resp_seq.start(env.data_mem_agent.sequencer);
       monitor_test_done(phase);
       watchdog_timeout();
     join_none
     
-    `uvm_info("BASE_TEST", "Background Memory Sequences Started.", UVM_LOW)
+    `uvm_info("BASE_TEST", "Background Memory and Clk/Rst Sequences Started.", UVM_LOW)
   endtask
 
   task monitor_test_done(uvm_phase phase);
@@ -140,7 +146,7 @@ class ibex_core_base_test extends uvm_test;
       // 2. Classic condition: end on TOHOST write
       if (rvfi_trn.mem_wmask != 0 && rvfi_trn.mem_addr == tohost_addr) begin
         if (rvfi_trn.mem_wdata == 1) begin
-          `uvm_info("TEST_VERDICT", "\n\n*** TEST PASSED! (via TOHOST) ***\n", UVM_NONE)
+          `uvm_info("TEST_VERDICT", "\n\n*** TEST PASSED! (via TOHOST) ***\n", UVM_LOW)
         end else begin
           `uvm_error("TEST_VERDICT", $sformatf("\n\n*** TEST FAILED! (via TOHOST) Code: %0d ***\n", rvfi_trn.mem_wdata))
         end
@@ -152,7 +158,7 @@ class ibex_core_base_test extends uvm_test;
       // Based on RVFI log: INSN: 0x00000073
       if (rvfi_trn.insn == 32'h00000073) begin
         if (gp_reg == 1) begin
-          `uvm_info("TEST_VERDICT", "\n\n*** TEST PASSED! (via ECALL) ***\n", UVM_NONE)
+          `uvm_info("TEST_VERDICT", "\n\n*** TEST PASSED! (via ECALL) ***\n", UVM_LOW)
         end else begin
           `uvm_error("TEST_VERDICT", $sformatf("\n\n*** TEST FAILED! (via ECALL) GP Code: %0d ***\n", gp_reg))
         end

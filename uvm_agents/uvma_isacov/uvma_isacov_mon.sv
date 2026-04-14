@@ -39,7 +39,7 @@ class uvma_isacov_mon extends uvm_monitor;
     if (!cfg.enabled) return;
     
     // Ignore bubble instructions (where nothing executed)
-    if (rvfi_instr.trap || (rvfi_instr.pc_rdata == 0 && rvfi_instr.insn == 0)) return;
+    // if (rvfi_instr.trap || (rvfi_instr.pc_rdata == 0 && rvfi_instr.insn == 0)) return;
 
     // Instantiate envelope and instruction
     mon_trn = uvma_isacov_mon_trn::type_id::create("mon_trn");

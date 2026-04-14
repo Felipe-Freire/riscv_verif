@@ -7,7 +7,7 @@ class uvma_rvfi_agent extends uvm_agent;
   uvma_rvfi_cntxt cntxt;
   uvma_rvfi_mon   monitor;
 
-  // Agent output port (connects to Env -> Scoreboard)
+  // Agent output port
   uvm_analysis_port#(uvma_rvfi_seq_item) ap;
 
   `uvm_component_utils_begin(uvma_rvfi_agent)
