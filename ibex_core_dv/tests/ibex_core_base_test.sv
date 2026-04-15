@@ -9,6 +9,9 @@ class ibex_core_base_test extends uvm_test;
   ibex_core_cntxt cntxt;
 
   uvm_tlm_analysis_fifo#(uvma_rvfi_seq_item) rvfi_fifo;
+
+  ibex_core_boot_vseq boot_vseq;
+
   bit [31:0] tohost_addr;
 
   function new(string name="ibex_core_base_test", uvm_component parent=null);
@@ -25,7 +28,6 @@ class ibex_core_base_test extends uvm_test;
 
     if (!uvm_config_db#(ibex_core_cfg)::get(this, "", "cfg", cfg)) begin
       cfg = ibex_core_cfg::type_id::create("env_cfg");
-      // Opcional: Rola os dados do CFG global para aproveitar as constraints que você criou
       if (!cfg.randomize()) begin
         `uvm_fatal("BASE_TEST", "Falha ao randomizar env_cfg")
       end
@@ -75,31 +77,18 @@ class ibex_core_base_test extends uvm_test;
   endfunction
 
   // Firing of Reactive Sequences (Background Daemons)
-  task run_phase(uvm_phase phase);
-    // uvma_clk_rst_sanity_seq  clk_rst_seq;
-    uvma_clk_rst_start_clk_seq    clk_rst_start_clk_seq;
-    uvma_clk_rst_assert_reset_seq clk_rst_assert_reset_seq;
-    uvma_simple_mem_resp_seq      instr_resp_seq;
-    uvma_simple_mem_resp_seq      data_resp_seq;
-    
+  task run_phase(uvm_phase phase);  
     super.run_phase(phase);
-    
-    // clk_rst_seq    = uvma_clk_rst_sanity_seq::type_id::create("clk_rst_seq");
-    clk_rst_start_clk_seq    = uvma_clk_rst_start_clk_seq   ::type_id::create("clk_rst_start_clk_seq"   );
-    clk_rst_assert_reset_seq = uvma_clk_rst_assert_reset_seq::type_id::create("clk_rst_assert_reset_seq");
-    instr_resp_seq           = uvma_simple_mem_resp_seq     ::type_id::create("instr_resp_seq"          );
-    data_resp_seq            = uvma_simple_mem_resp_seq     ::type_id::create("data_resp_seq"           );
-    
-    phase.raise_objection(this, "Background Memory Sequences Running");
-    clk_rst_start_clk_seq.start(env.clk_rst_agent.sequencer);
+    phase.raise_objection(this, "Base Test Initialization Running");
+
     fork
-      // clk_rst_seq.start(env.clk_rst_agent.sequencer);
-      clk_rst_assert_reset_seq.start(env.clk_rst_agent.sequencer);
-      instr_resp_seq.start(env.instr_mem_agent.sequencer);
-      data_resp_seq.start(env.data_mem_agent.sequencer);
       monitor_test_done(phase);
       watchdog_timeout();
     join_none
+
+    // Executa o BOOT completo do sistema usando a Virtual Sequence!
+    boot_vseq = ibex_core_boot_vseq::type_id::create("boot_vseq");
+    boot_vseq.start(env.vsqr);
     
     `uvm_info("BASE_TEST", "Background Memory and Clk/Rst Sequences Started.", UVM_LOW)
   endtask

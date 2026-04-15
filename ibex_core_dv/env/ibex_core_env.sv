@@ -9,6 +9,7 @@ class ibex_core_env extends uvm_env;
 
   // Components
   ibex_core_scoreboard  scoreboard;
+  ibex_core_vsqr        vsqr;
 
   // Agents Handles
   uvma_clk_rst_agent    clk_rst_agent;
@@ -55,7 +56,8 @@ class ibex_core_env extends uvm_env;
     super.connect_phase(phase);
     rvfi_agent.ap.connect(scoreboard.rvfi_export);
     rvfi_agent.ap.connect(isacov_agent.rvfi_export);
-    // interrupt_agent.ap.connect(scoreboard.interrupt_export);
+    connect_vsqr();
+    interrupt_agent.ap.connect(scoreboard.interrupt_export);
   endfunction
 
   function void assign_cfg();
@@ -89,7 +91,15 @@ class ibex_core_env extends uvm_env;
 
   function void create_components();
     scoreboard      = ibex_core_scoreboard ::type_id::create("scoreboard",      this);
+    vsqr            = ibex_core_vsqr       ::type_id::create("vsqr",            this);
   endfunction : create_components
+
+  function void connect_vsqr();
+    vsqr.clk_rst_sqr   = clk_rst_agent.sequencer;
+    vsqr.instr_mem_sqr = instr_mem_agent.sequencer;
+    vsqr.data_mem_sqr  = data_mem_agent.sequencer;
+    vsqr.interrupt_sqr = interrupt_agent.sequencer;
+  endfunction : connect_vsqr
 
 endclass : ibex_core_env
 

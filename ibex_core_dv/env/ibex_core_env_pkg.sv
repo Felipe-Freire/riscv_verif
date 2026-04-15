@@ -22,6 +22,11 @@ package ibex_core_env_pkg;
   `include "ibex_core_cfg.sv"
   `include "ibex_core_cntxt.sv"
   `include "ibex_core_vsqr.sv"
+
+  // Virtual Sequences
+  `include "ibex_core_base_vseq.sv"
+  `include "ibex_core_boot_vseq.sv"
+  `include "ibex_interrupt_test_vseq.sv"
   `include "ibex_core_cosim_verdict.sv"
   `include "ibex_core_predictor.sv"
   `include "ibex_core_comparator.sv"

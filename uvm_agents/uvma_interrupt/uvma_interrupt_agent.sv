@@ -9,6 +9,8 @@ class uvma_interrupt_agent extends uvm_agent;
   uvma_interrupt_sqr   sequencer;
   uvma_interrupt_mon   monitor;
 
+  uvm_analysis_port #(uvma_interrupt_mon_trn) ap;
+
   // Registro na Factory
   `uvm_component_utils_begin(uvma_interrupt_agent)
     `uvm_field_object(cfg, UVM_DEFAULT)
@@ -17,6 +19,7 @@ class uvma_interrupt_agent extends uvm_agent;
   // Construtor
   function new(string name="uvma_interrupt_agent", uvm_component parent=null);
     super.new(name, parent);
+    ap = new("ap", this);
   endfunction
 
   virtual function void build_phase(uvm_phase phase);
@@ -44,7 +47,7 @@ class uvma_interrupt_agent extends uvm_agent;
       
       if (cfg.is_active == UVM_ACTIVE) begin
         sequencer = uvma_interrupt_sqr::type_id::create("sequencer", this);
-        driver    = uvma_interrupt_drv::type_id::create("driver", this);
+        driver    = uvma_interrupt_drv::type_id::create("driver",    this);
       end
     end
   endfunction
@@ -53,6 +56,7 @@ class uvma_interrupt_agent extends uvm_agent;
     super.connect_phase(phase);
     
     if (cfg.enabled) begin
+      monitor.ap.connect(ap);
       if (cfg.is_active == UVM_ACTIVE) begin
         driver.seq_item_port.connect(sequencer.seq_item_export);
       end

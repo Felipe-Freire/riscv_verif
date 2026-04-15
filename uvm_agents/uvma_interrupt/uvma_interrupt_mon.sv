@@ -77,8 +77,10 @@ class uvma_interrupt_mon extends uvm_monitor;
         // Cria a transação e copia o valor atual
         trn = uvma_interrupt_mon_trn::type_id::create("trn");
         trn.irq_vector = cntxt.vif.mon_cb.irq_vector;
+        // Calcula a máscara dos bits que mudaram (XOR)
+        trn.irq_mask   = cntxt.vif.mon_cb.irq_vector ^ prev_irq_vector;
         
-        `uvm_info("IRQ_MON", $sformatf("Interrupt state changed! New Vector: 0x%08x", trn.irq_vector), UVM_HIGH);
+        `uvm_info("IRQ_MON", $sformatf("Interrupt state changed! Mask: 0x%08x, New Vector: 0x%08x", trn.irq_mask, trn.irq_vector), UVM_HIGH);
         
         // Publica na porta de análise
         ap.write(trn);

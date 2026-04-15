@@ -18,6 +18,8 @@ COSIM_DIR  := $(ROOT_DIR)/cosim_dpi
 OUT_DIR    := ./out
 
 # --- EXPORTS for .f files to see ---
+export IBEX_CORE_ENV_PATH   := $(ENV_DIR)
+export IBEX_CORE_TEST_PATH  := $(TESTS_DIR)
 export UVMA_CLK_RST_PATH 		:= $(ROOT_DIR)/uvm_agents/uvma_clk_rst
 export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
 export UVMA_RVFI_PATH     	:= $(ROOT_DIR)/uvm_agents/uvma_rvfi
@@ -75,10 +77,8 @@ comp: dpi
 	-f $(UVMA_RVFI_PATH)/uvma_rvfi.f \
 	-f $(UVMA_INTERRUPT_PATH)/uvma_interrupt.f \
 	-f $(UVMA_ISACOV_PATH)/uvma_isacov.f \
-	+incdir+$(ENV_DIR) \
-	$(ENV_DIR)/ibex_core_env_pkg.sv \
-	+incdir+$(TESTS_DIR) \
-	$(TESTS_DIR)/ibex_core_test_pkg.sv \
+	-f $(IBEX_CORE_ENV_PATH)/ibex_core_env.f \
+	-f $(IBEX_CORE_TEST_PATH)/ibex_core_test.f \
 	$(TB_DIR)/ibex_core_tb_top.sv \
 	-l $(OUT_DIR)/logs/compile.log
 

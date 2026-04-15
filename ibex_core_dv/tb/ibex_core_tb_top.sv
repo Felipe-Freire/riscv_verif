@@ -10,11 +10,11 @@ import ibex_core_test_pkg::*;
 module ibex_core_tb_top;
 
   // Physical interfaces
-  uvma_clk_rst_if clk_rst_if();
+  uvma_clk_rst_if    clk_rst_if  ();
   uvma_simple_mem_if instr_mem_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
   uvma_simple_mem_if data_mem_if (.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
-  // uvma_rvfi_instr_if rvfi_if_inst(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
-  uvma_interrupt_if interrupt_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
+  uvma_rvfi_instr_if rvfi_if_inst(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
+  uvma_interrupt_if  interrupt_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
 
   // Static signals
   logic [31:0]          boot_addr;
@@ -88,12 +88,42 @@ module ibex_core_tb_top;
     .data_err_i         (data_mem_if.err)
   );
 
-  // Bind RVFI monitor interface directly into the DUT wrapper scope.
-  bind ibex_top_tracing uvma_rvfi_instr_if rvfi_if_inst (
-    .clk   (clk_i),   // Explicitly map local Ibex clock name
-    .rst_n (rst_ni),  // Explicitly map local Ibex reset name
-    .* // Name matching auto-connects remaining rvfi_* signals
-  );
+  // RVFI Interface Explicit Assignments
+  assign rvfi_if_inst.rvfi_valid     = dut.rvfi_valid;
+  assign rvfi_if_inst.rvfi_order     = dut.rvfi_order;
+  assign rvfi_if_inst.rvfi_insn      = dut.rvfi_insn;
+  assign rvfi_if_inst.rvfi_trap      = dut.rvfi_trap;
+  assign rvfi_if_inst.rvfi_halt      = dut.rvfi_halt;
+  assign rvfi_if_inst.rvfi_intr      = dut.rvfi_intr;
+  assign rvfi_if_inst.rvfi_mode      = dut.rvfi_mode;
+  assign rvfi_if_inst.rvfi_ixl       = dut.rvfi_ixl;
+  assign rvfi_if_inst.rvfi_pc_rdata  = dut.rvfi_pc_rdata;
+  assign rvfi_if_inst.rvfi_pc_wdata  = dut.rvfi_pc_wdata;
+  assign rvfi_if_inst.rvfi_rs1_addr  = dut.rvfi_rs1_addr;
+  assign rvfi_if_inst.rvfi_rs1_rdata = dut.rvfi_rs1_rdata;
+  assign rvfi_if_inst.rvfi_rs2_addr  = dut.rvfi_rs2_addr;
+  assign rvfi_if_inst.rvfi_rs2_rdata = dut.rvfi_rs2_rdata;
+  assign rvfi_if_inst.rvfi_rs3_addr  = dut.rvfi_rs3_addr;
+  assign rvfi_if_inst.rvfi_rs3_rdata = dut.rvfi_rs3_rdata;
+  assign rvfi_if_inst.rvfi_rd_addr   = dut.rvfi_rd_addr;
+  assign rvfi_if_inst.rvfi_rd_wdata  = dut.rvfi_rd_wdata;
+  assign rvfi_if_inst.rvfi_mem_addr  = dut.rvfi_mem_addr;
+  assign rvfi_if_inst.rvfi_mem_rmask = dut.rvfi_mem_rmask;
+  assign rvfi_if_inst.rvfi_mem_wmask = dut.rvfi_mem_wmask;
+  assign rvfi_if_inst.rvfi_mem_rdata = dut.rvfi_mem_rdata;
+  assign rvfi_if_inst.rvfi_mem_wdata = dut.rvfi_mem_wdata;
+  assign rvfi_if_inst.rvfi_ext_pre_mip          = dut.rvfi_ext_pre_mip;
+  assign rvfi_if_inst.rvfi_ext_post_mip         = dut.rvfi_ext_post_mip;
+  assign rvfi_if_inst.rvfi_ext_nmi              = dut.rvfi_ext_nmi;
+  assign rvfi_if_inst.rvfi_ext_nmi_int          = dut.rvfi_ext_nmi_int;
+  assign rvfi_if_inst.rvfi_ext_debug_req        = dut.rvfi_ext_debug_req;
+  assign rvfi_if_inst.rvfi_ext_debug_mode       = dut.rvfi_ext_debug_mode;
+  assign rvfi_if_inst.rvfi_ext_rf_wr_suppress   = dut.rvfi_ext_rf_wr_suppress;
+  assign rvfi_if_inst.rvfi_ext_mcycle           = dut.rvfi_ext_mcycle;
+  assign rvfi_if_inst.rvfi_ext_mhpmcounters     = dut.rvfi_ext_mhpmcounters;
+  assign rvfi_if_inst.rvfi_ext_mhpmcountersh    = dut.rvfi_ext_mhpmcountersh;
+  assign rvfi_if_inst.rvfi_ext_ic_scr_key_valid = dut.rvfi_ext_ic_scr_key_valid;
+  assign rvfi_if_inst.rvfi_ext_irq_valid        = dut.rvfi_ext_irq_valid;
 
   chandle spike_handle;
   
@@ -108,7 +138,7 @@ module ibex_core_tb_top;
     uvm_config_db#(virtual uvma_clk_rst_if   )::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if    );
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if  );
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.instr_mem_agent", "vif", instr_mem_if);
-    uvm_config_db#(virtual uvma_rvfi_instr_if)::set(null, "uvm_test_top.env.rvfi_agent", "vif", dut.rvfi_if_inst );
+    uvm_config_db#(virtual uvma_rvfi_instr_if)::set(null, "uvm_test_top.env.rvfi_agent", "vif", rvfi_if_inst );
     uvm_config_db#(virtual uvma_interrupt_if )::set(null, "uvm_test_top.env.interrupt_agent", "vif", interrupt_if);
 
     uvm_config_db#(chandle)                   ::set(null, "*", "spike_handle", spike_handle                      );
