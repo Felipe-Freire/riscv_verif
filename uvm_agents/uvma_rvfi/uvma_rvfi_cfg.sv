@@ -2,14 +2,20 @@
 `define __UVMA_RVFI_CFG_SV__
 
 class uvma_rvfi_cfg extends uvm_object;
-  `uvm_object_utils(uvma_rvfi_cfg)
 
   // Main enable switch
-  bit enabled = 1'b1; // Enabled by default
+  rand bit enabled;
+  rand uvm_active_passive_enum is_active; 
 
-  // RVFI is physically unable to be ACTIVE (it has no driver)
-  // We keep this variable for UVM standardization
-  uvm_active_passive_enum is_active = UVM_PASSIVE; 
+  `uvm_object_utils_begin(uvma_rvfi_cfg)
+    `uvm_field_int (enabled, UVM_DEFAULT)
+    `uvm_field_enum(uvm_active_passive_enum, is_active, UVM_DEFAULT)
+  `uvm_object_utils_end
+
+  constraint defaults_cons {
+    soft enabled   == 1;
+    soft is_active == UVM_PASSIVE; // RVFI agent is typically passive
+  }
 
   function new(string name="uvma_rvfi_cfg");
     super.new(name);

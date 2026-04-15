@@ -14,6 +14,7 @@ module ibex_core_tb_top;
   uvma_simple_mem_if instr_mem_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
   uvma_simple_mem_if data_mem_if (.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
   // uvma_rvfi_instr_if rvfi_if_inst(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
+  uvma_interrupt_if interrupt_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
 
   // Static signals
   logic [31:0]          boot_addr;
@@ -47,11 +48,11 @@ module ibex_core_tb_top;
     .core_sleep_o           (),
     
     // Interrupts
-    .irq_software_i (1'b0),
-    .irq_timer_i    (1'b0),
-    .irq_external_i (1'b0),
-    .irq_fast_i     (15'b0),
-    .irq_nm_i       (1'b0),
+    .irq_software_i (interrupt_if.irq_software),
+    .irq_timer_i    (interrupt_if.irq_timer),
+    .irq_external_i (interrupt_if.irq_external),
+    .irq_fast_i     (interrupt_if.irq_fast),
+    .irq_nm_i       (interrupt_if.irq_nm),
     
     // Scrambling Interface (I-Cache Crypto)
     .scramble_key_valid_i (1'b0),
@@ -104,12 +105,13 @@ module ibex_core_tb_top;
       `uvm_fatal("COSIM", "Failed to initialize the Spike C++ co-simulation model")
     end
 
-    uvm_config_db#(virtual uvma_clk_rst_if)::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if);
-    uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if);
+    uvm_config_db#(virtual uvma_clk_rst_if   )::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if    );
+    uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if  );
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.instr_mem_agent", "vif", instr_mem_if);
-    uvm_config_db#(virtual uvma_rvfi_instr_if)::set(null, "uvm_test_top.env.rvfi_agent", "vif", dut.rvfi_if_inst);
+    uvm_config_db#(virtual uvma_rvfi_instr_if)::set(null, "uvm_test_top.env.rvfi_agent", "vif", dut.rvfi_if_inst );
+    uvm_config_db#(virtual uvma_interrupt_if )::set(null, "uvm_test_top.env.interrupt_agent", "vif", interrupt_if);
 
-    uvm_config_db#(chandle)::set(null, "*", "spike_handle", spike_handle);
+    uvm_config_db#(chandle)                   ::set(null, "*", "spike_handle", spike_handle                      );
 
     run_test();
   end

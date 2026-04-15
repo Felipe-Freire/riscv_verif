@@ -4,13 +4,9 @@
 class ibex_core_base_test extends uvm_test;
   `uvm_component_utils(ibex_core_base_test)
 
-  ibex_core_env       env;
-
-  uvma_clk_rst_cfg    clk_rst_cfg;
-  uvma_simple_mem_cfg instr_mem_cfg;
-  uvma_simple_mem_cfg data_mem_cfg;
-  uvma_rvfi_cfg       rvfi_cfg;
-  uvma_isacov_cfg     isacov_cfg;
+  ibex_core_env   env;
+  ibex_core_cfg   cfg;
+  ibex_core_cntxt cntxt;
 
   uvm_tlm_analysis_fifo#(uvma_rvfi_seq_item) rvfi_fifo;
   bit [31:0] tohost_addr;
@@ -26,37 +22,15 @@ class ibex_core_base_test extends uvm_test;
     if (!$value$plusargs("TOHOST_ADDR=%h", tohost_addr)) begin
       `uvm_fatal("BASE_TEST", "TOHOST_ADDR not provided! Use +TOHOST_ADDR=address")
     end
-    
-    // Configure the Clock Agent to be ACTIVE
-    clk_rst_cfg = uvma_clk_rst_cfg::type_id::create("clk_rst_cfg");
-    clk_rst_cfg.is_active = UVM_ACTIVE;
-    uvm_config_db#(uvma_clk_rst_cfg)::set(this, "env.clk_rst_agent*", "cfg", clk_rst_cfg);
 
-    // Configure the Instruction Memory Agent to be ACTIVE
-    instr_mem_cfg = uvma_simple_mem_cfg::type_id::create("instr_mem_cfg");
-    instr_mem_cfg.is_active = UVM_ACTIVE;
-    instr_mem_cfg.enabled   = 1;
-    uvm_config_db#(uvma_simple_mem_cfg)::set(this, "env.instr_mem_agent*", "cfg", instr_mem_cfg);
-
-    // Configure the Data Memory Agent to be ACTIVE
-    data_mem_cfg = uvma_simple_mem_cfg::type_id::create("data_mem_cfg");
-    data_mem_cfg.is_active = UVM_ACTIVE;
-    data_mem_cfg.enabled   = 1;
-    uvm_config_db#(uvma_simple_mem_cfg)::set(this, "env.data_mem_agent*", "cfg", data_mem_cfg);
-
-    // Configure the RVFI Agent to be ACTIVE
-    rvfi_cfg = uvma_rvfi_cfg::type_id::create("rvfi_cfg");
-    rvfi_cfg.is_active = UVM_PASSIVE;
-    uvm_config_db#(uvma_rvfi_cfg)::set(this, "env.rvfi_agent*", "cfg", rvfi_cfg);
-
-    // Configure the ISACOV Agent to be ACTIVE
-    isacov_cfg = uvma_isacov_cfg::type_id::create("isacov_cfg");
-    // You can use randomize in the future for regressions:
-    // assert(isacov_cfg.randomize() with { ext_m_supported == 1; });
-    isacov_cfg.is_active = UVM_PASSIVE;
-    isacov_cfg.ext_m_supported = 1;
-    isacov_cfg.ext_c_supported = 1;
-    uvm_config_db#(uvma_isacov_cfg)::set(this, "env.isacov_agent*", "cfg", isacov_cfg);
+    if (!uvm_config_db#(ibex_core_cfg)::get(this, "", "cfg", cfg)) begin
+      cfg = ibex_core_cfg::type_id::create("env_cfg");
+      // Opcional: Rola os dados do CFG global para aproveitar as constraints que você criou
+      if (!cfg.randomize()) begin
+        `uvm_fatal("BASE_TEST", "Falha ao randomizar env_cfg")
+      end
+      uvm_config_db#(ibex_core_cfg)::set(this, "*", "cfg", cfg);
+    end
 
     // Build the Environment
     env = ibex_core_env::type_id::create("env", this);
@@ -85,13 +59,13 @@ class ibex_core_base_test extends uvm_test;
       `uvm_fatal("BASE_TEST", "Path to HEX file not provided! Use +HEX_FILE=path/to/file.hex")
     end
     
-    env.shared_mem.load_hex(hex_file_path);
+    env.cntxt.shared_mem.load_hex(hex_file_path);
 
     if (!uvm_config_db#(chandle)::get(this, "", "spike_handle", spike_handle)) begin
       `uvm_fatal("BASE_TEST", "Could not retrieve spike_handle from tb_top!")
     end
 
-    env.shared_mem.get_backdoor_memory(mem_copy);
+    env.cntxt.shared_mem.get_backdoor_memory(mem_copy);
 
     foreach (mem_copy[addr]) begin
       riscv_cosim_write_mem_byte(spike_handle, addr, mem_copy[addr]);
@@ -103,18 +77,18 @@ class ibex_core_base_test extends uvm_test;
   // Firing of Reactive Sequences (Background Daemons)
   task run_phase(uvm_phase phase);
     // uvma_clk_rst_sanity_seq  clk_rst_seq;
-    uvma_clk_rst_start_clk_seq clk_rst_start_clk_seq;
+    uvma_clk_rst_start_clk_seq    clk_rst_start_clk_seq;
     uvma_clk_rst_assert_reset_seq clk_rst_assert_reset_seq;
-    uvma_simple_mem_resp_seq instr_resp_seq;
-    uvma_simple_mem_resp_seq data_resp_seq;
+    uvma_simple_mem_resp_seq      instr_resp_seq;
+    uvma_simple_mem_resp_seq      data_resp_seq;
     
     super.run_phase(phase);
     
     // clk_rst_seq    = uvma_clk_rst_sanity_seq::type_id::create("clk_rst_seq");
-    clk_rst_start_clk_seq = uvma_clk_rst_start_clk_seq::type_id::create("clk_rst_start_clk_seq");
+    clk_rst_start_clk_seq    = uvma_clk_rst_start_clk_seq   ::type_id::create("clk_rst_start_clk_seq"   );
     clk_rst_assert_reset_seq = uvma_clk_rst_assert_reset_seq::type_id::create("clk_rst_assert_reset_seq");
-    instr_resp_seq = uvma_simple_mem_resp_seq::type_id::create("instr_resp_seq");
-    data_resp_seq  = uvma_simple_mem_resp_seq::type_id::create("data_resp_seq");
+    instr_resp_seq           = uvma_simple_mem_resp_seq     ::type_id::create("instr_resp_seq"          );
+    data_resp_seq            = uvma_simple_mem_resp_seq     ::type_id::create("data_resp_seq"           );
     
     phase.raise_objection(this, "Background Memory Sequences Running");
     clk_rst_start_clk_seq.start(env.clk_rst_agent.sequencer);

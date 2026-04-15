@@ -63,20 +63,6 @@ class uvma_isacov_cfg extends uvm_object;
   // ------------------------------------------------------------------------
   function new(string name="uvma_isacov_cfg");
     super.new(name);
-    
-    // Conservative defaults (run without requiring randomize)
-    enabled                = 1;
-    cov_model_enabled      = 1;
-    is_active              = UVM_PASSIVE; // Coverage agent is always passive
-    
-    ext_i_supported        = 1;
-    ext_m_supported        = 1;
-    ext_c_supported        = 1;
-    ext_zicsr_supported    = 1;
-    ext_zifencei_supported = 1;
-    
-    reg_hazards_enabled    = 1;
-    reg_crosses_enabled    = 1;
   endfunction
 
 endclass : uvma_isacov_cfg

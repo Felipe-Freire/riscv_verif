@@ -29,14 +29,8 @@ class uvma_interrupt_cfg extends uvm_object;
   // Construtor: Garantia de vida (Valores Default Seguros)
   function new(string name="uvma_interrupt_cfg");
     super.new(name);
-    
-    this.enabled           = 1;
-    this.is_active         = UVM_ACTIVE;
-    this.cov_model_enabled = 1;
-    this.enabled_irq_mask  = 32'hFFFF_FFFF;
   endfunction
 
 endclass : uvma_interrupt_cfg
 
 `endif // __UVMA_INTERRUPT_CFG_SV__
-

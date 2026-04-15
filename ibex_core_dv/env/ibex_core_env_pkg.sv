@@ -11,6 +11,7 @@ package ibex_core_env_pkg;
   import uvma_clk_rst_pkg::*;
   import uvml_mem_pkg::*;
   import uvma_simple_mem_pkg::*;
+  import uvma_interrupt_pkg::*;
   import uvma_rvfi_pkg::*;
   import uvma_isacov_pkg::*;
 
@@ -18,6 +19,9 @@ package ibex_core_env_pkg;
   `include "cosim_dpi.svh"
 
   // Inclusion of Env classes
+  `include "ibex_core_cfg.sv"
+  `include "ibex_core_cntxt.sv"
+  `include "ibex_core_vsqr.sv"
   `include "ibex_core_cosim_verdict.sv"
   `include "ibex_core_predictor.sv"
   `include "ibex_core_comparator.sv"
