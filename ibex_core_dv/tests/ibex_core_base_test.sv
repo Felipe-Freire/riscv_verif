@@ -86,10 +86,12 @@ class ibex_core_base_test extends uvm_test;
       watchdog_timeout();
     join_none
 
-    // Executa o BOOT completo do sistema usando a Virtual Sequence!
+    execute_vseq();
+  endtask
+
+  virtual task execute_vseq();
     boot_vseq = ibex_core_boot_vseq::type_id::create("boot_vseq");
     boot_vseq.start(env.vsqr);
-    
     `uvm_info("BASE_TEST", "Background Memory and Clk/Rst Sequences Started.", UVM_LOW)
   endtask
 

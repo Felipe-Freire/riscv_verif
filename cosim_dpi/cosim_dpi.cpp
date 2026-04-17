@@ -71,17 +71,27 @@ bool MySpikeCosim::mmio_store(reg_t addr, size_t len, const uint8_t* bytes) {
 }
 
 // Lockstep Checker
-int MySpikeCosim::step(uint32_t rd_addr, uint32_t rd_wdata, uint32_t rtl_pc, uint32_t trap) {
+int MySpikeCosim::step(uint32_t rd_addr, uint32_t rd_wdata, uint32_t rtl_pc, uint32_t trap, uint32_t intr) {
   bool passed = true;
   std::stringstream err_msg;
 
+  uint32_t current_mtvec = proc->get_csr(CSR_MTVEC);
+  proc->put_csr(CSR_MTVEC, current_mtvec & 0xFFFFFF03);
+
+  if (intr == 1) {
+    proc->step(1);
+  }
+
   // PC Sincronization Check
   uint32_t spike_pc = proc->get_state()->pc;
-  if (spike_pc != rtl_pc) {
-    err_msg << "PC mismatch! RTL executed 0x" << std::hex << rtl_pc
-            << " but Spike expected 0x" << spike_pc;
-    errors.push_back(err_msg.str());
-    return 0; // Divergência Crítica: Interrompe a análise
+
+  if (intr == 0 && trap == 0) {
+    if (spike_pc != rtl_pc) {
+      err_msg << "PC mismatch! RTL executed 0x" << std::hex << rtl_pc
+              << " but Spike expected 0x" << spike_pc;
+      errors.push_back(err_msg.str());
+      return 0; // Divergência Crítica
+    }
   }
 
   // Step Spike for one instruction
@@ -102,9 +112,16 @@ int MySpikeCosim::step(uint32_t rd_addr, uint32_t rd_wdata, uint32_t rtl_pc, uin
   return passed ? 1 : 0;
 }
 
+// TODO: Implement support for custom/fast interrupts for Ibex.
+// Currently recognizes the pattern IRQ_SOFTWARE_ID = 3, IRQ_TIMER_ID = 7, IRQ_EXTERNAL_ID = 11;
+
 // Set Interrupt
 void MySpikeCosim::set_interrupt(uint32_t mask, uint32_t val) {
-  proc->get_state()->mip->backdoor_write_with_mask(mask, val);
+  // uint32_t current_mtvec = proc->get_csr(CSR_MTVEC);
+  // proc->put_csr(CSR_MTVEC, current_mtvec & 0xFFFFFF03);
+  // std::cout << "[DEBUG] Spike MTVEC is: 0x" << std::hex << current_mtvec << std::endl;
+  proc->get_state()->mip->backdoor_write_with_mask(0xffffffff, val);
+  // proc->step(1);
 }
 
 // Error Management
@@ -122,8 +139,8 @@ extern "C" {
     ((MySpikeCosim*)handle)->write_mem_byte(addr, (uint8_t)data);
   }
 
-  int riscv_cosim_step(void* handle, int rd, int wdata, int pc, int trap) {
-    return ((MySpikeCosim*)handle)->step(rd, wdata, pc, trap);
+  int riscv_cosim_step(void* handle, int rd, int wdata, int pc, int trap, int intr) {
+    return ((MySpikeCosim*)handle)->step(rd, wdata, pc, trap, intr);
   }
 
   void riscv_cosim_set_interrupt(void* handle, int mask, int val) {

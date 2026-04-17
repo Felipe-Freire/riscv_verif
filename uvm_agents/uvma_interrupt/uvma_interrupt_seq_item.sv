@@ -7,7 +7,7 @@ class uvma_interrupt_seq_item extends uvm_sequence_item;
   rand uvma_interrupt_seq_item_action_e action;
   
   // Cada bit em '1' indica que aquele ID de interrupção sofrerá a ação
-  rand bit [31:0]   irq_mask; 
+  rand bit [31:0]   irq_mask;
   
   // Atraso (em ciclos de clock) antes de aplicar a ação para cada pino
   rand int unsigned skew[32]; 

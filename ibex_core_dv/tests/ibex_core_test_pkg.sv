@@ -21,6 +21,7 @@ package ibex_core_test_pkg;
   // Test classes for the ibex core test environment
   `include "ibex_core_base_test.sv"
   `include "ibex_core_sanity_test.sv"
+  `include "ibex_core_interrupt_test.sv"
 
 endpackage : ibex_core_test_pkg
 

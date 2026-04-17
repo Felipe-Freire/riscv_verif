@@ -34,7 +34,7 @@ class uvma_interrupt_drv extends uvm_driver#(uvma_interrupt_seq_item);
    endtask
 
    task drv_req(uvma_interrupt_seq_item req);
-      `uvm_info("IRQ_DRV", $sformatf("Driving:\n%s", req.sprint()), UVM_HIGH);
+      `uvm_info("IRQ_DRV", $sformatf("Driving:\n%s", req.sprint()), UVM_LOW);
       
       case (req.action)
          UVMA_INTERRUPT_SEQ_ITEM_ACTION_ASSERT: begin
@@ -66,13 +66,13 @@ class uvma_interrupt_drv extends uvm_driver#(uvma_interrupt_seq_item);
    task assert_irq(int unsigned index, int unsigned skew);
       repeat (skew) @(cntxt.vif.drv_cb);
       cntxt.vif.drv_cb.irq_vector[index] <= 1'b1;
-      `uvm_info("IRQ_DRV", $sformatf("Asserted IRQ bit %0d", index), UVM_HIGH);
+      `uvm_info("IRQ_DRV", $sformatf("Asserted IRQ bit %0d", index), UVM_LOW);
    endtask
 
    task deassert_irq(int unsigned index, int unsigned skew);
       repeat (skew) @(cntxt.vif.drv_cb);
       cntxt.vif.drv_cb.irq_vector[index] <= 1'b0;
-      `uvm_info("IRQ_DRV", $sformatf("Deasserted IRQ bit %0d", index), UVM_HIGH);
+      `uvm_info("IRQ_DRV", $sformatf("Deasserted IRQ bit %0d", index), UVM_LOW);
    endtask
 
 endclass : uvma_interrupt_drv

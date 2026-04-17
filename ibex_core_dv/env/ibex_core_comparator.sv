@@ -15,7 +15,7 @@ class ibex_core_comparator extends uvm_subscriber #(ibex_core_cosim_verdict);
     if (t.passed) begin
       match_count++;
       `uvm_info("COMPARATOR", $sformatf("[PASS] PC: 0x%0x | RD: x%0d | WDATA: 0x%0x", 
-                t.rtl_item.pc_rdata, t.rtl_item.rd_addr, t.rtl_item.rd_wdata), UVM_DEBUG)
+                t.rtl_item.pc_rdata, t.rtl_item.rd_addr, t.rtl_item.rd_wdata), UVM_LOW)
     end else begin
       mismatch_count++;
       `uvm_error("COMPARATOR_FAIL", $sformatf("Critical divergence at PC 0x%0x!", t.rtl_item.pc_rdata))

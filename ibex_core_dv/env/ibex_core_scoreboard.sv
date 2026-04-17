@@ -46,11 +46,11 @@ class ibex_core_scoreboard extends uvm_scoreboard;
 
   // This directly processes the interrupt transaction synchronously in zero time
   virtual function void write_interrupt(uvma_interrupt_mon_trn int_trn);
-    `uvm_info("SCOREBOARD", $sformatf("Received Interrupt. Mask: 0x%08x, Vector: 0x%08x. Synchronizing Spike...", int_trn.irq_mask, int_trn.irq_vector), UVM_HIGH)
+    `uvm_info("SCOREBOARD", $sformatf("Received Interrupt. Mask: 0x%08x, Vector: 0x%08x. Synchronizing Spike...", int_trn.irq_mask, int_trn.irq_vector), UVM_LOW)
     
     // Send the interrupt directly to Spike C++ Reference Model (DPI-C)
     // using the exact mask to only affect the pins that changed.
-    riscv_cosim_set_interrupt(spike_handle, int_trn.irq_mask, int_trn.irq_vector);
+    // riscv_cosim_set_interrupt(spike_handle, int_trn.irq_mask, int_trn.irq_vector);
   endfunction
 
 endclass : ibex_core_scoreboard
