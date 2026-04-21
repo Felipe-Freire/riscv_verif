@@ -139,6 +139,17 @@ class ibex_core_base_test extends uvm_test;
     `uvm_fatal("TIMEOUT", "Simulation reached timeout without writing to tohost!")
   endtask
 
+  function void report_phase(uvm_phase phase);
+    chandle spike_handle;
+
+    super.report_phase(phase);
+
+    if (uvm_config_db#(chandle)::get(this, "", "spike_handle", spike_handle)) begin
+      spike_cosim_release(spike_handle);
+      `uvm_info("BASE_TEST", "Spike co-simulation model released.", UVM_LOW)
+    end
+  endfunction
+
 endclass : ibex_core_base_test
 
 `endif // __IBEX_CORE_BASE_TEST_SV__

@@ -4,6 +4,7 @@ import uvm_pkg::*;
 `include "uvm_macros.svh"
 
 `include "cosim_dpi.svh"
+`include "spike_cosim_dpi.svh"
 
 import ibex_core_test_pkg::*;
 
@@ -129,7 +130,19 @@ module ibex_core_tb_top;
   
   initial begin
     // Create Spike lockstep co-simulation model starting at reset vector.
-    spike_handle = riscv_cosim_init("RV32IMC", 32'h80);
+    spike_handle = spike_cosim_init(
+      "rv32imc",     // isa_string
+      32'h0000_0080, // start_pc (Boot address)
+      32'h0000_0000, // start_mtvec (Padrão)
+      "spike.log",   // log_file_path (Ou "" se não quiser gerar log em arquivo)
+      4,             // pmp_num_regions (De acordo com seu RTL)
+      0,             // pmp_granularity (De acordo com seu RTL)
+      0,             // mhpm_counter_num (De acordo com seu RTL)
+      0,             // secure_ibex (1'b0 no seu RTL)
+      0,             // icache (1'b0 no seu RTL)
+      32'h1A110000,  // dm_start_addr (DmBaseAddr do RTL)
+      32'h1A110808   // dm_end_addr (DmExceptionAddr do RTL)
+    );
     
     if (spike_handle == null) begin
       `uvm_fatal("COSIM", "Failed to initialize the Spike C++ co-simulation model")

@@ -12,7 +12,7 @@ OBJCOPY_CMD = "riscv32-unknown-elf-objcopy"
 NM_CMD = "riscv32-unknown-elf-nm"
 RISCVDV_RUN_CMD = "python3 vendor/riscv-dv/run.py"
 GCC_FLAGS = (
-  "-march=rv32imc_zicsr_zifencei -mabi=ilp32 -static -mcmodel=medany "
+  "-march=rv32imc -mabi=ilp32 -static -mcmodel=medany "
   "-fvisibility=hidden -nostdlib -nostartfiles -T link.ld "
   "-I vendor/riscv-dv/user_extension -I vendor/riscv-dv/target/rv32imc"
 )

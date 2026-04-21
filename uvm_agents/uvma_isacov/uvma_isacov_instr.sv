@@ -326,6 +326,7 @@ class uvma_isacov_instr #(int ILEN=DEFAULT_ILEN, int XLEN=DEFAULT_XLEN) extends 
 
     // If trap occurred or instruction is illegal, register-valid flags are ignored
     if (this.trap || this.illegal || this.name == UNKNOWN_INSTR) return;
+    //if (this.illegal || this.name == UNKNOWN_INSTR) return;
 
     // Benefit of having itype filled by defs.sv
     case (this.itype)

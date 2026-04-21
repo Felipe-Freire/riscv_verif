@@ -7,7 +7,9 @@ class ibex_core_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(ibex_core_scoreboard)
 
   // External ports
-  uvm_analysis_export #(uvma_rvfi_seq_item) rvfi_export;
+  uvm_analysis_export #(uvma_rvfi_seq_item      ) rvfi_export;
+  uvm_analysis_export #(uvma_simple_mem_seq_item) dmem_export;
+
   uvm_analysis_imp_interrupt #(uvma_interrupt_mon_trn, ibex_core_scoreboard) interrupt_export;
 
   // Sub-componentes
@@ -24,6 +26,7 @@ class ibex_core_scoreboard extends uvm_scoreboard;
     super.build_phase(phase);
     
     rvfi_export = new("rvfi_export", this);
+    dmem_export = new("dmem_export", this);
     interrupt_export = new("interrupt_export", this);
 
     predictor   = ibex_core_predictor::type_id::create("predictor", this);
@@ -38,7 +41,8 @@ class ibex_core_scoreboard extends uvm_scoreboard;
     super.connect_phase(phase);
     
     // 1. External RVFI stream goes into Predictor
-    rvfi_export.connect(predictor.analysis_export);
+    rvfi_export.connect(predictor.rvfi_fifo.analysis_export);
+    dmem_export.connect(predictor.dmem_fifo.analysis_export);
     
     // 2. Predictor sends verdict to Comparator
     predictor.ap.connect(comparator.analysis_export);

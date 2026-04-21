@@ -56,6 +56,7 @@ class ibex_core_env extends uvm_env;
     super.connect_phase(phase);
     rvfi_agent.ap.connect(scoreboard.rvfi_export);
     rvfi_agent.ap.connect(isacov_agent.rvfi_export);
+    data_mem_agent.ap.connect(scoreboard.dmem_export);
     connect_vsqr();
     interrupt_agent.ap.connect(scoreboard.interrupt_export);
   endfunction

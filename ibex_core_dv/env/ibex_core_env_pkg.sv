@@ -7,6 +7,8 @@ package ibex_core_env_pkg;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
 
+  import ibex_pkg::*;
+
   // Agents that the Env will instantiate
   import uvma_clk_rst_pkg::*;
   import uvml_mem_pkg::*;
@@ -17,6 +19,7 @@ package ibex_core_env_pkg;
 
   // Dependency of the Env on the DPI functions
   `include "cosim_dpi.svh"
+  `include "spike_cosim_dpi.svh"
 
   // Inclusion of Env classes
   `include "ibex_core_cfg.sv"

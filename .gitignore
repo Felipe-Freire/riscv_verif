@@ -17,6 +17,7 @@ modelsim.ini
 sim/out/*
 sim/work/*
 sim/modelsim.ini
+sim/cosim_dpi.so
 *.log
 *.vstf
 *.ucdb
