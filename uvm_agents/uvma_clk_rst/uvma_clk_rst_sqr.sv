@@ -7,10 +7,7 @@ class uvma_clk_rst_sqr extends uvm_sequencer#(uvma_clk_rst_seq_item);
   uvma_clk_rst_cfg    cfg;
   uvma_clk_rst_cntxt  cntxt;
   
-  `uvm_component_utils_begin(uvma_clk_rst_sqr)
-    `uvm_field_object(cfg  , UVM_DEFAULT)
-    `uvm_field_object(cntxt, UVM_DEFAULT)
-  `uvm_component_utils_end
+  `uvm_component_utils(uvma_clk_rst_sqr)
   
   function new(string name="uvma_clk_rst_sqr", uvm_component parent=null);
     super.new(name, parent);

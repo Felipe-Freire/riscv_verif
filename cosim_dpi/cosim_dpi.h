@@ -42,7 +42,8 @@ public:
 
     // Custom API
     void write_mem_byte(uint32_t addr, uint8_t data);
-    int step(uint32_t rd_addr, uint32_t rd_wdata, uint32_t rtl_pc, uint32_t trap);
+    int step(uint32_t rd_addr, uint32_t rd_wdata, uint32_t rtl_pc, uint32_t trap, uint32_t intr);
+    void set_interrupt(uint32_t mask, uint32_t val);
 
     // Error Management
     int get_num_errors();

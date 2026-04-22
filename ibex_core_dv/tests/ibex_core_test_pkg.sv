@@ -11,6 +11,7 @@ package ibex_core_test_pkg;
   import uvma_clk_rst_pkg::*;
   import uvml_mem_pkg::*;
   import uvma_simple_mem_pkg::*;
+  import uvma_interrupt_pkg::*;
   import uvma_rvfi_pkg::*;
   import uvma_isacov_pkg::*;
   import ibex_core_env_pkg::*;
@@ -20,6 +21,7 @@ package ibex_core_test_pkg;
   // Test classes for the ibex core test environment
   `include "ibex_core_base_test.sv"
   `include "ibex_core_sanity_test.sv"
+  `include "ibex_core_interrupt_test.sv"
 
 endpackage : ibex_core_test_pkg
 

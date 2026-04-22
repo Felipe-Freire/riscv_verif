@@ -5,7 +5,9 @@ import "DPI-C" context function chandle riscv_cosim_init(string isa, int start_p
 
 import "DPI-C" context function void riscv_cosim_write_mem_byte(chandle handle, int addr, byte data);
 
-import "DPI-C" context function int riscv_cosim_step(chandle handle, int rd, int wdata, int pc, int trap);
+import "DPI-C" context function int riscv_cosim_step(chandle handle, int rd, int wdata, int pc, int trap, int intr);
+
+import "DPI-C" context function void riscv_cosim_set_interrupt(chandle handle, int mask, int val);
 
 import "DPI-C" context function int riscv_cosim_get_num_errors(chandle handle);
 

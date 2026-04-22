@@ -14,13 +14,17 @@ VENDOR_DIR := $(ROOT_DIR)/rtl/ibex/vendor/lowrisc_ip
 TB_DIR     := $(ROOT_DIR)/ibex_core_dv/tb
 ENV_DIR    := $(ROOT_DIR)/ibex_core_dv/env
 TESTS_DIR  := $(ROOT_DIR)/ibex_core_dv/tests
-COSIM_DIR  := $(ROOT_DIR)/cosim_dpi
+COSIM_DIR  := $(ROOT_DIR)/rtl/ibex/dv/cosim
+COSIM_COMM := $(ROOT_DIR)/rtl/ibex/dv/uvm/core_ibex/common/ibex_cosim_agent
 OUT_DIR    := ./out
 
 # --- EXPORTS for .f files to see ---
+export IBEX_CORE_ENV_PATH   := $(ENV_DIR)
+export IBEX_CORE_TEST_PATH  := $(TESTS_DIR)
 export UVMA_CLK_RST_PATH 		:= $(ROOT_DIR)/uvm_agents/uvma_clk_rst
 export UVMA_SIMPLE_MEM_PATH := $(ROOT_DIR)/uvm_agents/uvma_simple_mem
 export UVMA_RVFI_PATH     	:= $(ROOT_DIR)/uvm_agents/uvma_rvfi
+export UVMA_INTERRUPT_PATH  := $(ROOT_DIR)/uvm_agents/uvma_interrupt
 export UVMA_ISACOV_PATH     := $(ROOT_DIR)/uvm_agents/uvma_isacov
 export UVML_MEM_PATH     		:= $(ROOT_DIR)/uvm_libs/uvml_mem
 export IBEX_RTL_PATH     		:= $(ROOT_DIR)/rtl/ibex/rtl
@@ -31,16 +35,33 @@ export IBEX_RTL_PATH     		:= $(ROOT_DIR)/rtl/ibex/rtl
 # VLOG      := vlog -64 -sv +acc -L mtiUvm -suppress 13314,2583
 # VOPT      := vopt -64 +acc -suppress 13314,2583
 VLOG      := vlog -64 -sv +acc -L mtiUvm
-VOPT      := vopt -64 +acc +cover=bcesf
+VOPT      := vopt -64 +acc +cover=bcesf+ibex_core_tb_top. -coveropt 3
 VSIM      := vsim -64 -L mtiUvm
 
 # --- DPI-C Config ---
 MTI_HOME   			 ?= /home/felipe/mentor_graphics_eda/questasim
-COSIM_SPIKE_PATH ?= /opt/riscv
+COSIM_SPIKE_PATH ?= /opt/lowrisc_spike_cosim
 CXX        			 := g++
-CXXFLAGS 				 := -shared -fPIC -std=c++17 -I$(MTI_HOME)/include -I$(COSIM_SPIKE_PATH)/include
-LDFLAGS  				 := -L$(COSIM_SPIKE_PATH)/lib -Wl,-rpath=$(COSIM_SPIKE_PATH)/lib -lriscv -lfesvr
 
+CXXFLAGS 				 := -shared -fPIC -std=c++17 \
+										-DRISCV_ENABLE_COMMITLOG \
+										-I$(MTI_HOME)/include \
+										-I$(COSIM_SPIKE_PATH)/include \
+										-I$(COSIM_SPIKE_PATH)/include/softfloat \
+										-I$(COSIM_SPIKE_PATH)/include/riscv \
+										-I$(COSIM_SPIKE_PATH)/include/fesvr
+
+LDFLAGS  				 := $(COSIM_SPIKE_PATH)/lib/libriscv.a \
+                    $(COSIM_SPIKE_PATH)/lib/libfesvr.a \
+                    $(COSIM_SPIKE_PATH)/lib/libdisasm.a \
+                    $(COSIM_SPIKE_PATH)/lib/libfdt.a
+
+# These macros align the RTL, UVM, and Spike with the riscv-dv memory map.
+ARCH_DEFINES := +define+DM_ADDR=1A11_0000 \
+                +define+DM_ADDR_MASK=0000_0FFF \
+                +define+BOOT_ADDR=8000_0000 \
+                +define+DEBUG_MODE_HALT_ADDR=8000_0000 \
+                +define+DEBUG_MODE_EXCEPTION_ADDR=8000_0008
 
 # --- Targets ---
 .PHONY: all setup comp opt run wave clean
@@ -56,27 +77,28 @@ setup:
 
 dpi: setup
 	@echo "--- Compiling C++ Wrapper for DPI-C ---"
-	$(CXX) $(CXXFLAGS) $(COSIM_DIR)/cosim_dpi.cpp $(LDFLAGS) -o cosim_dpi.so
+	$(CXX) $(CXXFLAGS) -I$(COSIM_DIR) $(COSIM_DIR)/*.cc -I$(COSIM_COMM) $(COSIM_COMM)/spike_cosim_dpi.cc $(LDFLAGS) -o cosim_dpi.so
 
 # 2. Compilation (RTL -> Agents -> Env -> Tests -> Top)
 comp: dpi
 	@echo "--- Compiling Design and Verification ---"
 	$(VLOG) \
+	$(ARCH_DEFINES) \
 	+define+RVFI \
 	+define+INC_ASSERT \
 	+incdir+$(VENDOR_DIR)/ip/prim/rtl \
 	+incdir+$(VENDOR_DIR)/dv/sv/dv_utils \
 	+incdir+$(COSIM_DIR) \
+	+incdir+$(COSIM_COMM) \
 	-f ./ibex_core_rtl.f \
 	-f $(UVMA_CLK_RST_PATH)/uvma_clk_rst.f \
 	-f $(UVML_MEM_PATH)/uvml_mem.f \
 	-f $(UVMA_SIMPLE_MEM_PATH)/uvma_simple_mem.f \
 	-f $(UVMA_RVFI_PATH)/uvma_rvfi.f \
+	-f $(UVMA_INTERRUPT_PATH)/uvma_interrupt.f \
 	-f $(UVMA_ISACOV_PATH)/uvma_isacov.f \
-	+incdir+$(ENV_DIR) \
-	$(ENV_DIR)/ibex_core_env_pkg.sv \
-	+incdir+$(TESTS_DIR) \
-	$(TESTS_DIR)/ibex_core_test_pkg.sv \
+	-f $(IBEX_CORE_ENV_PATH)/ibex_core_env.f \
+	-f $(IBEX_CORE_TEST_PATH)/ibex_core_test.f \
 	$(TB_DIR)/ibex_core_tb_top.sv \
 	-l $(OUT_DIR)/logs/compile.log
 

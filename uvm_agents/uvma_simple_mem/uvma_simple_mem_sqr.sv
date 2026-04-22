@@ -11,10 +11,7 @@ class uvma_simple_mem_sqr extends uvm_sequencer#(uvma_simple_mem_seq_item);
   // FIFO to receive requests from the Monitor (Reactive)
   uvm_tlm_analysis_fifo#(uvma_simple_mem_seq_item) mem_req_fifo;
 
-  `uvm_component_utils_begin(uvma_simple_mem_sqr)
-    `uvm_field_object(cfg,   UVM_DEFAULT)
-    `uvm_field_object(cntxt, UVM_DEFAULT)
-  `uvm_component_utils_end
+  `uvm_component_utils(uvma_simple_mem_sqr)
 
   function new(string name="uvma_simple_mem_sqr", uvm_component parent=null);
     super.new(name, parent);

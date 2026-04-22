@@ -3,9 +3,9 @@
 
 class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
    
-  `uvm_component_utils(uvma_simple_mem_drv)
-
   uvma_simple_mem_cntxt cntxt;
+
+  `uvm_component_utils(uvma_simple_mem_drv)
 
   function new(string name="uvma_simple_mem_drv", uvm_component parent=null);
     super.new(name, parent);
@@ -13,7 +13,10 @@ class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    void'(uvm_config_db#(uvma_simple_mem_cntxt)::get(this, "", "cntxt", cntxt));
+
+    if(!uvm_config_db#(uvma_simple_mem_cntxt)::get(this, "", "cntxt", cntxt))
+      `uvm_fatal("CNTXT", "Driver context not found")
+
   endfunction : build_phase
 
   task run_phase(uvm_phase phase);

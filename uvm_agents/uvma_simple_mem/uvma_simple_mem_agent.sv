@@ -2,7 +2,6 @@
 `define __UVMA_SIMPLE_MEM_AGENT_SV__
 
 class uvma_simple_mem_agent extends uvm_agent;
-  `uvm_component_utils(uvma_simple_mem_agent)
 
   uvma_simple_mem_cfg    cfg;
   uvma_simple_mem_cntxt  cntxt;
@@ -10,9 +9,17 @@ class uvma_simple_mem_agent extends uvm_agent;
   uvma_simple_mem_drv    driver;
   uvma_simple_mem_mon    monitor;
   uvma_simple_mem_sqr    sequencer;
+
+  uvm_analysis_port #(uvma_simple_mem_seq_item) ap;
+
+  `uvm_component_utils_begin(uvma_simple_mem_agent)
+    `uvm_field_object(cfg, UVM_DEFAULT)
+    `uvm_field_object(cntxt, UVM_DEFAULT)
+  `uvm_component_utils_end
   
   function new(string name="uvma_simple_mem_agent", uvm_component parent=null);
     super.new(name, parent);
+    ap = new("ap", this);
   endfunction
 
   function void build_phase(uvm_phase phase);
@@ -39,11 +46,14 @@ class uvma_simple_mem_agent extends uvm_agent;
   endfunction
 
   function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
+
+    monitor.rsp_ap.connect(this.ap);
+
     if (cfg.is_active == UVM_ACTIVE) begin
       driver.seq_item_port.connect(sequencer.seq_item_export);
         
       // Reactive Connection: Monitor -> Sequencer FIFO
-      //monitor.req_ap.connect(sequencer.req_fifo.analysis_export);
       monitor.req_ap.connect(sequencer.item_export);
     end
   endfunction

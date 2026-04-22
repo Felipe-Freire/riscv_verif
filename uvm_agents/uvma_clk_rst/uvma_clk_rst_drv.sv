@@ -32,18 +32,18 @@ class uvma_clk_rst_drv extends uvm_driver #(uvma_clk_rst_seq_item);
   task drive_req(uvma_clk_rst_seq_item req);
     case (req.action)
       UVMA_CLK_RST_SEQ_ITEM_ACTION_START_CLK: begin
-          cntxt.vif.set_period(req.new_period_ps/1000.0); // Convert ps to ns
-          cntxt.vif.start_clk();
+        cntxt.vif.set_period(req.new_period_ps/1000.0); // Convert ps to ns
+        cntxt.vif.start_clk();
       end
       UVMA_CLK_RST_SEQ_ITEM_ACTION_STOP_CLK: begin
-          cntxt.vif.stop_clk();
+        cntxt.vif.stop_clk();
       end
       UVMA_CLK_RST_SEQ_ITEM_ACTION_ASSERT_RESET: begin
-          cntxt.vif.assert_reset(req.reset_duration_ps/1000.0); // Convert ps to ns
+        cntxt.vif.assert_reset(req.reset_duration_ps/1000.0); // Convert ps to ns
       end
       UVMA_CLK_RST_SEQ_ITEM_ACTION_RESTART_CLK: begin
-          cntxt.vif.stop_clk();
-          cntxt.vif.start_clk();
+        cntxt.vif.stop_clk();
+        cntxt.vif.start_clk();
       end
     endcase
   endtask

@@ -41,13 +41,18 @@ class uvma_rvfi_mon extends uvm_monitor;
       @(cntxt.vif.mon_cb);
 
       // The key signal: Ibex indicates an instruction has just committed
-      if (cntxt.vif.mon_cb.rvfi_valid === 1'b1) begin
+      if (cntxt.vif.mon_cb.rvfi_valid === 1'b1 || cntxt.vif.mon_cb.rvfi_ext_irq_valid === 1'b1) begin
         trn = uvma_rvfi_seq_item::type_id::create("trn");
 
         // Capture an exact snapshot of the pipeline state
+        trn.irq_only  = !cntxt.vif.mon_cb.rvfi_valid && cntxt.vif.mon_cb.rvfi_ext_irq_valid;
         trn.order     = cntxt.vif.mon_cb.rvfi_order;
         trn.insn      = cntxt.vif.mon_cb.rvfi_insn;
         trn.trap      = cntxt.vif.mon_cb.rvfi_trap;
+        trn.halt      = cntxt.vif.mon_cb.rvfi_halt;
+        trn.intr      = cntxt.vif.mon_cb.rvfi_intr;
+        trn.mode      = cntxt.vif.mon_cb.rvfi_mode;
+        trn.ixl       = cntxt.vif.mon_cb.rvfi_ixl;
         trn.pc_rdata  = cntxt.vif.mon_cb.rvfi_pc_rdata;
         trn.pc_wdata  = cntxt.vif.mon_cb.rvfi_pc_wdata;
         
@@ -55,6 +60,8 @@ class uvma_rvfi_mon extends uvm_monitor;
         trn.rs1_rdata = cntxt.vif.mon_cb.rvfi_rs1_rdata;
         trn.rs2_addr  = cntxt.vif.mon_cb.rvfi_rs2_addr;
         trn.rs2_rdata = cntxt.vif.mon_cb.rvfi_rs2_rdata;
+        trn.rs3_addr  = cntxt.vif.mon_cb.rvfi_rs3_addr;
+        trn.rs3_rdata = cntxt.vif.mon_cb.rvfi_rs3_rdata;
         trn.rd_addr   = cntxt.vif.mon_cb.rvfi_rd_addr;
         trn.rd_wdata  = cntxt.vif.mon_cb.rvfi_rd_wdata;
 
@@ -64,8 +71,21 @@ class uvma_rvfi_mon extends uvm_monitor;
         trn.mem_wmask = cntxt.vif.mon_cb.rvfi_mem_wmask;
         trn.mem_wdata = cntxt.vif.mon_cb.rvfi_mem_wdata;
 
+        trn.ext_pre_mip          = cntxt.vif.mon_cb.rvfi_ext_pre_mip;
+        trn.ext_post_mip         = cntxt.vif.mon_cb.rvfi_ext_post_mip;
+        trn.ext_nmi              = cntxt.vif.mon_cb.rvfi_ext_nmi;
+        trn.ext_nmi_int          = cntxt.vif.mon_cb.rvfi_ext_nmi_int;
+        trn.ext_debug_req        = cntxt.vif.mon_cb.rvfi_ext_debug_req;
+        trn.ext_debug_mode       = cntxt.vif.mon_cb.rvfi_ext_debug_mode;
+        trn.ext_rf_wr_suppress   = cntxt.vif.mon_cb.rvfi_ext_rf_wr_suppress;
+        trn.ext_mcycle           = cntxt.vif.mon_cb.rvfi_ext_mcycle;
+        trn.ext_mhpmcounters     = cntxt.vif.mon_cb.rvfi_ext_mhpmcounters;
+        trn.ext_mhpmcountersh    = cntxt.vif.mon_cb.rvfi_ext_mhpmcountersh;
+        trn.ext_ic_scr_key_valid = cntxt.vif.mon_cb.rvfi_ext_ic_scr_key_valid;
+        trn.ext_irq_valid        = cntxt.vif.mon_cb.rvfi_ext_irq_valid;
+
         // Print formatted transaction string
-        `uvm_info("RVFI_MON", trn.convert2string(), UVM_LOW)
+        `uvm_info("RVFI_MON", trn.convert2string(), UVM_DEBUG)
 
         // Send to scoreboard
         ap.write(trn);

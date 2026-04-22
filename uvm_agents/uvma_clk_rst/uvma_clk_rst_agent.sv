@@ -8,10 +8,11 @@ class uvma_clk_rst_agent extends uvm_agent;
   uvma_clk_rst_drv    driver;
   uvma_clk_rst_mon    monitor;
   uvma_clk_rst_sqr    sequencer; 
-
-  //uvm_sequencer#(uvma_clk_rst_seq_item) sequencer;
   
-  `uvm_component_utils(uvma_clk_rst_agent)
+  `uvm_component_utils_begin(uvma_clk_rst_agent)
+    `uvm_field_object(cfg, UVM_DEFAULT)
+    `uvm_field_object(cntxt, UVM_DEFAULT)
+  `uvm_component_utils_end
   
   function new(string name="uvma_clk_rst_agent", uvm_component parent=null);
     super.new(name, parent);

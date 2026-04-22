@@ -10,7 +10,7 @@ class uvma_clk_rst_cfg extends uvm_object;
   `uvm_object_utils_begin(uvma_clk_rst_cfg)
     `uvm_field_int (enabled, UVM_DEFAULT)
     `uvm_field_enum(uvm_active_passive_enum, is_active, UVM_DEFAULT)
-    `uvm_field_int(default_period, UVM_DEFAULT)
+    `uvm_field_int (default_period, UVM_DEFAULT)
   `uvm_object_utils_end
 
   constraint defaults_cons {
