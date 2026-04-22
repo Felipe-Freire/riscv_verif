@@ -41,10 +41,11 @@ class uvma_rvfi_mon extends uvm_monitor;
       @(cntxt.vif.mon_cb);
 
       // The key signal: Ibex indicates an instruction has just committed
-      if (cntxt.vif.mon_cb.rvfi_valid === 1'b1) begin
+      if (cntxt.vif.mon_cb.rvfi_valid === 1'b1 || cntxt.vif.mon_cb.rvfi_ext_irq_valid === 1'b1) begin
         trn = uvma_rvfi_seq_item::type_id::create("trn");
 
         // Capture an exact snapshot of the pipeline state
+        trn.irq_only  = !cntxt.vif.mon_cb.rvfi_valid && cntxt.vif.mon_cb.rvfi_ext_irq_valid;
         trn.order     = cntxt.vif.mon_cb.rvfi_order;
         trn.insn      = cntxt.vif.mon_cb.rvfi_insn;
         trn.trap      = cntxt.vif.mon_cb.rvfi_trap;

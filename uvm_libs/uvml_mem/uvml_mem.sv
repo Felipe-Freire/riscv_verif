@@ -53,12 +53,32 @@ class uvml_mem extends uvm_object;
     string error_msg;
     int file = $fopen(filename, "r");
     int error = $ferror(file, error_msg);
+    string token;
+    int code;
+    bit [XLEN-1:0] current_addr = 0;
+    logic [7:0] byte_val;
 
     if (error != 0) begin
       `uvm_error("MEM", $sformatf("Failed to open memory file %s with error: %s", filename, error_msg))
       return;
     end else begin
-      $readmemh(filename, content);
+      // Custom sparse hex parser to safely load into an associative array
+      while (!$feof(file)) begin
+        code = $fscanf(file, "%s", token);
+        if (code > 0) begin
+          if (token[0] == "@") begin
+            token = token.substr(1, token.len() - 1);
+            void'($sscanf(token, "%h", current_addr));
+          end else begin
+            code = $sscanf(token, "%h", byte_val);
+            if (code == 1) begin
+              content[current_addr] = byte_val; // Direct write to associative array
+              current_addr++;
+            end
+          end
+        end
+      end
+      $fclose(file);
       `uvm_info("MEM", $sformatf("Loaded memory content from file: %s", filename), UVM_LOW)
     end
   endfunction

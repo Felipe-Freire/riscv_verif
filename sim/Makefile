@@ -56,6 +56,13 @@ LDFLAGS  				 := $(COSIM_SPIKE_PATH)/lib/libriscv.a \
                     $(COSIM_SPIKE_PATH)/lib/libdisasm.a \
                     $(COSIM_SPIKE_PATH)/lib/libfdt.a
 
+# These macros align the RTL, UVM, and Spike with the riscv-dv memory map.
+ARCH_DEFINES := +define+DM_ADDR=1A11_0000 \
+                +define+DM_ADDR_MASK=0000_0FFF \
+                +define+BOOT_ADDR=8000_0000 \
+                +define+DEBUG_MODE_HALT_ADDR=8000_0000 \
+                +define+DEBUG_MODE_EXCEPTION_ADDR=8000_0008
+
 # --- Targets ---
 .PHONY: all setup comp opt run wave clean
 
@@ -76,6 +83,7 @@ dpi: setup
 comp: dpi
 	@echo "--- Compiling Design and Verification ---"
 	$(VLOG) \
+	$(ARCH_DEFINES) \
 	+define+RVFI \
 	+define+INC_ASSERT \
 	+incdir+$(VENDOR_DIR)/ip/prim/rtl \

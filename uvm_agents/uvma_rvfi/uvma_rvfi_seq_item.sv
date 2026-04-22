@@ -3,6 +3,9 @@
 
 class uvma_rvfi_seq_item extends uvm_sequence_item;
 
+  // User signals
+  rand bit        irq_only;
+
   // Core pipeline signals
   rand bit [63:0] order;
   rand bit [31:0] insn;
@@ -46,6 +49,7 @@ class uvma_rvfi_seq_item extends uvm_sequence_item;
   rand bit        ext_irq_valid;
 
   `uvm_object_utils_begin(uvma_rvfi_seq_item)
+    `uvm_field_int(irq_only,  UVM_DEFAULT)
     `uvm_field_int(order,     UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(insn,      UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(trap,      UVM_DEFAULT)

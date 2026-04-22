@@ -42,7 +42,6 @@ class ibex_core_predictor extends uvm_component;
     int step_result, num_errors;
 
     forever begin
-      // Fica bloqueado até o RTL comitar uma instrução
       rvfi_fifo.get(t);
 
       verdict = ibex_core_cosim_verdict::type_id::create("verdict");
@@ -50,11 +49,18 @@ class ibex_core_predictor extends uvm_component;
 
       `uvm_info("PREDICTOR_DEBUG", $sformatf("RVFI -> PC_RDATA: 0x%0x | PC_WDATA: 0x%0x | TRAP: %0b | INTR: %0b", t.pc_rdata, t.pc_wdata, t.trap, t.intr), UVM_LOW)
 
+      if (t.irq_only) begin
+        riscv_cosim_set_nmi(spike_handle, t.ext_nmi);
+        riscv_cosim_set_nmi_int(spike_handle, t.ext_nmi_int);
+        riscv_cosim_set_mip(spike_handle, t.ext_pre_mip, t.ext_pre_mip); 
+        continue;
+      end
+
       // Atualiza o estado do Spike com a realidade do RTL
+      riscv_cosim_set_debug_req(spike_handle, t.ext_debug_req);
       riscv_cosim_set_nmi(spike_handle, t.ext_nmi);
       riscv_cosim_set_nmi_int(spike_handle, t.ext_nmi_int);
       riscv_cosim_set_mip(spike_handle, t.ext_pre_mip, t.ext_post_mip);
-      riscv_cosim_set_debug_req(spike_handle, t.ext_debug_req);
       riscv_cosim_set_mcycle(spike_handle, t.ext_mcycle);
 
       for (int i=0; i < 10; i++) begin

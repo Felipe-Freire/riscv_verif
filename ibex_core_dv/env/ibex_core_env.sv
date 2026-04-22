@@ -19,6 +19,9 @@ class ibex_core_env extends uvm_env;
   uvma_rvfi_agent       rvfi_agent;
   uvma_isacov_agent     isacov_agent;
 
+  // Cosim handle
+  chandle spike_handle;
+
   `uvm_component_utils_begin(ibex_core_env)
     `uvm_field_object(cfg,   UVM_DEFAULT)
     `uvm_field_object(cntxt, UVM_DEFAULT)
@@ -44,8 +47,12 @@ class ibex_core_env extends uvm_env;
     cntxt.data_mem_cntxt.mem_model  = cntxt.shared_mem; // Pass shared memory reference to data memory context
     cntxt.instr_mem_cntxt.mem_model = cntxt.shared_mem; // Pass shared memory reference to instruction memory context
 
-    assign_cfg       ();
-    assign_cntxt     ();
+    init_cosim();
+
+    assign_cfg  ();
+    assign_cntxt();
+    assign_cosim_handle();
+
     create_agents    ();
     create_components();
 
@@ -59,6 +66,40 @@ class ibex_core_env extends uvm_env;
     data_mem_agent.ap.connect(scoreboard.dmem_export);
     connect_vsqr();
     interrupt_agent.ap.connect(scoreboard.interrupt_export);
+  endfunction
+
+  function void start_of_simulation_phase(uvm_phase phase);
+    reg [7:0] mem_copy [bit[32-1:0]];
+    string hex_file_path;
+
+    super.start_of_simulation_phase(phase);
+
+    if (!$value$plusargs("HEX_FILE=%s", hex_file_path)) begin
+      `uvm_fatal("ENV", "Path to HEX file not provided! Use +HEX_FILE=path/to/file.hex")
+    end
+    
+    cntxt.shared_mem.load_hex(hex_file_path);
+
+    if (spike_handle == null) begin
+      `uvm_fatal("ENV", "spike_handle is null! Cannot load memory into Spike.")
+    end
+
+    cntxt.shared_mem.get_backdoor_memory(mem_copy);
+
+    foreach (mem_copy[addr]) begin
+      riscv_cosim_write_mem_byte(spike_handle, addr, mem_copy[addr]);
+    end
+
+    `uvm_info("ENV", "Instruction memory loaded and synchronized with co-simulation model.", UVM_LOW)
+  endfunction
+
+  function void report_phase(uvm_phase phase);
+    super.report_phase(phase);
+
+    if (uvm_config_db#(chandle)::get(this, "", "spike_handle", spike_handle)) begin
+      spike_cosim_release(spike_handle);
+      `uvm_info("BASE_TEST", "Spike co-simulation model released.", UVM_LOW)
+    end
   endfunction
 
   function void assign_cfg();
@@ -102,6 +143,29 @@ class ibex_core_env extends uvm_env;
     vsqr.interrupt_sqr = interrupt_agent.sequencer;
   endfunction : connect_vsqr
 
+  function void assign_cosim_handle();
+    uvm_config_db#(chandle)::set(this, "*", "spike_handle", spike_handle);
+  endfunction : assign_cosim_handle
+
+  function void init_cosim();
+    spike_handle = spike_cosim_init(
+      cfg.isa_string,     // isa_string
+      cfg.start_pc, // start_pc (Boot address)
+      cfg.start_mtvec, // start_mtvec (Padrão)
+      cfg.log_file,   // log_file_path (Ou "" se não quiser gerar log em arquivo)
+      cfg.pmp_num_regions,             // pmp_num_regions (De acordo com seu RTL)
+      cfg.pmp_granularity,             // pmp_granularity (De acordo com seu RTL)
+      cfg.mhpm_counter_num,            // mhpm_counter_num (De acordo com seu RTL)
+      cfg.secure_ibex,                 // secure_ibex (1'b0 no seu RTL)
+      cfg.icache,                      // icache (1'b0 no seu RTL)
+      cfg.dm_start_addr,               // dm_start_addr (DmBaseAddr do RTL)
+      cfg.dm_end_addr                  // dm_end_addr (DmExceptionAddr do RTL)
+    );
+
+    if (spike_handle == null) begin
+      `uvm_fatal("COSIM", "Failed to initialize the Spike C++ co-simulation model")
+    end
+  endfunction : init_cosim
 endclass : ibex_core_env
 
 `endif // __IBEX_CORE_ENV_SV__

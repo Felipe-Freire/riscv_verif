@@ -17,18 +17,56 @@ module ibex_core_tb_top;
   uvma_rvfi_instr_if rvfi_if_inst(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
   uvma_interrupt_if  interrupt_if(.clk(clk_rst_if.clk), .rst_n(clk_rst_if.reset_n));
 
-  // Static signals
-  logic [31:0]          boot_addr;
-  ibex_pkg::ibex_mubi_t fetch_en;
+  // Ibex Parameters
+  parameter bit          PMPEnable        = 1'b0;
+  parameter int unsigned PMPGranularity   = 0;
+  parameter int unsigned PMPNumRegions    = 4;
+  parameter int unsigned MHPMCounterNum   = 0;
+  parameter int unsigned MHPMCounterWidth = 40;
+  parameter bit RV32E                     = 1'b0;
+  parameter ibex_pkg::rv32m_e   RV32M     = ibex_pkg::RV32MFast;
+  parameter ibex_pkg::rv32b_e   RV32B     = ibex_pkg::RV32BNone;
+  parameter ibex_pkg::regfile_e RegFile   = ibex_pkg::RegFileFF;
+  parameter bit BranchTargetALU           = 1'b0;
+  parameter bit WritebackStage            = 1'b0;
+  parameter bit ICache                    = 1'b0;
+  parameter bit ICacheECC                 = 1'b0;
+  parameter bit BranchPredictor           = 1'b0;
+  parameter bit SecureIbex                = 1'b0;
+  parameter bit ICacheScramble            = 1'b0;
+  parameter bit DbgTriggerEn              = 1'b0;
+  parameter int unsigned DmBaseAddr       = 32'h`DM_ADDR;
+  parameter int unsigned DmAddrMask       = 32'h`DM_ADDR_MASK;
+  parameter int unsigned DmHaltAddr       = 32'h`DEBUG_MODE_HALT_ADDR;
+  parameter int unsigned DmExceptionAddr  = 32'h`DEBUG_MODE_EXCEPTION_ADDR;
 
-  assign boot_addr = 32'h0000_0000;
-  assign fetch_en  = ibex_pkg::IbexMuBiOn;
+  // Ibex Inputs
+  parameter int unsigned BootAddr         = 32'h`BOOT_ADDR;
+  parameter ibex_pkg::ibex_mubi_t FetchEn = ibex_pkg::IbexMuBiOn;
 
   // DUT Instance using the tracing top-level wrapper
   ibex_top_tracing #(
-    .PMPEnable(0),
-    .RV32E(0),
-    .RV32M(ibex_pkg::RV32MFast) // Fast multiplier
+    .PMPEnable        (PMPEnable        ),
+    .PMPGranularity   (PMPGranularity   ),
+    .PMPNumRegions    (PMPNumRegions    ),
+    .MHPMCounterNum   (MHPMCounterNum   ),
+    .MHPMCounterWidth (MHPMCounterWidth ),
+    .RV32E            (RV32E            ),
+    .RV32M            (RV32M            ),
+    .RV32B            (RV32B            ),
+    .RegFile          (RegFile          ),
+    .BranchTargetALU  (BranchTargetALU  ),
+    .WritebackStage   (WritebackStage   ),
+    .ICache           (ICache           ),
+    .ICacheECC        (ICacheECC        ),
+    .SecureIbex       (SecureIbex       ),
+    .ICacheScramble   (ICacheScramble   ),
+    .BranchPredictor  (BranchPredictor  ),
+    .DbgTriggerEn     (DbgTriggerEn     ),
+    .DmBaseAddr       (DmBaseAddr       ),
+    .DmAddrMask       (DmAddrMask       ),
+    .DmHaltAddr       (DmHaltAddr       ),
+    .DmExceptionAddr  (DmExceptionAddr  )
   ) dut (
     // Clock and Reset
     .clk_i       (clk_rst_if.clk),
@@ -39,10 +77,10 @@ module ibex_core_tb_top;
     .scan_rst_ni (1'b1),
     .ram_cfg_i   ('0),
     .hart_id_i   (32'h0),
-    .boot_addr_i (boot_addr),
+    .boot_addr_i (BootAddr),
 
     // Execution Control
-    .fetch_enable_i         (fetch_en),
+    .fetch_enable_i         (FetchEn),
     .alert_minor_o          (),
     .alert_major_internal_o (),
     .alert_major_bus_o      (),
@@ -125,36 +163,22 @@ module ibex_core_tb_top;
   assign rvfi_if_inst.rvfi_ext_mhpmcountersh    = dut.rvfi_ext_mhpmcountersh;
   assign rvfi_if_inst.rvfi_ext_ic_scr_key_valid = dut.rvfi_ext_ic_scr_key_valid;
   assign rvfi_if_inst.rvfi_ext_irq_valid        = dut.rvfi_ext_irq_valid;
-
-  chandle spike_handle;
   
   initial begin
-    // Create Spike lockstep co-simulation model starting at reset vector.
-    spike_handle = spike_cosim_init(
-      "rv32imc",     // isa_string
-      32'h0000_0080, // start_pc (Boot address)
-      32'h0000_0000, // start_mtvec (Padrão)
-      "spike.log",   // log_file_path (Ou "" se não quiser gerar log em arquivo)
-      4,             // pmp_num_regions (De acordo com seu RTL)
-      0,             // pmp_granularity (De acordo com seu RTL)
-      0,             // mhpm_counter_num (De acordo com seu RTL)
-      0,             // secure_ibex (1'b0 no seu RTL)
-      0,             // icache (1'b0 no seu RTL)
-      32'h1A110000,  // dm_start_addr (DmBaseAddr do RTL)
-      32'h1A110808   // dm_end_addr (DmExceptionAddr do RTL)
-    );
-    
-    if (spike_handle == null) begin
-      `uvm_fatal("COSIM", "Failed to initialize the Spike C++ co-simulation model")
-    end
-
     uvm_config_db#(virtual uvma_clk_rst_if   )::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if    );
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if  );
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.instr_mem_agent", "vif", instr_mem_if);
     uvm_config_db#(virtual uvma_rvfi_instr_if)::set(null, "uvm_test_top.env.rvfi_agent", "vif", rvfi_if_inst );
     uvm_config_db#(virtual uvma_interrupt_if )::set(null, "uvm_test_top.env.interrupt_agent", "vif", interrupt_if);
 
-    uvm_config_db#(chandle)                   ::set(null, "*", "spike_handle", spike_handle                      );
+    uvm_config_db#(bit              )::set(null, "*", "RV32E", RV32E);
+    uvm_config_db#(ibex_pkg::rv32m_e)::set(null, "*", "RV32M", RV32M);
+    uvm_config_db#(ibex_pkg::rv32b_e)::set(null, "*", "RV32B", RV32B);
+    uvm_config_db#(bit [31:0]       )::set(null, "*", "PMPNumRegions", PMPNumRegions);
+    uvm_config_db#(bit [31:0]       )::set(null, "*", "PMPGranularity", PMPGranularity);
+    uvm_config_db#(bit [31:0]       )::set(null, "*", "MHPMCounterNum", MHPMCounterNum);
+    uvm_config_db#(bit              )::set(null, "*", "SecureIbex", SecureIbex);
+    uvm_config_db#(bit              )::set(null, "*", "ICache", ICache);
 
     run_test();
   end

@@ -2,12 +2,27 @@
 `define __IBEX_CORE_CFG_SV__
 
 class ibex_core_cfg extends uvm_object;
-  
+  // Signals to control
   rand bit                      enabled;
   rand uvm_active_passive_enum  is_active;
   rand bit                      cov_model_enabled;
 
-  // Configurações dos agentes filhos
+  // Signals to cosimulate with Spike
+  string     isa_string;
+  bit [31:0] start_pc;
+  bit [31:0] start_mtvec;
+  bit        probe_imem_for_errs;
+  bit        relax_cosim_check; // If set, certain cosimulation mismatches (e.g., due to interrupts) will be logged as info instead of errors
+  string     log_file;
+  bit [31:0] pmp_num_regions;
+  bit [31:0] pmp_granularity;
+  bit [31:0] mhpm_counter_num;
+  bit        secure_ibex;
+  bit        icache;
+  bit [31:0] dm_start_addr;
+  bit [31:0] dm_end_addr;
+
+  // Child agent configurations
   rand uvma_clk_rst_cfg    clk_rst_cfg;
   rand uvma_simple_mem_cfg instr_mem_cfg;
   rand uvma_simple_mem_cfg data_mem_cfg;
@@ -17,7 +32,22 @@ class ibex_core_cfg extends uvm_object;
 
   `uvm_object_utils_begin(ibex_core_cfg)
     `uvm_field_int (                         enabled,   UVM_DEFAULT)
+    `uvm_field_int (cov_model_enabled,                  UVM_DEFAULT)
     `uvm_field_enum(uvm_active_passive_enum, is_active, UVM_DEFAULT)
+
+    `uvm_field_string(isa_string,          UVM_DEFAULT)
+    `uvm_field_int   (start_pc,            UVM_DEFAULT)
+    `uvm_field_int   (start_mtvec,         UVM_DEFAULT)
+    `uvm_field_int   (probe_imem_for_errs, UVM_DEFAULT)
+    `uvm_field_int   (relax_cosim_check,   UVM_DEFAULT)
+    `uvm_field_string(log_file,            UVM_DEFAULT)
+    `uvm_field_int   (pmp_num_regions,     UVM_DEFAULT)
+    `uvm_field_int   (pmp_granularity,     UVM_DEFAULT)
+    `uvm_field_int   (mhpm_counter_num,    UVM_DEFAULT)
+    `uvm_field_int   (secure_ibex,         UVM_DEFAULT)
+    `uvm_field_int   (icache,              UVM_DEFAULT)
+    `uvm_field_int   (dm_start_addr,       UVM_DEFAULT | UVM_HEX)
+    `uvm_field_int   (dm_end_addr,         UVM_DEFAULT | UVM_HEX)
 
     `uvm_field_object(clk_rst_cfg,   UVM_DEFAULT)
     `uvm_field_object(instr_mem_cfg, UVM_DEFAULT)

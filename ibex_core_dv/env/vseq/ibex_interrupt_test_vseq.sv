@@ -51,7 +51,8 @@ class ibex_interrupt_test_vseq extends ibex_core_base_vseq;
 
     // 4. HOLD: Mantém o pino alto tempo suficiente para o Ibex pular para o Handler
     // Simulando o tempo que o software demora para responder e mandar o periférico baixar o pino
-    wait_cycles = $urandom_range(50, 150);
+    // Aumentado drasticamente para evitar que a VSEQ baixe o pino antes do RTL aceitar a interrupção.
+    wait_cycles = $urandom_range(300, 500);
     `uvm_info("INT_TEST_VSEQ", $sformatf("Holding interrupt for %0d cycles...", wait_cycles), UVM_LOW)
     repeat(wait_cycles) #10ns;
 

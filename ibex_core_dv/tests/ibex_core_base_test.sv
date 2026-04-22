@@ -14,6 +14,14 @@ class ibex_core_base_test extends uvm_test;
 
   bit [31:0] tohost_addr;
 
+  // Cosim configuration 
+  string cosim_log_file;
+  bit [31:0] pmp_num_regions;
+  bit [31:0] pmp_granularity;
+  bit [31:0] mhpm_counter_num;
+  bit        secure_ibex;
+  bit        icache;
+
   function new(string name="ibex_core_base_test", uvm_component parent=null);
     super.new(name, parent);
     rvfi_fifo = new("rvfi_fifo");
@@ -26,6 +34,10 @@ class ibex_core_base_test extends uvm_test;
       `uvm_fatal("BASE_TEST", "TOHOST_ADDR not provided! Use +TOHOST_ADDR=address")
     end
 
+    if (!$value$plusargs("SPIKE_LOG=%s", cosim_log_file)) begin
+      cosim_log_file = "";
+    end
+
     if (!uvm_config_db#(ibex_core_cfg)::get(this, "", "cfg", cfg)) begin
       cfg = ibex_core_cfg::type_id::create("env_cfg");
       if (!cfg.randomize()) begin
@@ -33,6 +45,40 @@ class ibex_core_base_test extends uvm_test;
       end
       uvm_config_db#(ibex_core_cfg)::set(this, "*", "cfg", cfg);
     end
+
+    if (!uvm_config_db#(bit [31:0])::get(null, "", "PMPNumRegions", pmp_num_regions)) begin
+      pmp_num_regions = '0;
+    end
+
+    if (!uvm_config_db#(bit [31:0])::get(null, "", "PMPGranularity", pmp_granularity)) begin
+      pmp_granularity = '0;
+    end
+
+    if (!uvm_config_db#(bit [31:0])::get(null, "", "MHPMCounterNum", mhpm_counter_num)) begin
+      mhpm_counter_num = '0;
+    end
+
+    if (!uvm_config_db#(bit)::get(null, "", "SecureIbex", secure_ibex)) begin
+      secure_ibex = '0;
+    end
+
+    if (!uvm_config_db#(bit)::get(null, "", "ICache", icache)) begin
+      icache = '0;
+    end
+
+    cfg.isa_string       = "rv32imc";
+    cfg.start_pc         = ((32'h`BOOT_ADDR & ~(32'h0000_00FF)) | 8'h80);
+    cfg.start_mtvec      = ((32'h`BOOT_ADDR & ~(32'h0000_00FF)) | 8'h01);
+    cfg.probe_imem_for_errs = 1'b0;
+    cfg.relax_cosim_check = 1'b0; // By default, strict checking. Can be relaxed via config if needed.
+    cfg.log_file         = cosim_log_file;
+    cfg.pmp_num_regions  = pmp_num_regions;
+    cfg.pmp_granularity  = pmp_granularity;
+    cfg.mhpm_counter_num = mhpm_counter_num;
+    cfg.secure_ibex      = secure_ibex;
+    cfg.icache           = icache;
+    cfg.dm_start_addr    = 32'h`DM_ADDR;
+    cfg.dm_end_addr      = 32'h`DEBUG_MODE_EXCEPTION_ADDR;
 
     // Build the Environment
     env = ibex_core_env::type_id::create("env", this);
@@ -48,32 +94,6 @@ class ibex_core_base_test extends uvm_test;
   function void end_of_elaboration_phase(uvm_phase phase);
     super.end_of_elaboration_phase(phase);
     uvm_top.print_topology();
-  endfunction
-
-  function void start_of_simulation_phase(uvm_phase phase);
-    chandle spike_handle;
-    reg [7:0] mem_copy [bit[32-1:0]];
-    string hex_file_path;
-
-    super.start_of_simulation_phase(phase);
-
-    if (!$value$plusargs("HEX_FILE=%s", hex_file_path)) begin
-      `uvm_fatal("BASE_TEST", "Path to HEX file not provided! Use +HEX_FILE=path/to/file.hex")
-    end
-    
-    env.cntxt.shared_mem.load_hex(hex_file_path);
-
-    if (!uvm_config_db#(chandle)::get(this, "", "spike_handle", spike_handle)) begin
-      `uvm_fatal("BASE_TEST", "Could not retrieve spike_handle from tb_top!")
-    end
-
-    env.cntxt.shared_mem.get_backdoor_memory(mem_copy);
-
-    foreach (mem_copy[addr]) begin
-      riscv_cosim_write_mem_byte(spike_handle, addr, mem_copy[addr]);
-    end
-
-    `uvm_info("BASE_TEST", "Instruction memory loaded and synchronized with co-simulation model.", UVM_LOW)
   endfunction
 
   // Firing of Reactive Sequences (Background Daemons)
@@ -138,17 +158,6 @@ class ibex_core_base_test extends uvm_test;
     #500ms;
     `uvm_fatal("TIMEOUT", "Simulation reached timeout without writing to tohost!")
   endtask
-
-  function void report_phase(uvm_phase phase);
-    chandle spike_handle;
-
-    super.report_phase(phase);
-
-    if (uvm_config_db#(chandle)::get(this, "", "spike_handle", spike_handle)) begin
-      spike_cosim_release(spike_handle);
-      `uvm_info("BASE_TEST", "Spike co-simulation model released.", UVM_LOW)
-    end
-  endfunction
 
 endclass : ibex_core_base_test
 
