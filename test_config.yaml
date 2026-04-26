@@ -146,3 +146,101 @@
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
+
+- test: riscv_illegal_instr_test
+  description: >
+    Targets the decoder_i and controller_i condition gaps by injecting illegal instructions to hit exception handling routines and pipeline flushes.
+  gen_opts: >
+    +instr_cnt=15000
+    +illegal_instr_ratio=30
+    +no_csr_instr=1
+    +no_ebreak=1
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_base_test
+
+# - test: riscv_user_mode_rand_test
+#   description: >
+#     Booting and running in User Mode (boot_mode=u) triggers privilege checks inside cs_registers_i and controller_i.
+#   gen_opts: >
+#     +instr_cnt=10000
+#     +num_of_sub_program=5
+#     +boot_mode=u
+#     +no_csr_instr=0
+#     +supported_privileged_mode=3
+#   iterations: 1
+#   isa: rv32imc
+#   gen_test: riscv_instr_base_test
+#   rtl_test: ibex_core_base_test
+
+# - test: riscv_umode_tw_test
+#   description: >
+#     Specifically targets mstatus.tw (Timeout Wait). Booting in U-mode and executing wfi forces a trap to M-mode via illegal instruction exception.
+#   gen_opts: >
+#     +instr_cnt=10000
+#     +set_mstatus_tw=1
+#     +boot_mode=u
+#     +no_wfi=0
+#     +no_ebreak=1
+#     +supported_privileged_mode=3
+#   iterations: 1
+#   isa: rv32imc
+#   gen_test: riscv_rand_instr_test
+#   rtl_test: ibex_core_base_test
+
+- test: riscv_interrupt_instr_test
+  description: >
+    Injects interrupts exactly when every supported instruction is in the decode stage. Highly effective for closing decoder_i, controller_i condition coverage.
+  gen_opts: >
+    +instr_cnt=12000
+    +enable_interrupt=1
+    +enable_timer_irq=1
+    +no_csr_instr=1
+    +directed_instr_0=riscv_load_store_hazard_instr_stream,40
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_interrupt_test
+
+- test: riscv_interrupt_csr_test
+  description: >
+    Injects interrupts while the core is performing dummy writes to CSRs. Targets cs_registers_i condition gaps and cp_csr_addr_toggle.
+  gen_opts: >
+    +instr_cnt=10000
+    +enable_interrupt=1
+    +enable_timer_irq=1
+    +randomize_csr=1
+    +enable_dummy_csr_write=1
+    +boot_mode=m
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_interrupt_test
+
+- test: riscv_nested_interrupt_test
+  description: >
+    Asserts an interrupt while the core is already inside an interrupt handler. Stresses cs_registers_i and controller_i.
+  gen_opts: >
+    +instr_cnt=15000
+    +enable_interrupt=1
+    +enable_timer_irq=1
+    +enable_nested_interrupt=1
+    +randomize_csr=1
+    +no_csr_instr=1
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_interrupt_test
+
+- test: riscv_rv32im_instr_test
+  description: >
+    Explicitly disables compressed instructions to force purely 32-bit aligned uncompressed code, altering the timing dynamics in ibex_if_stage and load_store_unit_i.
+  gen_opts: >
+    +instr_cnt=15000
+    +disable_compressed_instr=1
+    +directed_instr_0=riscv_load_store_hazard_instr_stream,40
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_base_test

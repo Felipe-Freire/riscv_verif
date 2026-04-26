@@ -19,6 +19,7 @@ package uvma_clk_rst_pkg;
 
   `include "uvma_clk_rst_base_seq.sv"
   `include "uvma_clk_rst_start_clk_seq.sv"
+  `include "uvma_clk_rst_stop_clk_seq.sv"
   `include "uvma_clk_rst_assert_reset_seq.sv"
   `include "uvma_clk_rst_sanity_seq.sv"
    
