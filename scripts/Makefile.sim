@@ -1,0 +1,54 @@
+VSIM := vsim -64 -L mtiUvm
+RISCVDV_RUN_CMD := python3 ../vendor/riscv-dv/run.py
+
+.PHONY: gen sim wave cov_merge cov_report cov_gui
+
+# Generation target moved from python to Makefile
+gen: setup
+	@echo "--- Generating Stimulus: $(TEST_NAME) ($(ITERATIONS) iter) ---"
+	$(RISCVDV_RUN_CMD) --target $(ISA) --test $(TEST_NAME) \
+	--iterations $(ITERATIONS) --simulator questa -o $(ROOT_DIR)/out_tests \
+	-tl $(ROOT_DIR)/rtl/ibex/dv/uvm/core_ibex/riscv_dv_extension/testlist.yaml --steps gen 2>&1 | tee $(LOG_DIR)/gen_$(TEST_NAME)_$(SEED).log
+
+sim: setup
+	@echo "--- Running Test: $(TEST_NAME) (Seed: $(SEED)) ---"
+	$(VSIM) -c ibex_core_tb_top_opt \
+	-sv_seed $(SEED) \
+	-sv_lib cosim_dpi \
+	-coverage \
+	+UVM_TESTNAME=$(TEST_RTL) \
+	+UVM_VERBOSITY=$(VERBOSITY) \
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	+UVM_TIMEOUT=10000000000ns,YES \
+	-l $(LOG_DIR)/sim_$(TEST_NAME)_$(SEED).log \
+	-do "coverage save -onexit $(OUT_DIR)/cov/sim_$(TEST_NAME)_$(SEED).ucdb; run -all; exit"
+
+wave: setup
+	@echo "--- Opening QuestaSim GUI for $(TEST_NAME) ---"
+	$(VSIM) ibex_core_tb_top_opt \
+	-sv_seed $(SEED) \
+	-sv_lib cosim_dpi \
+	+UVM_TESTNAME=$(TEST_RTL) \
+	+UVM_VERBOSITY=$(VERBOSITY) \
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	+UVM_TIMEOUT=10000000000ns,YES \
+	-do " \
+		add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; \
+		add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; \
+		add wave -group {RVFI_Tracer} /ibex_core_tb_top/dut/rvfi_*; \
+		add wave -group {RVFI_Interface} /ibex_core_tb_top/dut/rvfi_if_inst/*; \
+		run -all"
+
+cov_merge: setup
+	@echo "--- Merging UCDB files ---"
+	vcover merge -out $(OUT_DIR)/cov/merged_regression.ucdb $(OUT_DIR)/cov/*.ucdb
+
+cov_report: cov_merge
+	@echo "--- Generating HTML Coverage Report ---"
+	vcover report -html -htmldir $(OUT_DIR)/cov/html_report -source -details $(OUT_DIR)/cov/merged_regression.ucdb
+
+cov_gui: setup
+	@echo "--- Opening Unified Coverage in QuestaSim GUI ---"
+	$(VSIM) -viewcov $(OUT_DIR)/cov/merged_regression.ucdb
