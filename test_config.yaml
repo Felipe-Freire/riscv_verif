@@ -160,34 +160,34 @@
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_base_test
 
-# - test: riscv_user_mode_rand_test
-#   description: >
-#     Booting and running in User Mode (boot_mode=u) triggers privilege checks inside cs_registers_i and controller_i.
-#   gen_opts: >
-#     +instr_cnt=10000
-#     +num_of_sub_program=5
-#     +boot_mode=u
-#     +no_csr_instr=0
-#     +supported_privileged_mode=3
-#   iterations: 1
-#   isa: rv32imc
-#   gen_test: riscv_instr_base_test
-#   rtl_test: ibex_core_base_test
+- test: riscv_user_mode_rand_test
+  description: >
+    Booting and running in User Mode (boot_mode=u) triggers privilege checks inside cs_registers_i and controller_i.
+  gen_opts: >
+    +instr_cnt=10000
+    +num_of_sub_program=5
+    +boot_mode=u
+    +no_csr_instr=0
+    +supported_privileged_mode=3
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_instr_base_test
+  rtl_test: ibex_core_base_test
 
-# - test: riscv_umode_tw_test
-#   description: >
-#     Specifically targets mstatus.tw (Timeout Wait). Booting in U-mode and executing wfi forces a trap to M-mode via illegal instruction exception.
-#   gen_opts: >
-#     +instr_cnt=10000
-#     +set_mstatus_tw=1
-#     +boot_mode=u
-#     +no_wfi=0
-#     +no_ebreak=1
-#     +supported_privileged_mode=3
-#   iterations: 1
-#   isa: rv32imc
-#   gen_test: riscv_rand_instr_test
-#   rtl_test: ibex_core_base_test
+- test: riscv_umode_tw_test
+  description: >
+    Specifically targets mstatus.tw (Timeout Wait). Booting in U-mode and executing wfi forces a trap to M-mode via illegal instruction exception.
+  gen_opts: >
+    +instr_cnt=10000
+    +set_mstatus_tw=1
+    +boot_mode=u
+    +no_wfi=0
+    +no_ebreak=1
+    +supported_privileged_mode=3
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_base_test
 
 - test: riscv_interrupt_instr_test
   description: >
@@ -244,3 +244,27 @@
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_base_test
+
+- test: riscv_ebreak_test
+  description: >
+    Verifies that EBREAK successfully traps to the M-mode exception handler (since Debug Mode is disabled).
+  gen_opts: >
+    +instr_cnt=6000
+    +no_ebreak=0
+  iterations: 5
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_base_test
+
+# - test: riscv_random_interrupt_test
+#   description: >
+#     Uses the new ibex_random_interrupt_vseq to inject Software, External, Timer, and Fast interrupts dynamically.
+#   gen_opts: >
+#     +instr_cnt=10000
+#     +require_signature_addr=1
+#     +enable_interrupt=1
+#     +no_csr_instr=1
+#   iterations: 5
+#   isa: rv32imc
+#   gen_test: riscv_rand_instr_test
+#   rtl_test: ibex_core_random_interrupt_test

@@ -14,7 +14,7 @@ RISCVDV_RUN_CMD = "python3 vendor/riscv-dv/run.py"
 GCC_FLAGS = (
   "-march=rv32imc -mabi=ilp32 -static -mcmodel=medany "
   "-fvisibility=hidden -nostdlib -nostartfiles -T link.ld "
-  "-I vendor/riscv-dv/user_extension -I vendor/riscv-dv/target/rv32imc"
+  "-I vendor/riscv-dv/user_extension -I ibex_core_dv/riscv-dv_config/target/rv32imc"
 )
 
 def run_cmd(cmd, cwd=None):
@@ -53,7 +53,7 @@ def step_generate_asm(test_name, iterations, isa, out_dir, yaml_file):
   """Generate .S files using riscv-dv."""
   print(f"\n[GEN_ASM] Generating stimulus: {test_name} ({iterations} iter)...")
   cmd = (
-    f"{RISCVDV_RUN_CMD} --target {isa} --test {test_name} "
+    f"{RISCVDV_RUN_CMD} --target {isa} -ct ibex_core_dv/riscv-dv_config/target/rv32imc --test {test_name} "
     f"--iterations {iterations} --simulator questa -o {out_dir} "
     f"-tl {yaml_file} --steps gen"
   )
