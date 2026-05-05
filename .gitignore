@@ -1,5 +1,5 @@
 # Ignore venv
-/venv_dv/*
+.venv/*
 
 # Ignore dvt files
 /.dvt/*

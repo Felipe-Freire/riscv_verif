@@ -17,8 +17,28 @@
 //-----------------------------------------------------------------------------
 // Processor feature configuration
 //-----------------------------------------------------------------------------
-// XLEN
 parameter int XLEN = 32;
+
+// GPR setting
+parameter int NUM_FLOAT_GPR = 0;
+parameter int NUM_GPR       = 32;
+parameter int NUM_VEC_GPR   = 0;
+
+// ----------------------------------------------------------------------------
+// Vector extension configuration
+// ----------------------------------------------------------------------------
+parameter int VECTOR_EXTENSION_ENABLE = 0;
+parameter int VLEN     = 512;
+parameter int ELEN     = 64;
+parameter int SLEN     = 64;
+parameter int VELEN    = 4;
+parameter int SELEN    = 8;
+parameter int MAX_LMUL = 8;
+
+// ----------------------------------------------------------------------------
+// Multi-harts configuration
+// ----------------------------------------------------------------------------
+parameter int NUM_HARTS = 1;
 
 // Parameter for SATP mode, set to BARE if address translation is not supported
 parameter satp_mode_t SATP_MODE = BARE;
@@ -33,11 +53,11 @@ riscv_instr_name_t unsupported_instr[];
 riscv_instr_group_t supported_isa[$] = {RV32I, RV32M, RV32C};
 
 // Interrupt mode support
-mtvec_mode_t supported_interrupt_mode[$] = {DIRECT, VECTORED};
+mtvec_mode_t supported_interrupt_mode[$] = {VECTORED};
 
 // The number of interrupt vectors to be generated, only used if VECTORED interrupt mode is
 // supported
-int max_interrupt_vector_num = 16;
+int max_interrupt_vector_num = 32;
 
 // Physical memory protection support
 bit support_pmp = 0;
@@ -55,66 +75,54 @@ bit support_umode_trap = 0;
 bit support_sfence = 0;
 
 // Support unaligned load/store
-bit support_unaligned_load_store = 1'b1;
+bit support_unaligned_load_store = 1'b0;
 
-// GPR setting
-parameter int NUM_FLOAT_GPR = 32;
-parameter int NUM_GPR = 32;
-parameter int NUM_VEC_GPR = 32;
+//-----------------------------------------------------------------------------
+// Kernel section setting, used by supervisor mode programs
+//-----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
-// Vector extension configuration
-// ----------------------------------------------------------------------------
+// Number of kernel data pages
+int num_of_kernel_data_pages = 0;
 
-// Parameter for vector extension
-parameter int VECTOR_EXTENSION_ENABLE = 0;
+// Byte size of kernel data pages
+int kernel_data_page_size = 4096;
 
-parameter int VLEN = 512;
+// Kernel Stack section word length
+int kernel_stack_len = 5000;
 
-// Maximum size of a single vector element
-parameter int ELEN = 32;
-
-// Minimum size of a sub-element, which must be at most 8-bits.
-parameter int SELEN = 8;
-
-// Maximum size of a single vector element (encoded in vsew format)
-parameter int VELEN = int'($ln(ELEN)/$ln(2)) - 3;
-
-// Maxium LMUL supported by the core
-parameter int MAX_LMUL = 8;
-
-// ----------------------------------------------------------------------------
-// Multi-harts configuration
-// ----------------------------------------------------------------------------
-
-// Number of harts
-parameter int NUM_HARTS = 1;
+// Number of instructions for each kernel program
+int kernel_program_instr_cnt = 400;
 
 // ----------------------------------------------------------------------------
 // Previleged CSR implementation
 // ----------------------------------------------------------------------------
 
 // Implemented previlieged CSR list
-`ifdef DSIM
-privileged_reg_t implemented_csr[] = {
-`else
 const privileged_reg_t implemented_csr[] = {
-`endif
     // Machine mode mode CSR
-    MVENDORID,  // Vendor ID
-    MARCHID,    // Architecture ID
-    MIMPID,     // Implementation ID
-    MHARTID,    // Hardware thread ID
-    MSTATUS,    // Machine status
-    MISA,       // ISA and extensions
-    MIE,        // Machine interrupt-enable register
-    MTVEC,      // Machine trap-handler base address
-    MCOUNTEREN, // Machine counter enable
-    MSCRATCH,   // Scratch register for machine trap handlers
-    MEPC,       // Machine exception program counter
-    MCAUSE,     // Machine trap cause
-    MTVAL,      // Machine bad address or instruction
-    MIP         // Machine interrupt pending
+    MSCRATCH,         // Scratch register
+    MVENDORID,        // Vendor ID
+    MIMPID,           // Implementation ID
+    MARCHID,          // Architecture ID
+    MHARTID,          // Hardware thread ID
+    MCONFIGPTR,       // Machine configuration pointer
+    MENVCFG,          // Machine environment configuration (lower 32 bits)
+    MSTATUS,          // Machine status (lower 32 bits)
+    MSTATUSH,         // Machine status (upper 32 bits)
+    MISA,             // ISA and extensions
+    MTVEC,            // Machine trap-handler base address
+    MEPC,             // Machine exception program counter
+    MCAUSE,           // Machine trap cause
+    MTVAL,            // Machine bad address or instruction
+    MIE,              // Machine interrupt enable
+    MIP,              // Machine interrupt pending
+    MCYCLE,           // Machine cycle counter (lower 32 bits)
+    MCYCLEH,          // Machine cycle counter (upper 32 bits)
+    MCOUNTINHIBIT,    // Machine counter inhibit register
+    DCSR,             // Debug control and status register
+    DPC,              // Debug PC
+    DSCRATCH0,        // Debug scratch register 0
+    DSCRATCH1         // Debug scratch register 1
 };
 
 // Implementation-specific custom CSRs
@@ -124,26 +132,17 @@ bit [11:0] custom_csr[] = {
 // ----------------------------------------------------------------------------
 // Supported interrupt/exception setting, used for functional coverage
 // ----------------------------------------------------------------------------
-
-`ifdef DSIM
-interrupt_cause_t implemented_interrupt[] = {
-`else
 const interrupt_cause_t implemented_interrupt[] = {
-`endif
     M_SOFTWARE_INTR,
     M_TIMER_INTR,
     M_EXTERNAL_INTR
 };
 
-`ifdef DSIM
-exception_cause_t implemented_exception[] = {
-`else
 const exception_cause_t implemented_exception[] = {
-`endif
     INSTRUCTION_ACCESS_FAULT,
     ILLEGAL_INSTRUCTION,
     BREAKPOINT,
-    LOAD_ADDRESS_MISALIGNED,
     LOAD_ACCESS_FAULT,
+    STORE_AMO_ACCESS_FAULT,
     ECALL_MMODE
 };

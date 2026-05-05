@@ -39,7 +39,7 @@ VOPT      := vopt -64 +acc +cover=bcesf+ibex_core_tb_top. -coveropt 3
 VSIM      := vsim -64 -L mtiUvm
 
 # --- DPI-C Config ---
-MTI_HOME   			 ?= /home/felipe/mentor_graphics_eda/questasim
+MTI_HOME   			 ?= /home/felipe/eda/questasim
 COSIM_SPIKE_PATH ?= /opt/lowrisc_spike_cosim
 CXX        			 := g++
 

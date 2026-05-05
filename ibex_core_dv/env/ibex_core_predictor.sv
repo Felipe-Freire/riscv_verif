@@ -2,7 +2,7 @@
 `define __IBEX_CORE_PREDICTOR_SV__
 
 class ibex_core_predictor extends uvm_component;
-  
+
   `uvm_component_utils(ibex_core_predictor)
 
   uvm_tlm_analysis_fifo #(uvma_rvfi_seq_item      ) rvfi_fifo;
@@ -48,11 +48,12 @@ class ibex_core_predictor extends uvm_component;
       verdict.rtl_item = t;
 
       `uvm_info("PREDICTOR_DEBUG", $sformatf("RVFI -> PC_RDATA: 0x%0x | PC_WDATA: 0x%0x | TRAP: %0b | INTR: %0b", t.pc_rdata, t.pc_wdata, t.trap, t.intr), UVM_LOW)
+      `uvm_info("PREDICTOR_MIP", $sformatf("Before set_mip: pre_mip=0x%08x post_mip=0x%08x, pc_rdata=0x%08x", t.ext_pre_mip, t.ext_post_mip, t.pc_rdata), UVM_LOW)
 
       if (t.irq_only) begin
         riscv_cosim_set_nmi(spike_handle, t.ext_nmi);
         riscv_cosim_set_nmi_int(spike_handle, t.ext_nmi_int);
-        riscv_cosim_set_mip(spike_handle, t.ext_pre_mip, t.ext_pre_mip); 
+        riscv_cosim_set_mip(spike_handle, t.ext_pre_mip, t.ext_pre_mip);
         continue;
       end
 
@@ -67,18 +68,18 @@ class ibex_core_predictor extends uvm_component;
         riscv_cosim_set_csr(spike_handle, int'(CSR_MHPMCOUNTER3) + i, t.ext_mhpmcounters[i]);
         riscv_cosim_set_csr(spike_handle, int'(CSR_MHPMCOUNTER3H) + i, t.ext_mhpmcountersh[i]);
       end
-    
+
       riscv_cosim_set_ic_scr_key_valid(spike_handle, t.ext_ic_scr_key_valid);
 
-      // Query the C++ oracle. 
+      // Query the C++ oracle.
       // Se a instrução for de memória, o Spike vai consumir o que a `run_cosim_dmem` enfileirou!
       step_result = riscv_cosim_step(
-        spike_handle, 
-        t.rd_addr, 
-        t.rd_wdata, 
-        t.pc_rdata, 
-        t.trap, 
-        t.ext_rf_wr_suppress 
+        spike_handle,
+        t.rd_addr,
+        t.rd_wdata,
+        t.pc_rdata,
+        t.trap,
+        t.ext_rf_wr_suppress
       );
 
       verdict.passed = (step_result == 1);
@@ -102,19 +103,19 @@ class ibex_core_predictor extends uvm_component;
     bit is_store;
 
     forever begin
-      dmem_fifo.get(mem_op); 
+      dmem_fifo.get(mem_op);
 
       // Converte o seu enum no bit que o Spike espera
       is_store = (mem_op.access_type == UVMA_SIMPLE_MEM_WRITE) ? 1'b1 : 1'b0;
 
       riscv_cosim_notify_dside_access(
-        spike_handle, 
+        spike_handle,
         is_store,
         mem_op.addr,
-        mem_op.data, 
+        mem_op.data,
         mem_op.be,
         1'b0, // Sem sinal de erro no seu agente, assumimos sucesso
-        1'b0, 1'b0, 1'b0, 
+        1'b0, 1'b0, 1'b0,
         1'b1
       );
     end
