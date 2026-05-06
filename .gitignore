@@ -25,3 +25,4 @@ transcript
 out_tests/*
 design.bin
 GEMINI.md
+*.logerr

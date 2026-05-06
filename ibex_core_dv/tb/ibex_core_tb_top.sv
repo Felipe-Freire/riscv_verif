@@ -85,14 +85,14 @@ module ibex_core_tb_top;
     .alert_major_internal_o (),
     .alert_major_bus_o      (),
     .core_sleep_o           (),
-    
+
     // Interrupts
     .irq_software_i (interrupt_if.irq_software),
     .irq_timer_i    (interrupt_if.irq_timer),
     .irq_external_i (interrupt_if.irq_external),
     .irq_fast_i     (interrupt_if.irq_fast),
     .irq_nm_i       (interrupt_if.irq_nm),
-    
+
     // Scrambling Interface (I-Cache Crypto)
     .scramble_key_valid_i (1'b0),
     .scramble_key_i       ('0),
@@ -163,7 +163,7 @@ module ibex_core_tb_top;
   assign rvfi_if_inst.rvfi_ext_mhpmcountersh    = dut.rvfi_ext_mhpmcountersh;
   assign rvfi_if_inst.rvfi_ext_ic_scr_key_valid = dut.rvfi_ext_ic_scr_key_valid;
   assign rvfi_if_inst.rvfi_ext_irq_valid        = dut.rvfi_ext_irq_valid;
-  
+
   initial begin
     uvm_config_db#(virtual uvma_clk_rst_if   )::set(null, "uvm_test_top.env.clk_rst_agent", "vif", clk_rst_if    );
     uvm_config_db#(virtual uvma_simple_mem_if)::set(null, "uvm_test_top.env.data_mem_agent", "vif", data_mem_if  );

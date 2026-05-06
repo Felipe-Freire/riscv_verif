@@ -72,7 +72,7 @@ class ibex_core_base_test extends uvm_test;
     cfg.probe_imem_for_errs = 1'b0;
     cfg.relax_cosim_check = 1'b0; // By default, strict checking. Can be relaxed via config if needed.
     cfg.log_file         = cosim_log_file;
-    cfg.pmp_num_regions  = pmp_num_regions;
+    cfg.pmp_num_regions  = '0;
     cfg.pmp_granularity  = pmp_granularity;
     cfg.mhpm_counter_num = mhpm_counter_num;
     cfg.secure_ibex      = secure_ibex;

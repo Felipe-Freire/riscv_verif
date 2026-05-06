@@ -48,7 +48,6 @@ class ibex_core_predictor extends uvm_component;
       verdict.rtl_item = t;
 
       `uvm_info("PREDICTOR_DEBUG", $sformatf("RVFI -> PC_RDATA: 0x%0x | PC_WDATA: 0x%0x | TRAP: %0b | INTR: %0b", t.pc_rdata, t.pc_wdata, t.trap, t.intr), UVM_LOW)
-      `uvm_info("PREDICTOR_MIP", $sformatf("Before set_mip: pre_mip=0x%08x post_mip=0x%08x, pc_rdata=0x%08x", t.ext_pre_mip, t.ext_post_mip, t.pc_rdata), UVM_LOW)
 
       if (t.irq_only) begin
         riscv_cosim_set_nmi(spike_handle, t.ext_nmi);
@@ -61,6 +60,16 @@ class ibex_core_predictor extends uvm_component;
       riscv_cosim_set_debug_req(spike_handle, t.ext_debug_req);
       riscv_cosim_set_nmi(spike_handle, t.ext_nmi);
       riscv_cosim_set_nmi_int(spike_handle, t.ext_nmi_int);
+
+      // Diagnostic: detect if set_mip could trigger early_interrupt_handle()
+      // inside SpikeCosim. If pre_mip or post_mip are non-zero during
+      // non-interrupt tests, this is the likely cause of Spike desync.
+      if (t.ext_pre_mip != 0 || t.ext_post_mip != 0) begin
+        `uvm_warning("PREDICTOR_MIP", $sformatf(
+            "Non-zero MIP at PC 0x%08x: pre_mip=0x%08x post_mip=0x%08x (may trigger early_interrupt_handle)",
+            t.pc_rdata, t.ext_pre_mip, t.ext_post_mip))
+      end
+
       riscv_cosim_set_mip(spike_handle, t.ext_pre_mip, t.ext_post_mip);
       riscv_cosim_set_mcycle(spike_handle, t.ext_mcycle);
 
@@ -101,12 +110,20 @@ class ibex_core_predictor extends uvm_component;
   task run_cosim_dmem();
     uvma_simple_mem_seq_item mem_op;
     bit is_store;
+    int unsigned dmem_count = 0;
 
     forever begin
       dmem_fifo.get(mem_op);
 
+      dmem_count++;
+
       // Converte o seu enum no bit que o Spike espera
       is_store = (mem_op.access_type == UVMA_SIMPLE_MEM_WRITE) ? 1'b1 : 1'b0;
+
+      `uvm_info("PREDICTOR_DMEM", $sformatf(
+          "D-side #%0d: %s addr=0x%08x data=0x%08x be=0x%01x err=%0b m_mode_access=%0b",
+          dmem_count, is_store ? "STORE" : "LOAD",
+          mem_op.addr, mem_op.data, mem_op.be, mem_op.error, mem_op.m_mode_access), UVM_LOW)
 
       riscv_cosim_notify_dside_access(
         spike_handle,
@@ -114,9 +131,11 @@ class ibex_core_predictor extends uvm_component;
         mem_op.addr,
         mem_op.data,
         mem_op.be,
-        1'b0, // Sem sinal de erro no seu agente, assumimos sucesso
-        1'b0, 1'b0, 1'b0,
-        1'b1
+        mem_op.error,
+        0,
+        0,
+        0,
+        mem_op.m_mode_access
       );
     end
   endtask

@@ -76,6 +76,16 @@ class uvma_simple_mem_mon extends uvm_monitor;
         item.data = cntxt.vif.mon_cb.rdata;
       end
 
+      // Capture bus error status at response time.
+      // Required by SpikeCosim::check_mem_access() for correct fault propagation.
+      item.error = cntxt.vif.mon_cb.err;
+
+      // Default m_mode_access to 1 (M-mode). Without internal RTL probes,
+      // we cannot determine the privilege level of the access. This is safe
+      // as long as tests run in M-mode only. For U-mode tests, RTL probes
+      // must be added to uvma_simple_mem_if.
+      item.m_mode_access = 1'b1;
+
       rsp_ap.write(item);
     end
   endtask
