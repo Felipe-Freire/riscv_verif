@@ -30,10 +30,33 @@ class ibex_core_predictor extends uvm_component;
   endfunction
 
   virtual task run_phase(uvm_phase phase);
-    fork
-      run_cosim_dmem();
-      run_cosim_rvfi();
-    join
+    uvm_event reset_e = uvm_event_pool::get_global("reset_e");
+
+    forever begin
+      if (!uvm_config_db#(chandle)::get(this, "", "spike_handle", spike_handle)) begin
+        `uvm_fatal("PREDICTOR", "Spike pointer (spike_handle) not found!")
+      end
+      fork : isolation_fork
+        run_cosim_dmem();
+        run_cosim_rvfi();
+      join_none
+
+      // Block until a reset hits
+      reset_e.wait_trigger();
+
+      // Kill the threads immediately
+      disable fork;
+
+      // Flush residual transactions from the RTL pipeline
+      rvfi_fifo.flush();
+      dmem_fifo.flush();
+
+      `uvm_info("PREDICTOR", "Threads disabled and FIFOs flushed due to reset.", UVM_MEDIUM)
+
+      // Wait for the Env to finish Spike re-init and clear the event
+      reset_e.wait_off();
+      `uvm_info("PREDICTOR", "Spike re-initialized and event cleared. Re-enabling cosim threads...", UVM_LOW)
+    end
   endtask
 
   task run_cosim_rvfi();

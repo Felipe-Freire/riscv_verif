@@ -22,6 +22,11 @@ package ibex_core_test_pkg;
   `include "ibex_core_base_test.sv"
   `include "ibex_core_sanity_test.sv"
   `include "ibex_core_interrupt_test.sv"
+  `include "ibex_core_random_interrupt_test.sv"
+  `include "ibex_core_mem_error_test.sv"
+  `include "ibex_core_dret_test.sv"
+  `include "ibex_core_irq_csr_test.sv"
+  `include "ibex_core_reset_test.sv"
 
 endpackage : ibex_core_test_pkg
 

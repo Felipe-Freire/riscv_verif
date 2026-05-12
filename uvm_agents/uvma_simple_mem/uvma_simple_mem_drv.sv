@@ -63,10 +63,12 @@ class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
       cntxt.vif.slave_cb.rvalid <= 1;
       cntxt.vif.slave_cb.rdata  <= req.data; // Data read from memory (if Read)
       cntxt.vif.slave_cb.rdata_intg <= 0;
+      cntxt.vif.slave_cb.err    <= req.error;
 
       // 4. 1-cycle Handshake
       @(cntxt.vif.slave_cb);
       cntxt.vif.slave_cb.rvalid <= 0;
+      cntxt.vif.slave_cb.err    <= 0;
       
       seq_item_port.item_done();
     end
