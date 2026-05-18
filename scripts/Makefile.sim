@@ -1,0 +1,66 @@
+# ==============================================================================
+# Makefile.sim — QuestaSim Simulation & Coverage Targets
+# ==============================================================================
+# Included by scripts/Makefile. All paths derived from $(PROJ_ROOT).
+# ==============================================================================
+
+# --- QuestaSim Simulator ---
+VSIM := vsim -64 -L mtiUvm
+
+# --- riscv-dv Generator ---
+RISCVDV_RUN_CMD := python3 $(PROJ_ROOT)/vendor/riscv-dv/run.py
+
+.PHONY: gen sim wave cov_merge cov_report cov_export cov_gui
+
+gen: setup
+	@echo "--- Generating Stimulus: $(TEST_NAME) ($(ITERATIONS) iter) ---"
+	$(RISCVDV_RUN_CMD) --target $(ISA) -ct $(CUSTOM_TARGET) --test $(TEST_NAME) \
+	--iterations $(ITERATIONS) --simulator questa -o $(PROJ_ROOT)/out_tests \
+	-tl $(PROJ_ROOT)/scripts/test_config.yaml --steps gen
+
+sim: setup
+	@echo "--- Running Test: $(TEST_NAME) (Seed: $(SEED)) ---"
+	$(VSIM) -c ibex_core_tb_top_opt \
+	-sv_seed $(SEED) \
+	-sv_lib cosim_dpi \
+	-coverage \
+	+UVM_TESTNAME=$(TEST_RTL) \
+	+UVM_VERBOSITY=$(VERBOSITY) \
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	+UVM_TIMEOUT=10000000000ns,YES \
+	-l $(LOG_DIR)/sim_$(TEST_NAME)_$(SEED).log \
+	-do "coverage save -onexit $(OUT_DIR)/cov/sim_$(TEST_NAME)_$(SEED).ucdb; run -all; exit"
+
+wave: setup
+	@echo "--- Opening QuestaSim GUI for $(TEST_NAME) ---"
+	$(VSIM) ibex_core_tb_top_opt \
+	-sv_seed $(SEED) \
+	-sv_lib cosim_dpi \
+	+UVM_TESTNAME=$(TEST_RTL) \
+	+UVM_VERBOSITY=$(VERBOSITY) \
+	+HEX_FILE=$(HEX_FILE) \
+	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	+UVM_TIMEOUT=10000000000ns,YES \
+	-do " \
+		add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; \
+		add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; \
+		add wave -group {RVFI_Tracer} /ibex_core_tb_top/dut/rvfi_*; \
+		add wave -group {RVFI_Interface} /ibex_core_tb_top/dut/rvfi_if_inst/*; \
+		run -all"
+
+cov_merge: setup
+	@echo "--- Merging UCDB files ---"
+	vcover merge -out $(OUT_DIR)/cov/merged_regression.ucdb $(OUT_DIR)/cov/*.ucdb
+
+cov_report: cov_merge
+	@echo "--- Generating HTML Coverage Report ---"
+	vcover report -html -output $(OUT_DIR)/cov/html_report -details $(OUT_DIR)/cov/merged_regression.ucdb
+
+cov_export: cov_merge
+	@echo "--- Exporting Detailed Coverage to TXT ---"
+	vcover report -details -srcfile=* -output $(OUT_DIR)/cov/cov_details.txt $(OUT_DIR)/cov/merged_regression.ucdb
+
+cov_gui: setup
+	@echo "--- Opening Unified Coverage in QuestaSim GUI ---"
+	$(VSIM) -viewcov $(OUT_DIR)/cov/merged_regression.ucdb

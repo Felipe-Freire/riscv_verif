@@ -7,7 +7,7 @@ class ibex_core_predictor extends uvm_component;
 
   uvm_tlm_analysis_fifo #(uvma_rvfi_seq_item      ) rvfi_fifo;
   uvm_tlm_analysis_fifo #(uvma_simple_mem_seq_item) dmem_fifo;
-  uvm_tlm_analysis_fifo #(uvma_rvfi_seq_item      ) imen_fifo;
+  uvm_tlm_analysis_fifo #(uvma_simple_mem_seq_item) imen_fifo;
 
   // Output port to the Comparator
   uvm_analysis_port #(ibex_core_cosim_verdict) ap;
@@ -20,6 +20,7 @@ class ibex_core_predictor extends uvm_component;
 
     rvfi_fifo = new("rvfi_fifo", this);
     dmem_fifo = new("dmem_fifo", this);
+    imen_fifo = new("imen_fifo", this);
   endfunction
 
   function void build_phase(uvm_phase phase);

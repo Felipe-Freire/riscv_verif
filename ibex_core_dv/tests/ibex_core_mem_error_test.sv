@@ -17,9 +17,9 @@ class ibex_core_mem_error_test extends ibex_core_base_test;
     if (cfg.data_mem_cfg != null) begin
       cfg.data_mem_cfg.error_prob = 5;
     end
-    if (cfg.instr_mem_cfg != null) begin
-      cfg.instr_mem_cfg.error_prob = 2;
-    end
+    // if (cfg.instr_mem_cfg != null) begin           Need to enable this in the future when instruction memory error injection is supported
+    //   cfg.instr_mem_cfg.error_prob = 2;
+    // end
 
     `uvm_info("MEM_ERR_TEST", $sformatf("Error injection enabled: DMEM=%0d%%, IMEM=%0d%%",
         cfg.data_mem_cfg.error_prob, cfg.instr_mem_cfg.error_prob), UVM_LOW)
