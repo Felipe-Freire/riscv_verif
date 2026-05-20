@@ -39,7 +39,7 @@ VOPT      := vopt -64 +acc +cover=bcesf+ibex_core_tb_top. -coveropt 3
 VSIM      := vsim -64 -L mtiUvm
 
 # --- DPI-C Config ---
-MTI_HOME   			 ?= /home/felipe/mentor_graphics_eda/questasim
+MTI_HOME   			 ?= /home/felipe/eda/questasim
 COSIM_SPIKE_PATH ?= /opt/lowrisc_spike_cosim
 CXX        			 := g++
 
@@ -118,6 +118,7 @@ run:
 	+UVM_VERBOSITY=$(VERBOSITY) \
 	+HEX_FILE=$(HEX_FILE) \
 	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	+UVM_TIMEOUT=10000000000ns,YES \
 	-l $(OUT_DIR)/logs/sim_$(TEST_NAME)_$(SEED).log \
 	-do "coverage save -onexit $(OUT_DIR)/cov/sim_$(TEST_NAME)_$(SEED).ucdb; run -all; exit"
 
@@ -131,6 +132,7 @@ wave:
 	+UVM_VERBOSITY=$(VERBOSITY) \
 	+HEX_FILE=$(HEX_FILE) \
 	+TOHOST_ADDR=$(TOHOST_ADDR) \
+	+UVM_TIMEOUT=10000000000ns,YES \
 	-do " \
 		add wave -group {Instr_Mem_IF} /ibex_core_tb_top/instr_mem_if/*; \
 		add wave -group {Ibex_Pins} /ibex_core_tb_top/dut/*; \

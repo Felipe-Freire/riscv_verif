@@ -1,0 +1,86 @@
+# ==============================================================================
+# Makefile.comp — QuestaSim Compilation Targets
+# ==============================================================================
+# Included by scripts/Makefile. All paths derived from $(PROJ_ROOT).
+# ==============================================================================
+
+# --- QuestaSim Tools ---
+VLOG      := vlog -64 -sv +acc -L mtiUvm
+VOPT      := vopt -64 +acc +cover=bcesf+ibex_core_tb_top. -coveropt 3
+
+# --- DPI-C Config ---
+MTI_HOME         ?= /home/felipe/eda/questasim
+COSIM_SPIKE_PATH ?= /opt/lowrisc_spike_cosim
+CXX              := g++
+
+CXXFLAGS         := -shared -fPIC -std=c++17 \
+                    -DRISCV_ENABLE_COMMITLOG \
+                    -I$(MTI_HOME)/include \
+                    -I$(COSIM_SPIKE_PATH)/include \
+                    -I$(COSIM_SPIKE_PATH)/include/softfloat \
+                    -I$(COSIM_SPIKE_PATH)/include/riscv \
+                    -I$(COSIM_SPIKE_PATH)/include/fesvr
+
+LDFLAGS          := $(COSIM_SPIKE_PATH)/lib/libriscv.a \
+                    $(COSIM_SPIKE_PATH)/lib/libfesvr.a \
+                    $(COSIM_SPIKE_PATH)/lib/libdisasm.a \
+                    $(COSIM_SPIKE_PATH)/lib/libfdt.a
+
+.PHONY: dpi comp_rtl comp_tb opt comp_asm
+
+dpi: setup
+	@echo "--- Compiling C++ Wrapper for DPI-C ---"
+	$(CXX) $(CXXFLAGS) -I$(COSIM_DIR) $(COSIM_DIR)/*.cc -I$(COSIM_COMM) $(COSIM_COMM)/spike_cosim_dpi.cc $(LDFLAGS) -o cosim_dpi.so
+
+comp_rtl: setup
+	@echo "--- Compiling RTL Design ---"
+	$(VLOG) \
+	$(ARCH_DEFINES) \
+	+define+RVFI \
+	+define+INC_ASSERT \
+	+incdir+$(VENDOR_DIR)/ip/prim/rtl \
+	+incdir+$(VENDOR_DIR)/dv/sv/dv_utils \
+	-f $(PROJ_ROOT)/scripts/ibex_core_rtl.f \
+	-l $(LOG_DIR)/comp_rtl.log
+
+comp_tb: dpi
+	@echo "--- Compiling Verification Environment ---"
+	$(VLOG) \
+	$(ARCH_DEFINES) \
+	+define+RVFI \
+	+define+INC_ASSERT \
+	+incdir+$(VENDOR_DIR)/ip/prim/rtl \
+	+incdir+$(VENDOR_DIR)/dv/sv/dv_utils \
+	+incdir+$(COSIM_DIR) \
+	+incdir+$(COSIM_COMM) \
+	-f $(UVMA_CLK_RST_PATH)/uvma_clk_rst.f \
+	-f $(UVML_MEM_PATH)/uvml_mem.f \
+	-f $(UVMA_SIMPLE_MEM_PATH)/uvma_simple_mem.f \
+	-f $(UVMA_RVFI_PATH)/uvma_rvfi.f \
+	-f $(UVMA_INTERRUPT_PATH)/uvma_interrupt.f \
+	-f $(UVMA_ISACOV_PATH)/uvma_isacov.f \
+	-f $(IBEX_CORE_ENV_PATH)/ibex_core_env.f \
+	-f $(IBEX_CORE_TEST_PATH)/ibex_core_test.f \
+	$(TB_DIR)/ibex_core_tb_top.sv \
+	-l $(LOG_DIR)/comp_tb.log
+
+opt: comp_rtl comp_tb
+	@echo "--- Optimizing ---"
+	$(VOPT) ibex_core_tb_top -o ibex_core_tb_top_opt -l $(LOG_DIR)/opt.log
+
+# --- Assembly Compilation (GCC Cross-Compiler) ---
+GCC_CMD     := riscv32-unknown-elf-gcc
+OBJCOPY_CMD := riscv32-unknown-elf-objcopy
+NM_CMD      := riscv32-unknown-elf-nm
+GCC_FLAGS   := -march=rv32imc -mabi=ilp32 -static -mcmodel=medany \
+               -fvisibility=hidden -nostdlib -nostartfiles -T $(PROJ_ROOT)/scripts/link.ld \
+               -I $(USR_EXTENSION) -I $(CUSTOM_TARGET)
+
+comp_asm: setup
+	@echo "--- Compiling Assembly: $(ASM_FILE) ---"
+	@if [ -z "$(ASM_FILE)" ]; then echo "ASM_FILE not defined"; exit 1; fi
+	$(eval BASENAME := $(basename $(ASM_FILE)))
+	$(eval ELF_FILE := $(BASENAME).elf)
+	$(eval HEX_FILE_OUT := $(BASENAME).hex)
+	$(GCC_CMD) $(GCC_FLAGS) $(ASM_FILE) -o $(ELF_FILE)
+	$(OBJCOPY_CMD) -O verilog $(ELF_FILE) $(HEX_FILE_OUT)

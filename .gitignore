@@ -1,5 +1,5 @@
 # Ignore venv
-/venv_dv/*
+.venv/*
 
 # Ignore dvt files
 /.dvt/*
@@ -13,6 +13,9 @@ dvt_build.log
 /work/*
 modelsim.ini
 
+# Ignore Python
+__pycache__/
+
 # Ignore generated files
 sim/out/*
 sim/work/*
@@ -25,3 +28,4 @@ transcript
 out_tests/*
 design.bin
 GEMINI.md
+*.logerr

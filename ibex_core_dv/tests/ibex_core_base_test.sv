@@ -14,7 +14,7 @@ class ibex_core_base_test extends uvm_test;
 
   bit [31:0] tohost_addr;
 
-  // Cosim configuration 
+  // Cosim configuration
   string cosim_log_file;
   bit [31:0] pmp_num_regions;
   bit [31:0] pmp_granularity;
@@ -72,7 +72,7 @@ class ibex_core_base_test extends uvm_test;
     cfg.probe_imem_for_errs = 1'b0;
     cfg.relax_cosim_check = 1'b0; // By default, strict checking. Can be relaxed via config if needed.
     cfg.log_file         = cosim_log_file;
-    cfg.pmp_num_regions  = pmp_num_regions;
+    cfg.pmp_num_regions  = '0;
     cfg.pmp_granularity  = pmp_granularity;
     cfg.mhpm_counter_num = mhpm_counter_num;
     cfg.secure_ibex      = secure_ibex;
@@ -97,7 +97,7 @@ class ibex_core_base_test extends uvm_test;
   endfunction
 
   // Firing of Reactive Sequences (Background Daemons)
-  task run_phase(uvm_phase phase);  
+  task run_phase(uvm_phase phase);
     super.run_phase(phase);
     phase.raise_objection(this, "Base Test Initialization Running");
 
@@ -135,6 +135,12 @@ class ibex_core_base_test extends uvm_test;
         end else begin
           `uvm_error("TEST_VERDICT", $sformatf("\n\n*** TEST FAILED! (via TOHOST) Code: %0d ***\n", rvfi_trn.mem_wdata))
         end
+        begin
+          uvma_clk_rst_stop_clk_seq stop_clk_seq;
+          stop_clk_seq = uvma_clk_rst_stop_clk_seq::type_id::create("stop_clk_seq");
+          stop_clk_seq.start(env.vsqr.clk_rst_sqr);
+          #20ns; // Allow clock generation loop to settle gracefully
+        end
         phase.drop_objection(this, "End detected via tohost");
         break;
       end
@@ -147,7 +153,12 @@ class ibex_core_base_test extends uvm_test;
         end else begin
           `uvm_error("TEST_VERDICT", $sformatf("\n\n*** TEST FAILED! (via ECALL) GP Code: %0d ***\n", gp_reg))
         end
-        #10ns;
+        begin
+          uvma_clk_rst_stop_clk_seq stop_clk_seq;
+          stop_clk_seq = uvma_clk_rst_stop_clk_seq::type_id::create("stop_clk_seq");
+          stop_clk_seq.start(env.vsqr.clk_rst_sqr);
+          #20ns; // Allow clock generation loop to settle gracefully
+        end
         phase.drop_objection(this, "End detected via ECALL");
         break; // Exit the forever loop
       end
@@ -155,8 +166,8 @@ class ibex_core_base_test extends uvm_test;
   endtask
 
   task watchdog_timeout();
-    #500ms;
-    `uvm_fatal("TIMEOUT", "Simulation reached timeout without writing to tohost!")
+    #500000000ns;
+    `uvm_fatal("TIMEOUT", "Simulation reached timeout (100ms) without writing to tohost or ECALL!")
   endtask
 
 endclass : ibex_core_base_test

@@ -89,12 +89,14 @@ class ibex_core_cfg extends uvm_object;
 
     clk_rst_cfg.default_period == 10000; // 100 MHz
 
-    instr_mem_cfg.min_latency  == 0; 
+    instr_mem_cfg.min_latency  == 0;
     instr_mem_cfg.max_latency  == 2;
+    instr_mem_cfg.error_prob   == 0;
     instr_mem_cfg.max_latency  >= instr_mem_cfg.min_latency;
 
     data_mem_cfg.min_latency   == 0;
     data_mem_cfg.max_latency   == 2;
+    data_mem_cfg.error_prob    == 0;
     data_mem_cfg.max_latency   >= data_mem_cfg.min_latency;
 
     isacov_cfg.ext_i_supported        == 1;

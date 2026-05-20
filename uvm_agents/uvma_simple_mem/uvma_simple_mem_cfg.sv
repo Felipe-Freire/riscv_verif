@@ -7,20 +7,33 @@ class uvma_simple_mem_cfg extends uvm_object;
   rand uvm_active_passive_enum  is_active;
   rand int                      min_latency;
   rand int                      max_latency;
+  rand int                      error_prob;
+  rand int                      min_gnt_delay;  // Grant-phase delay: cycles before asserting gnt
+  rand int                      max_gnt_delay;
 
   `uvm_object_utils_begin(uvma_simple_mem_cfg)
     `uvm_field_int (enabled, UVM_DEFAULT)
     `uvm_field_enum(uvm_active_passive_enum, is_active, UVM_DEFAULT)
-    `uvm_field_int (min_latency, UVM_DEFAULT + UVM_DEC)
-    `uvm_field_int (max_latency, UVM_DEFAULT + UVM_DEC)
+    `uvm_field_int (min_latency,   UVM_DEFAULT + UVM_DEC)
+    `uvm_field_int (max_latency,   UVM_DEFAULT + UVM_DEC)
+    `uvm_field_int (error_prob,    UVM_DEFAULT + UVM_DEC)
+    `uvm_field_int (min_gnt_delay, UVM_DEFAULT + UVM_DEC)
+    `uvm_field_int (max_gnt_delay, UVM_DEFAULT + UVM_DEC)
   `uvm_object_utils_end
 
   constraint defaults_cons {
-    soft enabled     == 1;
-    soft is_active   == UVM_ACTIVE;
-    soft min_latency == 0;
-    soft max_latency == 2;
-    max_latency >= min_latency;
+    soft enabled       == 1;
+    soft is_active     == UVM_ACTIVE;
+    soft min_latency   == 0;
+    soft max_latency   == 2;
+    soft error_prob    == 0;
+    soft min_gnt_delay == 0;
+    soft max_gnt_delay == 0;
+    max_latency   >= min_latency;
+    max_gnt_delay >= min_gnt_delay;
+    min_gnt_delay >= 0;
+    error_prob    >= 0;
+    error_prob    <= 100;
   }
 
   function new(string name="uvma_simple_mem_cfg");

@@ -2,7 +2,8 @@
 `define __UVMA_SIMPLE_MEM_DRV_SV__
 
 class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
-   
+
+  uvma_simple_mem_cfg   cfg;
   uvma_simple_mem_cntxt cntxt;
 
   `uvm_component_utils(uvma_simple_mem_drv)
@@ -13,6 +14,9 @@ class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
+
+    if(!uvm_config_db#(uvma_simple_mem_cfg)::get(this, "", "cfg", cfg))
+      `uvm_fatal("CFG", "Driver configuration not found")
 
     if(!uvm_config_db#(uvma_simple_mem_cntxt)::get(this, "", "cntxt", cntxt))
       `uvm_fatal("CNTXT", "Driver context not found")
@@ -31,17 +35,29 @@ class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
     wait(cntxt.vif.rst_n === 1);
 
     fork
-      do_grant_phase();    // Thread 1: Accepting Orders
-      do_response_phase(); // Thread 2: Returning Data (Controlled by the Sequence)
+      do_grant_phase();    // Thread 1: Address Phase (Grant with randomized delay)
+      do_response_phase(); // Thread 2: Data Phase (Controlled by the Sequence)
     join
   endtask : run_phase
 
-  // Thread 1: Address Phase (Always accepts requests immediately for now)
+  // Thread 1: Address Phase — Randomized grant delay to stress D-side pipelining.
+  // When min/max_gnt_delay are both 0 (default), grants are immediate (backward-compatible).
+  // When delay > 0, gnt is held low for N cycles before being pulsed, forcing data_req_o
+  // to stay asserted and exercising the pending_dside_accesses tracker in ibex_top.sv.
   task do_grant_phase();
+    int gnt_delay;
     forever begin
       @(cntxt.vif.slave_cb);
       if (cntxt.vif.slave_cb.req) begin
+        // Randomize delay before granting
+        gnt_delay = $urandom_range(cfg.min_gnt_delay, cfg.max_gnt_delay);
+        if (gnt_delay > 0) begin
+          cntxt.vif.slave_cb.gnt <= 0;
+          repeat(gnt_delay) @(cntxt.vif.slave_cb);
+        end
         cntxt.vif.slave_cb.gnt <= 1;
+        // @(cntxt.vif.slave_cb);
+        // cntxt.vif.slave_cb.gnt <= 0;
       end else begin
         cntxt.vif.slave_cb.gnt <= 0;
       end
@@ -63,11 +79,13 @@ class uvma_simple_mem_drv extends uvm_driver#(uvma_simple_mem_seq_item);
       cntxt.vif.slave_cb.rvalid <= 1;
       cntxt.vif.slave_cb.rdata  <= req.data; // Data read from memory (if Read)
       cntxt.vif.slave_cb.rdata_intg <= 0;
+      cntxt.vif.slave_cb.err    <= req.error;
 
       // 4. 1-cycle Handshake
       @(cntxt.vif.slave_cb);
       cntxt.vif.slave_cb.rvalid <= 0;
-      
+      cntxt.vif.slave_cb.err    <= 0;
+
       seq_item_port.item_done();
     end
   endtask : do_response_phase

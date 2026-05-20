@@ -26,6 +26,13 @@ class uvma_simple_mem_resp_seq extends uvm_sequence#(uvma_simple_mem_seq_item);
       // Copy request ID to facilitate waveform debugging
       rsp_item.set_id_info(req_item); 
 
+      // Randomize Error based on config probability
+      if ($urandom_range(0, 99) < p_sequencer.cfg.error_prob) begin
+        rsp_item.error = 1'b1;
+      end else begin
+        rsp_item.error = 1'b0;
+      end
+
       // Latency Randomization
       rsp_item.latency = $urandom_range(p_sequencer.cfg.min_latency, 
                                         p_sequencer.cfg.max_latency);
