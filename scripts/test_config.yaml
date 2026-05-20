@@ -12,7 +12,7 @@
     +no_data_page=1
     +no_branch_jump=1
     +no_csr_instr=1
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
@@ -26,7 +26,7 @@
     +gen_all_csrs_by_default=1
     +add_csr_write=MSTATUS,MEPC,MCAUSE,MTVAL,0x7c0,0x7c1
     +no_csr_instr=0
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
@@ -40,7 +40,7 @@
     +enable_interrupt=1
     +enable_timer_irq=1
     +no_csr_instr=1
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_interrupt_test
@@ -52,7 +52,7 @@
     +instr_cnt=10000
     +num_of_sub_program=5
     +boot_mode=m
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
@@ -64,7 +64,7 @@
     +instr_cnt=10000
     +num_of_sub_program=20
     +directed_instr_0=riscv_load_store_rand_instr_stream,8
-  iterations: 10
+  iterations: 15
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
 
@@ -75,7 +75,7 @@
     +instr_cnt=5000
     +num_of_sub_program=5
     +directed_instr_1=riscv_jal_instr,20
-  iterations: 10
+  iterations: 15
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
 
@@ -86,7 +86,7 @@
     +instr_cnt=10000
     +num_of_sub_program=5
     +directed_instr_1=riscv_loop_instr,20
-  iterations: 10
+  iterations: 15
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
 
@@ -96,7 +96,7 @@
     treat it as NOP. No illegal instruction exception is expected
   gen_opts: >
     +hint_instr_ratio=5
-  iterations: 10
+  iterations: 15
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_base_test
 
@@ -111,7 +111,7 @@
     +directed_instr_0=riscv_load_store_rand_instr_stream,30
     +directed_instr_1=riscv_load_store_hazard_instr_stream,30
     +directed_instr_2=riscv_hazard_instr_stream,30
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
@@ -126,7 +126,7 @@
     +no_csr_instr=0
     +gen_all_csrs_by_default=0
     +add_csr_write=MSTATUS,MISA,MIE,MTVEC,MSCRATCH,MEPC,MCAUSE,MTVAL
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
@@ -142,7 +142,7 @@
     +directed_instr_1=riscv_loop_instr,20
     +directed_instr_2=riscv_jal_instr,20
     +no_data_page=1
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
@@ -155,7 +155,7 @@
     +illegal_instr_ratio=30
     +no_csr_instr=1
     +no_ebreak=1
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_base_test
@@ -169,7 +169,7 @@
     +boot_mode=u
     +no_csr_instr=0
     +supported_privileged_mode=3
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_instr_base_test
   rtl_test: ibex_core_base_test
@@ -184,7 +184,7 @@
     +no_wfi=0
     +no_ebreak=1
     +supported_privileged_mode=3
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_base_test
@@ -198,7 +198,7 @@
     +enable_timer_irq=1
     +no_csr_instr=1
     +directed_instr_0=riscv_load_store_hazard_instr_stream,40
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_interrupt_test
@@ -213,7 +213,7 @@
     +randomize_csr=1
     +enable_dummy_csr_write=1
     +boot_mode=m
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_interrupt_test
@@ -228,7 +228,7 @@
     +enable_nested_interrupt=1
     +randomize_csr=1
     +no_csr_instr=1
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_interrupt_test
@@ -240,7 +240,7 @@
     +instr_cnt=15000
     +disable_compressed_instr=1
     +directed_instr_0=riscv_load_store_hazard_instr_stream,40
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_base_test
@@ -251,7 +251,7 @@
   gen_opts: >
     +instr_cnt=6000
     +no_ebreak=0
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_base_test
@@ -263,7 +263,7 @@
     +instr_cnt=10000
     +enable_interrupt=1
     +no_csr_instr=1
-  iterations: 10
+  iterations: 15
   isa: rv32imc
   gen_test: riscv_rand_instr_test
   rtl_test: ibex_core_random_interrupt_test
@@ -272,7 +272,7 @@
   description: >
     Test with different patterns of load/store instructions, stress test MMU
     operations.
-  iterations: 10
+  iterations: 15
   gen_test: riscv_instr_base_test
   gen_opts: >
     +instr_cnt=10000
@@ -286,7 +286,7 @@
 # - test: riscv_interrupt_wfi_test
 #   description: >
 #     Inject interrupts after a encountering wfi instructions.
-#   iterations: 105
+#   iterations: 155
 #   gen_test: riscv_rand_instr_test
 #   gen_opts: >
 #     +instr_cnt=6000
@@ -301,7 +301,7 @@
   description: >
     Dret instructions will be inserted into generated code, ibex should treat these
     like illegal instructions.
-  iterations: 10
+  iterations: 15
   gen_test: riscv_rand_instr_test
   gen_opts: >
     +no_dret=0
@@ -311,7 +311,7 @@
 - test: riscv_interrupt_csr_test
   description: >
     Inject interrupts during dummy writes to xSTATUS and xIE
-  iterations: 10
+  iterations: 15
   gen_test: riscv_rand_instr_test
   gen_opts: >
     +enable_interrupt=1
@@ -324,7 +324,7 @@
 - test: riscv_mem_error_test
   description: >
     Normal random instruction test, but randomly insert instruction fetch or memory load/store errors
-  iterations: 10
+  iterations: 15
   gen_test: riscv_rand_instr_test
   gen_opts: >
     +instr_cnt=10000
@@ -336,9 +336,40 @@
 - test: riscv_reset_test
   description: >
     Randomly reset the core once in the middle of program execution
-  iterations: 10
+  iterations: 15
   gen_test: riscv_rand_instr_test
   gen_opts: >
     +num_of_sub_program=5
     +directed_instr_0=riscv_load_store_rand_instr_stream,10
   rtl_test: ibex_core_reset_test
+
+- test: riscv_nmi_test
+  description: >
+    Injects Non-Maskable Interrupts (NMI) via irq_nm_i during random program
+    execution. Targets the irq_nm_i coverage hole in ibex_top clock_en expression.
+    Uses riscv-dv generated stimulus with mtvec handler setup.
+  gen_opts: >
+    +instr_cnt=10000
+    +num_of_sub_program=5
+    +no_csr_instr=1
+  iterations: 15
+  isa: rv32imc
+  gen_test: riscv_rand_instr_test
+  rtl_test: ibex_core_nmi_test
+
+- test: riscv_mem_stress_test
+  description: >
+    Extreme D-side bus protocol stress test. Injects randomized grant delays
+    (0-10 cycles) and high response latency (0-15 cycles) to exercise the
+    pending_dside_accesses pipeline tracker and multi-outstanding access paths.
+  gen_opts: >
+    +instr_cnt=10000
+    +num_of_sub_program=3
+    +enable_unaligned_load_store=0
+    +directed_instr_0=riscv_load_store_rand_instr_stream,40
+    +directed_instr_1=riscv_load_store_hazard_instr_stream,40
+    +directed_instr_2=riscv_hazard_instr_stream,20
+  iterations: 15
+  isa: rv32imc
+  gen_test: riscv_instr_base_test
+  rtl_test: ibex_core_mem_stress_test

@@ -30,7 +30,7 @@ sim: setup
 	+TOHOST_ADDR=$(TOHOST_ADDR) \
 	+UVM_TIMEOUT=10000000000ns,YES \
 	-l $(LOG_DIR)/sim_$(TEST_NAME)_$(SEED).log \
-	-do "coverage save -onexit $(OUT_DIR)/cov/sim_$(TEST_NAME)_$(SEED).ucdb; run -all; exit"
+	-do "do $(PROJ_ROOT)/scripts/questa_waivers.do; coverage save -onexit $(OUT_DIR)/cov/sim_$(TEST_NAME)_$(SEED).ucdb; run -all; exit"
 
 wave: setup
 	@echo "--- Opening QuestaSim GUI for $(TEST_NAME) ---"

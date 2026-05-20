@@ -27,6 +27,8 @@ package ibex_core_test_pkg;
   `include "ibex_core_dret_test.sv"
   `include "ibex_core_irq_csr_test.sv"
   `include "ibex_core_reset_test.sv"
+  `include "ibex_core_nmi_test.sv"
+  `include "ibex_core_mem_stress_test.sv"
 
 endpackage : ibex_core_test_pkg
 
