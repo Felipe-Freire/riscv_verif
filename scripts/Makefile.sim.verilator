@@ -1,0 +1,77 @@
+# ==============================================================================
+# Makefile.sim.verilator — Verilator Simulation & Coverage Targets
+# ==============================================================================
+# Included by scripts/Makefile when SIMULATOR=verilator.
+# All paths derived from $(PROJ_ROOT).
+# ==============================================================================
+
+# --- Verilator binary (built by Makefile.comp.verilator) ---
+VERILATOR_BIN := $(OUT_DIR)/obj_dir/Vibex_core_tb_top
+
+# --- riscv-dv Generator (shared with QuestaSim) ---
+RISCVDV_RUN_CMD := python3 $(PROJ_ROOT)/vendor/riscv-dv/run.py
+
+.PHONY: gen sim cov_merge cov_report cov_export cov_gui
+
+gen: setup
+	@echo "--- Generating Stimulus: $(TEST_NAME) ($(ITERATIONS) iter) ---"
+	$(RISCVDV_RUN_CMD) --target $(ISA) -ct $(CUSTOM_TARGET) --test $(TEST_NAME) \
+	--iterations $(ITERATIONS) --simulator questa -o $(PROJ_ROOT)/out_tests \
+	-tl $(PROJ_ROOT)/scripts/test_config.yaml --steps gen
+
+sim: setup
+	@echo "--- [Verilator] Running Test: $(TEST_NAME) (Seed: $(SEED)) ---"
+	$(VERILATOR_BIN) \
+		--sv_seed $(SEED) \
+	  +UVM_TESTNAME=$(TEST_RTL) \
+		+UVM_VERBOSITY=$(VERBOSITY) \
+		+HEX_FILE=$(HEX_FILE) \
+		+TOHOST_ADDR=$(TOHOST_ADDR) \
+		+UVM_TIMEOUT=10000000000ns,YES \
+	  +verilator+coverage+file+$(OUT_DIR)/cov/sim_$(TEST_NAME)_$(SEED).dat \
+	  2>&1 | tee $(LOG_DIR)/sim_$(TEST_NAME)_$(SEED).log
+	@echo "--- [Verilator] Simulation complete ---"
+
+# ==============================================================================
+# Coverage Targets (verilator_coverage + LCOV)
+# ==============================================================================
+
+cov_merge: setup
+	@echo "--- [Verilator] Merging coverage .dat files ---"
+	verilator_coverage --write $(OUT_DIR)/cov/merged_regression.dat \
+	  $(OUT_DIR)/cov/sim_*.dat
+
+cov_report:
+	@echo "--- [Verilator] Generating annotated source coverage ---"
+	verilator_coverage --annotate $(OUT_DIR)/cov/annotated \
+	  --annotate-all \
+	  $(OUT_DIR)/cov/merged_regression.dat
+	@echo "--- [Verilator] Annotated source at: $(OUT_DIR)/cov/annotated/ ---"
+	@echo ""
+	@# --- Optional: LCOV HTML report ---
+	@if command -v lcov >/dev/null 2>&1 && command -v genhtml >/dev/null 2>&1; then \
+	  echo "--- [Verilator] Generating LCOV HTML report ---"; \
+	  verilator_coverage --write-info $(OUT_DIR)/cov/verilator.info \
+	    $(OUT_DIR)/cov/merged_regression.dat; \
+	  genhtml $(OUT_DIR)/cov/verilator.info \
+	    --output-directory $(OUT_DIR)/cov/html_report \
+	    --title "Ibex Verilator Coverage" \
+	    --prefix $(PROJ_ROOT) \
+	    --no-function-coverage; \
+	  echo "--- [Verilator] HTML report at: $(OUT_DIR)/cov/html_report/index.html ---"; \
+	else \
+	  echo "--- [Verilator] LCOV not found. Install with: sudo apt install lcov ---"; \
+	  echo "--- [Verilator] Skipping HTML report generation. ---"; \
+	fi
+
+cov_export:
+	@echo "--- [Verilator] Exporting coverage summary to TXT ---"
+	verilator_coverage --rank $(OUT_DIR)/cov/merged_regression.dat \
+	  > $(OUT_DIR)/cov/cov_details.txt 2>&1 || true
+	@echo "--- [Verilator] Coverage summary at: $(OUT_DIR)/cov/cov_details.txt ---"
+
+# No GUI for Verilator — direct user to HTML report
+cov_gui:
+	@echo "--- [Verilator] No GUI available. Use HTML report instead: ---"
+	@echo "    $(OUT_DIR)/cov/html_report/index.html"
+	@echo "    Run 'make cov_report SIMULATOR=verilator' to generate it."

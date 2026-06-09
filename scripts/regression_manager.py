@@ -363,6 +363,7 @@ class RegressionManager:
 
     # ---- Phase 5: Coverage (Sequential) ----
     if 'cov' in self.args.steps:
+      self.run_cmd(self._make_cmd("cov_merge"))
       self.run_cmd(self._make_cmd("cov_report"))
       self.run_cmd(self._make_cmd("cov_export"))
       self.generate_tcc_report()

@@ -79,8 +79,15 @@ class uvma_rvfi_mon extends uvm_monitor;
         trn.ext_debug_mode       = cntxt.vif.mon_cb.rvfi_ext_debug_mode;
         trn.ext_rf_wr_suppress   = cntxt.vif.mon_cb.rvfi_ext_rf_wr_suppress;
         trn.ext_mcycle           = cntxt.vif.mon_cb.rvfi_ext_mcycle;
-        trn.ext_mhpmcounters     = cntxt.vif.mon_cb.rvfi_ext_mhpmcounters;
-        trn.ext_mhpmcountersh    = cntxt.vif.mon_cb.rvfi_ext_mhpmcountersh;
+
+        foreach (cntxt.vif.rvfi_ext_mhpmcounters[i]) begin
+          trn.ext_mhpmcounters[i] = cntxt.vif.rvfi_ext_mhpmcounters[i];
+        end
+
+        foreach (cntxt.vif.rvfi_ext_mhpmcountersh[i]) begin
+          trn.ext_mhpmcountersh[i] = cntxt.vif.rvfi_ext_mhpmcountersh[i];
+        end
+        
         trn.ext_ic_scr_key_valid = cntxt.vif.mon_cb.rvfi_ext_ic_scr_key_valid;
         trn.ext_irq_valid        = cntxt.vif.mon_cb.rvfi_ext_irq_valid;
 

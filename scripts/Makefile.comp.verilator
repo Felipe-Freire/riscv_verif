@@ -1,0 +1,142 @@
+# ==============================================================================
+# Makefile.comp.verilator — Verilator Compilation Targets
+# ==============================================================================
+# Included by scripts/Makefile when SIMULATOR=verilator.
+# All paths derived from $(PROJ_ROOT).
+# ==============================================================================
+
+# --- Verilator Config ---
+VERILATOR        := verilator
+COSIM_SPIKE_PATH ?= /opt/lowrisc_spike_cosim
+UVM_HOME      ?= /home/felipe/Documents/uvm-1.2
+
+# --- Output binary ---
+VERILATOR_OBJ_DIR := $(OUT_DIR)/obj_dir
+VERILATOR_BIN     := $(VERILATOR_OBJ_DIR)/Vibex_core_tb_top
+
+# --- Verilator core flags ---
+# --cc:       Generate C++ model
+# --exe:      Build an executable (link tb_top.cpp)
+# --build:    Run make automatically after generation
+# --coverage: Enable line + toggle coverage
+# --assert:   Enable assertions (but we use -Wno-fatal for SVA compat)
+VERILATOR_FLAGS := --binary --timing \
+  -j $(shell nproc) \
+  --timescale 1ns/1ps \
+  -Wno-lint -Wno-style -Wno-SYMRSVDWORD -Wno-IGNOREDRETURN -Wno-fatal \
+  --top-module ibex_core_tb_top \
+  --Mdir $(VERILATOR_OBJ_DIR) \
+  --coverage \
+  --assert \
+  +define+UVM_NO_DPI \
+  +incdir+$(UVM_HOME)/src \
+  $(UVM_HOME)/src/uvm_pkg.sv \
+  -DRVFI \
+  -DINC_ASSERT \
+  -DDM_ADDR=1A11_0000 \
+  -DDM_ADDR_MASK=0000_0FFF \
+  -DBOOT_ADDR=8000_0000 \
+  -DDEBUG_MODE_HALT_ADDR=8000_0000 \
+  -DDEBUG_MODE_EXCEPTION_ADDR=8000_0008
+
+# Optional waveform tracing (enable with WAVES=1 on command line)
+ifeq ($(WAVES), 1)
+  VERILATOR_FLAGS += --trace-fst
+endif
+
+# --- Include paths for RTL ---
+VERILATOR_INCS := \
+  -I$(PROJ_ROOT)/rtl/ibex/rtl \
+  -I$(PROJ_ROOT)/rtl/ibex/vendor/lowrisc_ip/ip/prim/rtl \
+  -I$(PROJ_ROOT)/rtl/ibex/vendor/lowrisc_ip/dv/sv/dv_utils \
+  +incdir+$(COSIM_DIR) \
+  +incdir+$(COSIM_COMM)
+
+# --- C++ flags for DPI-C / Spike cosim compilation ---
+VERILATOR_CFLAGS := -std=c++17 -DRISCV_ENABLE_COMMITLOG \
+  -I$(COSIM_SPIKE_PATH)/include \
+  -I$(COSIM_SPIKE_PATH)/include/riscv \
+  -I$(COSIM_SPIKE_PATH)/include/fesvr \
+  -I$(COSIM_SPIKE_PATH)/include/softfloat \
+  -I$(COSIM_DIR) \
+  -I$(COSIM_COMM)
+
+# --- Linker flags: static Spike libraries + system deps ---
+# libriscv.a:  Core Spike ISS engine
+# libfesvr.a:  Frontend server
+# libdisasm.a: RISC-V disassembler
+# libfdt.a:    Flattened Device Tree
+# libsoftfloat.so: Soft-float emulation (dynamic — no static archive available)
+VERILATOR_LDFLAGS := \
+  $(COSIM_SPIKE_PATH)/lib/libriscv.a \
+  $(COSIM_SPIKE_PATH)/lib/libfesvr.a \
+  $(COSIM_SPIKE_PATH)/lib/libdisasm.a \
+  $(COSIM_SPIKE_PATH)/lib/libfdt.a \
+  -L$(COSIM_SPIKE_PATH)/lib -lsoftfloat \
+  -Wl,-rpath,$(COSIM_SPIKE_PATH)/lib \
+  -lpthread -ldl
+
+# --- C++ source files to compile alongside the Verilator model ---
+VERILATOR_CPP_SRCS := \
+  $(COSIM_DIR)/cosim_dpi.cc \
+  $(COSIM_DIR)/spike_cosim.cc \
+  $(COSIM_COMM)/spike_cosim_dpi.cc
+
+# ==============================================================================
+# Targets
+# ==============================================================================
+
+.PHONY: comp_rtl comp_tb opt dpi comp_asm
+
+# For Verilator, compilation is a single monolithic step (RTL + TB + DPI + link).
+# We keep the QuestaSim target names for compatibility with the regression manager.
+
+# No-op targets for phases that don't apply to Verilator's single-pass flow.
+dpi:
+	@echo "--- [Verilator] DPI: compiled as part of comp_tb ---"
+
+comp_rtl:
+	@echo "--- [Verilator] RTL: compiled as part of comp_tb ---"
+
+opt:
+	@echo "--- [Verilator] Optimization: not needed (compiled C++) ---"
+
+# The real compilation happens here.
+# Note: ibex_core_rtl_verilator.f is loaded BEFORE ibex_core_rtl.f to ensure
+# packages like prim_cipher_pkg are compiled before modules that use them.
+comp_tb: setup
+	@echo "--- [Verilator] Compiling RTL + TB + DPI (full build) ---"
+	$(VERILATOR) $(VERILATOR_FLAGS) \
+	  $(VERILATOR_INCS) \
+	  -CFLAGS "$(VERILATOR_CFLAGS)" \
+	  -LDFLAGS "$(VERILATOR_LDFLAGS)" \
+	  -f $(PROJ_ROOT)/scripts/ibex_core_rtl.f \
+    -f $(UVMA_CLK_RST_PATH)/uvma_clk_rst.f \
+    -f $(UVML_MEM_PATH)/uvml_mem.f \
+    -f $(UVMA_SIMPLE_MEM_PATH)/uvma_simple_mem.f \
+    -f $(UVMA_RVFI_PATH)/uvma_rvfi.f \
+    -f $(UVMA_INTERRUPT_PATH)/uvma_interrupt.f \
+    -f $(UVMA_ISACOV_PATH)/uvma_isacov.f \
+    -f $(IBEX_CORE_ENV_PATH)/ibex_core_env.f \
+    -f $(IBEX_CORE_TEST_PATH)/ibex_core_test.f \
+	  $(TB_DIR)/ibex_core_tb_top.sv \
+	  $(VERILATOR_CPP_SRCS) \
+	  2>&1 | tee $(LOG_DIR)/comp_verilator.log
+	@echo "--- [Verilator] Binary successfully built at: $(VERILATOR_BIN) ---"
+
+# --- Assembly Compilation (GCC Cross-Compiler) --- Shared with QuestaSim.
+GCC_CMD     := riscv32-unknown-elf-gcc
+OBJCOPY_CMD := riscv32-unknown-elf-objcopy
+NM_CMD      := riscv32-unknown-elf-nm
+GCC_FLAGS   := -march=rv32imc -mabi=ilp32 -static -mcmodel=medany \
+               -fvisibility=hidden -nostdlib -nostartfiles -T $(PROJ_ROOT)/scripts/link.ld \
+               -I $(USR_EXTENSION) -I $(CUSTOM_TARGET)
+
+comp_asm: setup
+	@echo "--- Compiling Assembly: $(ASM_FILE) ---"
+	@if [ -z "$(ASM_FILE)" ]; then echo "ASM_FILE not defined"; exit 1; fi
+	$(eval BASENAME := $(basename $(ASM_FILE)))
+	$(eval ELF_FILE := $(BASENAME).elf)
+	$(eval HEX_FILE_OUT := $(BASENAME).hex)
+	$(GCC_CMD) $(GCC_FLAGS) $(ASM_FILE) -o $(ELF_FILE)
+	$(OBJCOPY_CMD) -O verilog $(ELF_FILE) $(HEX_FILE_OUT)

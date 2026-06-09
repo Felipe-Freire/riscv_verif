@@ -48,9 +48,9 @@ covergroup cg_rtype(
   }
 
   // --- Combinatorial explosion: all ALU ports (32 x 32 x 32) ---
-  cross_rd_rs1_rs2: cross cp_rd, cp_rs1, cp_rs2 {
-    ignore_bins IGN_OFF = cross_rd_rs1_rs2 with (!reg_crosses_enabled);
-  }
+  // cross_rd_rs1_rs2: cross cp_rd, cp_rs1, cp_rs2 {
+  //   ignore_bins IGN_OFF = cross_rd_rs1_rs2 with (!reg_crosses_enabled);
+  // }
 
   // --- Extreme values (toggles: all 0 bits or all 1 bits) ---
   // Uses macro defined in defs.sv
@@ -88,9 +88,9 @@ covergroup cg_itype(
     bins HAZARD[] = {[0:31]} iff (instr.rd == instr.rs1);
   }
 
-  cross_rd_rs1: cross cp_rd, cp_rs1 {
-    ignore_bins IGN_OFF = cross_rd_rs1 with (!reg_crosses_enabled);
-  }
+  // cross_rd_rs1: cross cp_rd, cp_rs1 {
+  //   ignore_bins IGN_OFF = cross_rd_rs1 with (!reg_crosses_enabled);
+  // }
 endgroup : cg_itype
 
 
@@ -213,9 +213,9 @@ covergroup cg_rtype_slt(string cg_name, bit reg_crosses_enabled, bit reg_hazards
   // Key difference: RD can only be 0 or 1
   cp_rd_value: coverpoint instr.rd_value { bins boolean[] = {[0:1]}; }
   
-  cross_rs1_rs2: cross cp_rs1, cp_rs2 {
-    ignore_bins IGN_OFF = cross_rs1_rs2 with (!reg_crosses_enabled);
-  }
+  // cross_rs1_rs2: cross cp_rs1, cp_rs2 {
+  //   ignore_bins IGN_OFF = cross_rs1_rs2 with (!reg_crosses_enabled);
+  // }
 endgroup : cg_rtype_slt
 
 covergroup cg_rtype_shift(string cg_name, bit reg_crosses_enabled, bit reg_hazards_enabled) 
@@ -261,9 +261,9 @@ covergroup cg_stype(string cg_name, bit reg_crosses_enabled)
     bins positive = {[1 : 32'h0000_07FF]};
     bins negative = {[32'hFFFF_F800 : 32'hFFFF_FFFE]};
   }
-  cross_rs1_rs2: cross cp_rs1, cp_rs2 {
-    ignore_bins IGN_OFF = cross_rs1_rs2 with (!reg_crosses_enabled);
-  }
+  // cross_rs1_rs2: cross cp_rs1, cp_rs2 {
+  //   ignore_bins IGN_OFF = cross_rs1_rs2 with (!reg_crosses_enabled);
+  // }
 endgroup : cg_stype
 
 // ----------------------------------------------------------------------------

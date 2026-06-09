@@ -85,9 +85,8 @@ ifeq ($(SIMULATOR), questa)
   include $(PROJ_ROOT)/scripts/Makefile.comp
   include $(PROJ_ROOT)/scripts/Makefile.sim
 else ifeq ($(SIMULATOR), verilator)
-  $(info *** Verilator backend: not yet implemented ***)
-  # Future: include $(PROJ_ROOT)/scripts/Makefile.comp.verilator
-  # Future: include $(PROJ_ROOT)/scripts/Makefile.sim.verilator
+  include $(PROJ_ROOT)/scripts/Makefile.comp.verilator
+  include $(PROJ_ROOT)/scripts/Makefile.sim.verilator
 else
   $(error Unsupported SIMULATOR='$(SIMULATOR)'. Supported values: questa, verilator)
 endif

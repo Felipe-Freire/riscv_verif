@@ -39,8 +39,11 @@ interface uvma_rvfi_instr_if (input logic clk, input logic rst_n);
   logic        rvfi_ext_debug_mode;
   logic        rvfi_ext_rf_wr_suppress;
   logic [63:0] rvfi_ext_mcycle;
+
+  // Unpacked arrays
   logic [31:0] rvfi_ext_mhpmcounters  [10];
   logic [31:0] rvfi_ext_mhpmcountersh [10];
+
   logic        rvfi_ext_ic_scr_key_valid;
   logic        rvfi_ext_irq_valid;
 
@@ -57,7 +60,8 @@ interface uvma_rvfi_instr_if (input logic clk, input logic rst_n);
     input rvfi_mem_addr, rvfi_mem_rmask, rvfi_mem_wmask, rvfi_mem_rdata, rvfi_mem_wdata;
     input rvfi_ext_pre_mip, rvfi_ext_post_mip, rvfi_ext_nmi, rvfi_ext_nmi_int;
     input rvfi_ext_debug_req, rvfi_ext_debug_mode, rvfi_ext_rf_wr_suppress, rvfi_ext_mcycle;
-    input rvfi_ext_mhpmcounters, rvfi_ext_mhpmcountersh, rvfi_ext_ic_scr_key_valid, rvfi_ext_irq_valid;
+    // input rvfi_ext_mhpmcounters, rvfi_ext_mhpmcountersh;
+    input rvfi_ext_ic_scr_key_valid, rvfi_ext_irq_valid;
   endclocking
 
 endinterface : uvma_rvfi_instr_if

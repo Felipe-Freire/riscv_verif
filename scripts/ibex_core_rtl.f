@@ -1,9 +1,13 @@
 # --- Include Paths required for Ibex ---
 +incdir+${IBEX_RTL_PATH}
++incdir+${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl
++incdir+${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim_generic/rtl
 
 # --- Base Vendor Packages and Primitives ---
 ${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl/prim_util_pkg.sv
 ${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl/prim_mubi_pkg.sv
+${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl/prim_count_pkg.sv
+${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl/prim_cipher_pkg.sv
 ${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv
 ${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl/prim_assert_standard_macros.svh
 ${IBEX_RTL_PATH}/../vendor/lowrisc_ip/ip/prim/rtl/prim_assert.sv
