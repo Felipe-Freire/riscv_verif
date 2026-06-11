@@ -42,7 +42,7 @@ def parse_arguments():
                       help="Number of parallel simulation workers (default: cpu_count - 2)")
   parser.add_argument('--sim_timeout', type=int, default=600,
                       help="Per-simulation timeout in seconds (default: 600)")
-  parser.add_argument('--simulator', choices=['questa', 'verilator'], default='questa',
+  parser.add_argument('--simulator', choices=['questa', 'verilator', 'vivado'], default='questa',
                       help="EDA simulator backend (default: questa)")
   parser.add_argument('--cov_gui', action='store_true',
                       help="Open the global coverage report in Questa GUI.")

@@ -29,3 +29,5 @@ out_tests/*
 design.bin
 GEMINI.md
 *.logerr
+*xsim.dir
+*.pb

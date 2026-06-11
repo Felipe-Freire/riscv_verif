@@ -1,0 +1,46 @@
+# ==============================================================================
+# Makefile.sim.vivado - Vivado Simulation & Coverage Targets
+# ==============================================================================
+
+# --- Vivado Simulator ---
+XSIM := xsim
+
+# --- riscv-dv Generator ---
+RISCVDV_RUN_CMD := python3 $(PROJ_ROOT)/vendor/riscv-dv/run.py
+
+.PHONY: gen sim wave clean_waves
+
+gen: setup
+	@echo "--- Generating Stimulus: $(TEST_NAME) ($(ITERATIONS) iter) ---"
+	$(RISCVDV_RUN_CMD) --target $(ISA) -ct $(CUSTOM_TARGET) --test $(TEST_NAME) \
+	--iterations $(ITERATIONS) --simulator vcs -o $(PROJ_ROOT)/out_tests \
+	-tl $(PROJ_ROOT)/scripts/test_config.yaml --steps gen
+	# Note: riscv-dv does not natively list 'vivado'. Using 'vcs' as dummy simulator to bypass assertion errors, since riscv-dv is only generating asm/hex at this step.
+
+sim: setup
+	@echo "--- Running Test: $(TEST_NAME) (Seed: $(SEED)) ---"
+	export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; \
+	$(XSIM) ibex_core_tb_top_opt \
+	-R \
+	-sv_seed $(SEED) \
+	-testplusarg UVM_TESTNAME=$(TEST_RTL) \
+	-testplusarg UVM_VERBOSITY=$(VERBOSITY) \
+	-testplusarg HEX_FILE=$(HEX_FILE) \
+	-testplusarg TOHOST_ADDR=$(TOHOST_ADDR) \
+	-testplusarg UVM_TIMEOUT=10000000000ns,YES \
+	-log $(LOG_DIR)/sim_$(TEST_NAME)_$(SEED).log
+
+wave: setup
+	@echo "--- Opening Vivado GUI for $(TEST_NAME) ---"
+	export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; \
+	$(XSIM) ibex_core_tb_top_opt \
+	-gui \
+	-testplusarg UVM_TESTNAME=$(TEST_RTL) \
+	-testplusarg UVM_VERBOSITY=$(VERBOSITY) \
+	-testplusarg HEX_FILE=$(HEX_FILE) \
+	-testplusarg TOHOST_ADDR=$(TOHOST_ADDR) \
+	-testplusarg UVM_TIMEOUT=10000000000ns,YES
+
+clean_waves:
+	@echo "--- Cleaning Vivado Waveform Databases ---"
+	rm -rf *.wdb *.pb xsim.dir/ .Xil/

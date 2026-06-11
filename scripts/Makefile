@@ -79,7 +79,7 @@ clean:
 	rm -rf $(OUT_DIR) work transcript *.wlf modelsim.ini cosim_dpi.so
 
 # ==============================================================================
-# Simulator-Specific Includes (Pillar 4)
+# Simulator-Specific Includes
 # ==============================================================================
 ifeq ($(SIMULATOR), questa)
   include $(PROJ_ROOT)/scripts/Makefile.comp
@@ -87,6 +87,9 @@ ifeq ($(SIMULATOR), questa)
 else ifeq ($(SIMULATOR), verilator)
   include $(PROJ_ROOT)/scripts/Makefile.comp.verilator
   include $(PROJ_ROOT)/scripts/Makefile.sim.verilator
+else ifeq ($(SIMULATOR), vivado)
+  include $(PROJ_ROOT)/scripts/Makefile.comp.vivado
+  include $(PROJ_ROOT)/scripts/Makefile.sim.vivado
 else
-  $(error Unsupported SIMULATOR='$(SIMULATOR)'. Supported values: questa, verilator)
+  $(error Unsupported SIMULATOR='$(SIMULATOR)'. Supported values: questa, verilator, vivado)
 endif

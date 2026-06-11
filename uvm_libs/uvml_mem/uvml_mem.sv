@@ -68,7 +68,8 @@ class uvml_mem extends uvm_object;
         if (code > 0) begin
           if (token[0] == "@") begin
             token = token.substr(1, token.len() - 1);
-            void'($sscanf(token, "%h", current_addr));
+            // void'($sscanf(token, "%h", current_addr));
+            code = $sscanf(token, "%h", current_addr);
           end else begin
             code = $sscanf(token, "%h", byte_val);
             if (code == 1) begin

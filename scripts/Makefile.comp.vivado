@@ -1,0 +1,138 @@
+# ==============================================================================
+# Makefile.comp.vivado - Vivado Compilation & Elaboration Targets
+# ==============================================================================
+
+# --- Vivado Tools ---
+XVLOG := xvlog -sv
+XELAB := xelab
+
+# --- DPI-C Config ---
+# Ensure Spike paths are correctly set in the environment
+VIVADO_INCLUDE_PATH := $(XILINX_VIVADO)/data/xsim/include
+COSIM_SPIKE_PATH ?= /opt/lowrisc_spike_cosim
+CXX              := g++
+
+CXXFLAGS         := -shared -fPIC -std=c++17 \
+                    -DRISCV_ENABLE_COMMITLOG \
+										-I$(VIVADO_INCLUDE_PATH) \
+                    -I$(COSIM_SPIKE_PATH)/include \
+                    -I$(COSIM_SPIKE_PATH)/include/softfloat \
+                    -I$(COSIM_SPIKE_PATH)/include/riscv \
+                    -I$(COSIM_SPIKE_PATH)/include/fesvr
+
+LDFLAGS          := $(COSIM_SPIKE_PATH)/lib/libriscv.a \
+                    $(COSIM_SPIKE_PATH)/lib/libfesvr.a \
+                    $(COSIM_SPIKE_PATH)/lib/libdisasm.a \
+                    $(COSIM_SPIKE_PATH)/lib/libfdt.a
+
+# Vivado requires -d instead of +define+
+ARCH_DEFINES := -d DM_ADDR=1A11_0000 \
+                -d DM_ADDR_MASK=0000_0FFF \
+                -d BOOT_ADDR=8000_0000 \
+                -d DEBUG_MODE_HALT_ADDR=8000_0000 \
+                -d DEBUG_MODE_EXCEPTION_ADDR=8000_0008
+
+VIVADO_F_DIR := $(OUT_DIR)/vivado_f_files
+
+# List all original .f files that need translation
+UVM_F_FILES := \
+    $(PROJ_ROOT)/scripts/ibex_core_rtl.f \
+    $(IBEX_CORE_ENV_PATH)/ibex_core_env.f \
+    $(UVMA_CLK_RST_PATH)/uvma_clk_rst.f \
+    $(UVMA_INTERRUPT_PATH)/uvma_interrupt.f \
+    $(UVMA_ISACOV_PATH)/uvma_isacov.f \
+    $(UVMA_RVFI_PATH)/uvma_rvfi.f \
+    $(UVMA_SIMPLE_MEM_PATH)/uvma_simple_mem.f \
+    $(UVML_MEM_PATH)/uvml_mem.f \
+		$(IBEX_CORE_TEST_PATH)/ibex_core_test.f
+
+.PHONY: translate_f_files
+
+translate_f_files: setup
+	@echo "--- Executing Dynamic Translation for Vivado File Lists ---"
+	@mkdir -p $(VIVADO_F_DIR)
+	@for original_file in $(UVM_F_FILES); do \
+		if [ -f "$$original_file" ]; then \
+			filename=$$(basename $$original_file); \
+			cat $$original_file | \
+			envsubst | \
+			sed -e 's/+incdir+/-i /g' -e 's/+define+/-d /g' | \
+			grep -v '^[[:space:]]*#' \
+			> $(VIVADO_F_DIR)/$$filename; \
+		else \
+			echo "WARNING: File not found - $$original_file"; \
+		fi \
+	done
+
+.PHONY: dpi comp_rtl comp_tb opt comp_asm
+
+dpi: setup
+	@echo "--- Compiling C++ Wrapper for DPI-C ---"
+	$(CXX) $(CXXFLAGS) -I$(COSIM_DIR) $(COSIM_DIR)/*.cc -I$(COSIM_COMM) $(COSIM_COMM)/spike_cosim_dpi.cc $(LDFLAGS) -o cosim_dpi.so
+
+comp_rtl: translate_f_files
+	@echo "--- Parsing RTL Design (Vivado xvlog) ---"
+	$(XVLOG) \
+	$(ARCH_DEFINES) \
+	-d RVFI \
+	-d INC_ASSERT \
+	-i $(VENDOR_DIR)/ip/prim/rtl \
+	-i $(VENDOR_DIR)/dv/sv/dv_utils \
+	-f $(VIVADO_F_DIR)/ibex_core_rtl.f \
+	-log $(LOG_DIR)/comp_rtl.log
+
+comp_tb: dpi translate_f_files
+	@echo "--- Parsing Verification Environment (Vivado xvlog) ---"
+	$(XVLOG) -L uvm \
+	$(ARCH_DEFINES) \
+	-d RVFI \
+	-d INC_ASSERT \
+	-i $(VENDOR_DIR)/ip/prim/rtl \
+	-i $(VENDOR_DIR)/dv/sv/dv_utils \
+	-i $(COSIM_DIR) \
+	-i $(COSIM_COMM) \
+	-f $(VIVADO_F_DIR)/uvma_clk_rst.f \
+	-f $(VIVADO_F_DIR)/uvml_mem.f \
+	-f $(VIVADO_F_DIR)/uvma_simple_mem.f \
+	-f $(VIVADO_F_DIR)/uvma_rvfi.f \
+	-f $(VIVADO_F_DIR)/uvma_interrupt.f \
+	-f $(VIVADO_F_DIR)/uvma_isacov.f \
+	-f $(VIVADO_F_DIR)/ibex_core_env.f \
+	-f $(VIVADO_F_DIR)/ibex_core_test.f \
+	$(TB_DIR)/ibex_core_tb_top.sv \
+	-log $(LOG_DIR)/comp_tb.log
+
+opt: comp_rtl comp_tb
+	@echo "--- Elaborating Design (Vivado xelab) ---"
+	ulimit -s unlimited; \
+	env -u CXX -u CXXFLAGS -u LDFLAGS -u LIBRARY_PATH -u LD_LIBRARY_PATH \
+	$(XELAB) \
+	-v 2 \
+	-L uvm \
+	-timescale 1ns/1ps \
+	-top ibex_core_tb_top \
+	-snapshot ibex_core_tb_top_opt \
+	-sv_lib /home/felipe/Documents/Projects/riscv_verif/sim/cosim_dpi \
+	-debug typical \
+	-mt off \
+	--relax \
+	--O0 \
+	-log $(LOG_DIR)/opt.log
+
+# --- Assembly Compilation (GCC Cross-Compiler) ---
+# Unchanged - GCC architecture relies on standard RISC-V toolchain
+GCC_CMD     := riscv32-unknown-elf-gcc
+OBJCOPY_CMD := riscv32-unknown-elf-objcopy
+NM_CMD      := riscv32-unknown-elf-nm
+GCC_FLAGS   := -march=rv32imc -mabi=ilp32 -static -mcmodel=medany \
+               -fvisibility=hidden -nostdlib -nostartfiles -T $(PROJ_ROOT)/scripts/link.ld \
+               -I $(USR_EXTENSION) -I $(CUSTOM_TARGET)
+
+comp_asm: setup
+	@echo "--- Compiling Assembly: $(ASM_FILE) ---"
+	@if [ -z "$(ASM_FILE)" ]; then echo "ASM_FILE not defined"; exit 1; fi
+	$(eval BASENAME := $(basename $(ASM_FILE)))
+	$(eval ELF_FILE := $(BASENAME).elf)
+	$(eval HEX_FILE_OUT := $(BASENAME).hex)
+	$(GCC_CMD) $(GCC_FLAGS) $(ASM_FILE) -o $(ELF_FILE)
+	$(OBJCOPY_CMD) -O verilog $(ELF_FILE) $(HEX_FILE_OUT)
