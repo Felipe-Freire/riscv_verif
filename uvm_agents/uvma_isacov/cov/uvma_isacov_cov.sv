@@ -62,54 +62,51 @@ class uvma_isacov_cov extends uvm_component;
   endfunction
   
   function void build_covergroups();
-    bit cr = cfg.reg_crosses_enabled;
-    bit hz = cfg.reg_hazards_enabled;
-
     rv32i_opcodes_cg = new();
-    rv32_seq_cg      = new(hz);
+    rv32_seq_cg      = new();
 
     if (cfg.ext_i_supported) begin
-      rv32i_add_cg  = new("rv32i_add_cg", cr, hz);
-      rv32i_sub_cg  = new("rv32i_sub_cg", cr, hz);
-      rv32i_and_cg  = new("rv32i_and_cg", cr, hz);
-      rv32i_or_cg   = new("rv32i_or_cg",  cr, hz);
-      rv32i_xor_cg  = new("rv32i_xor_cg", cr, hz);
+      rv32i_add_cg  = new("rv32i_add_cg");
+      rv32i_sub_cg  = new("rv32i_sub_cg");
+      rv32i_and_cg  = new("rv32i_and_cg");
+      rv32i_or_cg   = new("rv32i_or_cg");
+      rv32i_xor_cg  = new("rv32i_xor_cg");
       
-      rv32i_slt_cg  = new("rv32i_slt_cg", cr, hz);
-      rv32i_sltu_cg = new("rv32i_sltu_cg", cr, hz);
+      rv32i_slt_cg  = new("rv32i_slt_cg");
+      rv32i_sltu_cg = new("rv32i_sltu_cg");
       
-      rv32i_sll_cg  = new("rv32i_sll_cg", cr, hz);
-      rv32i_srl_cg  = new("rv32i_srl_cg", cr, hz);
-      rv32i_sra_cg  = new("rv32i_sra_cg", cr, hz);
+      rv32i_sll_cg  = new("rv32i_sll_cg");
+      rv32i_srl_cg  = new("rv32i_srl_cg");
+      rv32i_sra_cg  = new("rv32i_sra_cg");
 
-      rv32i_addi_cg = new("rv32i_addi_cg", cr, hz);
-      rv32i_andi_cg = new("rv32i_andi_cg", cr, hz);
-      rv32i_ori_cg  = new("rv32i_ori_cg",  cr, hz);
-      rv32i_xori_cg = new("rv32i_xori_cg", cr, hz);
-      rv32i_jalr_cg = new("rv32i_jalr_cg", cr, hz);
+      rv32i_addi_cg = new("rv32i_addi_cg");
+      rv32i_andi_cg = new("rv32i_andi_cg");
+      rv32i_ori_cg  = new("rv32i_ori_cg");
+      rv32i_xori_cg = new("rv32i_xori_cg");
+      rv32i_jalr_cg = new("rv32i_jalr_cg");
       
-      rv32i_slti_cg  = new("rv32i_slti_cg", cr, hz);
-      rv32i_sltiu_cg = new("rv32i_sltiu_cg", cr, hz);
-      rv32i_slli_cg  = new("rv32i_slli_cg", cr, hz);
-      rv32i_srli_cg  = new("rv32i_srli_cg", cr, hz);
-      rv32i_srai_cg  = new("rv32i_srai_cg", cr, hz);
+      rv32i_slti_cg  = new("rv32i_slti_cg");
+      rv32i_sltiu_cg = new("rv32i_sltiu_cg");
+      rv32i_slli_cg  = new("rv32i_slli_cg");
+      rv32i_srli_cg  = new("rv32i_srli_cg");
+      rv32i_srai_cg  = new("rv32i_srai_cg");
 
-      rv32i_lb_cg  = new("rv32i_lb_cg", cr, hz);
-      rv32i_lh_cg  = new("rv32i_lh_cg", cr, hz);
-      rv32i_lw_cg  = new("rv32i_lw_cg", cr, hz);
-      rv32i_lbu_cg = new("rv32i_lbu_cg", cr, hz);
-      rv32i_lhu_cg = new("rv32i_lhu_cg", cr, hz);
+      rv32i_lb_cg  = new("rv32i_lb_cg");
+      rv32i_lh_cg  = new("rv32i_lh_cg");
+      rv32i_lw_cg  = new("rv32i_lw_cg");
+      rv32i_lbu_cg = new("rv32i_lbu_cg");
+      rv32i_lhu_cg = new("rv32i_lhu_cg");
 
-      rv32i_sb_cg = new("rv32i_sb_cg", cr);
-      rv32i_sh_cg = new("rv32i_sh_cg", cr);
-      rv32i_sw_cg = new("rv32i_sw_cg", cr);
+      rv32i_sb_cg = new("rv32i_sb_cg");
+      rv32i_sh_cg = new("rv32i_sh_cg");
+      rv32i_sw_cg = new("rv32i_sw_cg");
 
-      rv32i_beq_cg  = new("rv32i_beq_cg", cr);
-      rv32i_bne_cg  = new("rv32i_bne_cg", cr);
-      rv32i_blt_cg  = new("rv32i_blt_cg", cr);
-      rv32i_bge_cg  = new("rv32i_bge_cg", cr);
-      rv32i_bltu_cg = new("rv32i_bltu_cg", cr);
-      rv32i_bgeu_cg = new("rv32i_bgeu_cg", cr);
+      rv32i_beq_cg  = new("rv32i_beq_cg");
+      rv32i_bne_cg  = new("rv32i_bne_cg");
+      rv32i_blt_cg  = new("rv32i_blt_cg");
+      rv32i_bge_cg  = new("rv32i_bge_cg");
+      rv32i_bltu_cg = new("rv32i_bltu_cg");
+      rv32i_bgeu_cg = new("rv32i_bgeu_cg");
 
       rv32i_lui_cg   = new("rv32i_lui_cg");
       rv32i_auipc_cg = new("rv32i_auipc_cg");
@@ -123,15 +120,15 @@ class uvma_isacov_cov extends uvm_component;
     end
 
     if (cfg.ext_m_supported) begin
-      rv32m_mul_cg    = new("rv32m_mul_cg", cr, hz);
-      rv32m_mulh_cg   = new("rv32m_mulh_cg", cr, hz);
-      rv32m_mulhsu_cg = new("rv32m_mulhsu_cg", cr, hz);
-      rv32m_mulhu_cg  = new("rv32m_mulhu_cg", cr, hz);
+      rv32m_mul_cg    = new("rv32m_mul_cg");
+      rv32m_mulh_cg   = new("rv32m_mulh_cg");
+      rv32m_mulhsu_cg = new("rv32m_mulhsu_cg");
+      rv32m_mulhu_cg  = new("rv32m_mulhu_cg");
       
-      rv32m_div_cg    = new("rv32m_div_cg", cr, hz);
-      rv32m_divu_cg   = new("rv32m_divu_cg", cr, hz);
-      rv32m_rem_cg    = new("rv32m_rem_cg", cr, hz);
-      rv32m_remu_cg   = new("rv32m_remu_cg", cr, hz);
+      rv32m_div_cg    = new("rv32m_div_cg");
+      rv32m_divu_cg   = new("rv32m_divu_cg");
+      rv32m_rem_cg    = new("rv32m_rem_cg");
+      rv32m_remu_cg   = new("rv32m_remu_cg");
 
       rv32m_div_results_cg  = new("rv32m_div_results_cg");
       rv32m_divu_results_cg = new("rv32m_divu_results_cg");
@@ -140,9 +137,9 @@ class uvma_isacov_cov extends uvm_component;
     end
 
     if (cfg.ext_zicsr_supported) begin
-      rv32zicsr_csrrw_cg  = new("rv32zicsr_csrrw_cg", cr);
-      rv32zicsr_csrrs_cg  = new("rv32zicsr_csrrs_cg", cr);
-      rv32zicsr_csrrc_cg  = new("rv32zicsr_csrrc_cg", cr);
+      rv32zicsr_csrrw_cg  = new("rv32zicsr_csrrw_cg");
+      rv32zicsr_csrrs_cg  = new("rv32zicsr_csrrs_cg");
+      rv32zicsr_csrrc_cg  = new("rv32zicsr_csrrc_cg");
       rv32zicsr_csrrwi_cg = new("rv32zicsr_csrrwi_cg");
       rv32zicsr_csrrsi_cg = new("rv32zicsr_csrrsi_cg");
       rv32zicsr_csrrci_cg = new("rv32zicsr_csrrci_cg");
@@ -155,6 +152,12 @@ class uvma_isacov_cov extends uvm_component;
 
   virtual function void write(uvma_isacov_mon_trn t);
     uvma_isacov_instr instr;
+    bit is_rd_rs1_hazard;
+    bit is_rd_rs2_hazard;
+    bit is_rs1_hazard;
+    bit is_rs2_hazard;
+    bit is_taken;
+    bit dir_back;
 
     if (!cfg.enabled || !cfg.cov_model_enabled) return;
     
@@ -163,84 +166,104 @@ class uvma_isacov_cov extends uvm_component;
     // Ignore illegal instructions (decode errors are not covered)
     if (instr.illegal || instr.name == UNKNOWN_INSTR) return;
 
+    // Evaluate hazards cleanly
+    is_rd_rs1_hazard = 0;
+    is_rd_rs2_hazard = 0;
+    is_rs1_hazard = 0;
+    is_rs2_hazard = 0;
+
+    if (cfg.reg_hazards_enabled) begin
+      is_rd_rs1_hazard = (instr.rd == instr.rs1);
+      is_rd_rs2_hazard = (instr.rd == instr.rs2);
+      if (instr_prev != null) begin
+        if (instr.rs1_valid && instr_prev.rd_valid && (instr.rs1 == instr_prev.rd))
+          is_rs1_hazard = 1;
+        if (instr.rs2_valid && instr_prev.rd_valid && (instr.rs2 == instr_prev.rd))
+          is_rs2_hazard = 1;
+      end
+    end
+
+    is_taken = instr.is_branch_taken();
+    dir_back = instr.immb[31];
+
     // 1. Stamp the global opcode dashboard
-    rv32i_opcodes_cg.sample(instr);
+    rv32i_opcodes_cg.sample(instr.name);
 
     // 2. Evaluate sequential hazards when history exists
-    if (instr_prev != null) begin
-      rv32_seq_cg.sample(instr, instr_prev);
+    if (instr_prev != null && cfg.reg_hazards_enabled) begin
+      rv32_seq_cg.sample(instr.rs1, instr.rs2, is_rs1_hazard, is_rs2_hazard);
     end
 
     // 3. Route to opcode-specific coverage template
     case (instr.name)
       // RV32I Base
-      ADD:   rv32i_add_cg.sample(instr);
-      SUB:   rv32i_sub_cg.sample(instr);
-      AND:   rv32i_and_cg.sample(instr);
-      OR:    rv32i_or_cg.sample(instr);
-      XOR:   rv32i_xor_cg.sample(instr);
-      SLT:   rv32i_slt_cg.sample(instr);
-      SLTU:  rv32i_sltu_cg.sample(instr);
-      SLL:   rv32i_sll_cg.sample(instr);
-      SRL:   rv32i_srl_cg.sample(instr);
-      SRA:   rv32i_sra_cg.sample(instr);
+      ADD:   rv32i_add_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      SUB:   rv32i_sub_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      AND:   rv32i_and_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      OR:    rv32i_or_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      XOR:   rv32i_xor_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      SLT:   rv32i_slt_cg.sample(instr.rs1, instr.rs2, instr.rd_value[0]);
+      SLTU:  rv32i_sltu_cg.sample(instr.rs1, instr.rs2, instr.rd_value[0]);
+      SLL:   rv32i_sll_cg.sample(instr.rs1, instr.rd, instr.rs2_value[4:0]);
+      SRL:   rv32i_srl_cg.sample(instr.rs1, instr.rd, instr.rs2_value[4:0]);
+      SRA:   rv32i_sra_cg.sample(instr.rs1, instr.rd, instr.rs2_value[4:0]);
 
-      ADDI:  rv32i_addi_cg.sample(instr);
-      ANDI:  rv32i_andi_cg.sample(instr);
-      ORI:   rv32i_ori_cg.sample(instr);
-      XORI:  rv32i_xori_cg.sample(instr);
-      SLTI:  rv32i_slti_cg.sample(instr);
-      SLTIU: rv32i_sltiu_cg.sample(instr);
-      SLLI:  rv32i_slli_cg.sample(instr);
-      SRLI:  rv32i_srli_cg.sample(instr);
-      SRAI:  rv32i_srai_cg.sample(instr);
-      JALR:  rv32i_jalr_cg.sample(instr);
+      ADDI:  rv32i_addi_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      ANDI:  rv32i_andi_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      ORI:   rv32i_ori_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      XORI:  rv32i_xori_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      SLTI:  rv32i_slti_cg.sample(instr.rs1, instr.rd_value[0]);
+      SLTIU: rv32i_sltiu_cg.sample(instr.rs1, instr.rd_value[0]);
+      SLLI:  rv32i_slli_cg.sample(instr.rs1, instr.rd, instr.immi[4:0]);
+      SRLI:  rv32i_srli_cg.sample(instr.rs1, instr.rd, instr.immi[4:0]);
+      SRAI:  rv32i_srai_cg.sample(instr.rs1, instr.rd, instr.immi[4:0]);
+      JALR:  rv32i_jalr_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
 
-      LB:    rv32i_lb_cg.sample(instr);
-      LH:    rv32i_lh_cg.sample(instr);
-      LW:    rv32i_lw_cg.sample(instr);
-      LBU:   rv32i_lbu_cg.sample(instr);
-      LHU:   rv32i_lhu_cg.sample(instr);
+      LB:    rv32i_lb_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      LH:    rv32i_lh_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      LW:    rv32i_lw_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      LBU:   rv32i_lbu_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
+      LHU:   rv32i_lhu_cg.sample(instr.rs1, instr.rd, instr.immi[11:0], is_rd_rs1_hazard);
 
-      SB:    rv32i_sb_cg.sample(instr);
-      SH:    rv32i_sh_cg.sample(instr);
-      SW:    rv32i_sw_cg.sample(instr);
+      SB:    rv32i_sb_cg.sample(instr.rs1, instr.rs2, instr.imms[11:0]);
+      SH:    rv32i_sh_cg.sample(instr.rs1, instr.rs2, instr.imms[11:0]);
+      SW:    rv32i_sw_cg.sample(instr.rs1, instr.rs2, instr.imms[11:0]);
 
-      BEQ:   rv32i_beq_cg.sample(instr);
-      BNE:   rv32i_bne_cg.sample(instr);
-      BLT:   rv32i_blt_cg.sample(instr);
-      BGE:   rv32i_bge_cg.sample(instr);
-      BLTU:  rv32i_bltu_cg.sample(instr);
-      BGEU:  rv32i_bgeu_cg.sample(instr);
+      BEQ:   rv32i_beq_cg.sample(instr.rs1, instr.rs2, is_taken, dir_back);
+      BNE:   rv32i_bne_cg.sample(instr.rs1, instr.rs2, is_taken, dir_back);
+      BLT:   rv32i_blt_cg.sample(instr.rs1, instr.rs2, is_taken, dir_back);
+      BGE:   rv32i_bge_cg.sample(instr.rs1, instr.rs2, is_taken, dir_back);
+      BLTU:  rv32i_bltu_cg.sample(instr.rs1, instr.rs2, is_taken, dir_back);
+      BGEU:  rv32i_bgeu_cg.sample(instr.rs1, instr.rs2, is_taken, dir_back);
 
-      LUI:   rv32i_lui_cg.sample(instr);
-      AUIPC: rv32i_auipc_cg.sample(instr);
-      JAL:   rv32i_jal_cg.sample(instr);
+      LUI:   rv32i_lui_cg.sample(instr.rd, instr.immu);
+      AUIPC: rv32i_auipc_cg.sample(instr.rd, instr.immu);
+      JAL:   rv32i_jal_cg.sample(instr.rd, dir_back);
 
-      ECALL:  rv32i_ecall_cg.sample(instr);
-      EBREAK: rv32i_ebreak_cg.sample(instr);
-      MRET:   rv32i_mret_cg.sample(instr);
-      WFI:    rv32i_wfi_cg.sample(instr);
+      ECALL:  rv32i_ecall_cg.sample(instr.name);
+      EBREAK: rv32i_ebreak_cg.sample(instr.name);
+      MRET:   rv32i_mret_cg.sample(instr.name);
+      WFI:    rv32i_wfi_cg.sample(instr.name);
       
       // RV32M
-      MUL:    rv32m_mul_cg.sample(instr);
-      MULH:   rv32m_mulh_cg.sample(instr);
-      MULHSU: rv32m_mulhsu_cg.sample(instr);
-      MULHU:  rv32m_mulhu_cg.sample(instr);
+      MUL:    rv32m_mul_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      MULH:   rv32m_mulh_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      MULHSU: rv32m_mulhsu_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
+      MULHU:  rv32m_mulhu_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);
       
-      DIV:    begin rv32m_div_cg.sample(instr);  rv32m_div_results_cg.sample(instr);  end
-      DIVU:   begin rv32m_divu_cg.sample(instr); rv32m_divu_results_cg.sample(instr); end
-      REM:    begin rv32m_rem_cg.sample(instr);  rv32m_rem_results_cg.sample(instr);  end
-      REMU:   begin rv32m_remu_cg.sample(instr); rv32m_remu_results_cg.sample(instr); end
+      DIV:    begin rv32m_div_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);  rv32m_div_results_cg.sample(instr.rs1_value, instr.rs2_value);  end
+      DIVU:   begin rv32m_divu_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard); rv32m_divu_results_cg.sample(instr.rs1_value, instr.rs2_value); end
+      REM:    begin rv32m_rem_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard);  rv32m_rem_results_cg.sample(instr.rs1_value, instr.rs2_value);  end
+      REMU:   begin rv32m_remu_cg.sample(instr.rs1, instr.rs2, instr.rd, instr.rs1_value, instr.rs2_value, instr.rd_value, is_rd_rs1_hazard, is_rd_rs2_hazard); rv32m_remu_results_cg.sample(instr.rs1_value, instr.rs2_value); end
 
       // Zicsr & Zifencei
-      CSRRW:  rv32zicsr_csrrw_cg.sample(instr);
-      CSRRS:  rv32zicsr_csrrs_cg.sample(instr);
-      CSRRC:  rv32zicsr_csrrc_cg.sample(instr);
-      CSRRWI: rv32zicsr_csrrwi_cg.sample(instr);
-      CSRRSI: rv32zicsr_csrrsi_cg.sample(instr);
-      CSRRCI: rv32zicsr_csrrci_cg.sample(instr);
-      FENCE_I: rv32zifencei_fence_i_cg.sample(instr);
+      CSRRW:  rv32zicsr_csrrw_cg.sample(instr.rs1, instr.rd, instr.csr_val);
+      CSRRS:  rv32zicsr_csrrs_cg.sample(instr.rs1, instr.rd, instr.csr_val);
+      CSRRC:  rv32zicsr_csrrc_cg.sample(instr.rs1, instr.rd, instr.csr_val);
+      CSRRWI: rv32zicsr_csrrwi_cg.sample(instr.rd, instr.rs1, instr.csr_val);
+      CSRRSI: rv32zicsr_csrrsi_cg.sample(instr.rd, instr.rs1, instr.csr_val);
+      CSRRCI: rv32zicsr_csrrci_cg.sample(instr.rd, instr.rs1, instr.csr_val);
+      FENCE_I: rv32zifencei_fence_i_cg.sample(instr.name);
 
       default: ; // Instructions silently ignored when unmapped
     endcase

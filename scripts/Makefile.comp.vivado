@@ -104,7 +104,6 @@ comp_tb: dpi translate_f_files
 
 opt: comp_rtl comp_tb
 	@echo "--- Elaborating Design (Vivado xelab) ---"
-	ulimit -s unlimited; \
 	env -u CXX -u CXXFLAGS -u LDFLAGS -u LIBRARY_PATH -u LD_LIBRARY_PATH \
 	$(XELAB) \
 	-v 2 \
@@ -114,9 +113,7 @@ opt: comp_rtl comp_tb
 	-snapshot ibex_core_tb_top_opt \
 	-sv_lib /home/felipe/Documents/Projects/riscv_verif/sim/cosim_dpi \
 	-debug typical \
-	-mt off \
 	--relax \
-	--O0 \
 	-log $(LOG_DIR)/opt.log
 
 # --- Assembly Compilation (GCC Cross-Compiler) ---
